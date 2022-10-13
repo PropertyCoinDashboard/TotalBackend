@@ -1,0 +1,59 @@
+version: '3.9'
+
+services:
+  sql:
+    container_name: stock-sql
+    image: mysql
+    ports:
+      - "3307:3306"
+    env_file:
+      - ./.env
+    environment:
+      - MYSQL_DATABASE=${DB_DATABASE}
+      - MYSQL_ROOT_PASSWORD=${DB_ROOT_PASSWORD}
+      - MYSQL_USERNAME=${DB_USERNAME}
+      - TZ=Asia/Seoul
+    command:
+      - --default-authentication-plugin=mysql_native_password
+      - --collation-server=utf8mb4_unicode_ci
+      - --character-set-server=utf8mb4
+      - --lower_case_table_names=1
+    volumes:
+      - .sqlVolume:/var/lib/mysql
+
+  backend:
+    container_name: stock-django
+    build: 
+      context: ./backend
+      dockerfile: Dockerfile
+    command: gunicorn config.wsgi --bind 0.0.0.0:8000
+    volumes:
+      - ./backend/:/backend
+      - static-volume:/static/
+    env_file:
+      - ./.env
+    ports:
+      - "8000:8000"
+    depends_on:
+      - sql
+
+  ngnix:
+    build: 
+      context: ./nginx
+      dockerfile: Dockerfile
+    container_name: stock-nginx
+    ports:
+      - "8080:8080"
+    volumes:
+      - ./nginx/nginx-setup.conf:/etc/nginx/con.f/nginx-setup.conf
+      - static-volume:/static/
+
+    depends_on:
+      - backend
+
+
+volumes:
+  mysql:
+  backend:
+  build_file:
+  static-volume:
