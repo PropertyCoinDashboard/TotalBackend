@@ -10,7 +10,7 @@ services:
       - ./.env
     environment:
       - MYSQL_DATABASE=${DB_DATABASE}
-      - MYSQL_ROOT_PASSWORD=${DB_ROOT_PASSWORD}
+      - MYSQL_ROOT_PASSWORD=${DB_PASSWORD}
       - MYSQL_USERNAME=${DB_USERNAME}
       - TZ=Asia/Seoul
     command:
@@ -47,13 +47,13 @@ services:
     volumes:
       - ./nginx/nginx-setup.conf:/etc/nginx/con.f/nginx-setup.conf
       - static-volume:/static/
-
     depends_on:
+      - sql
       - backend
-
 
 volumes:
   mysql:
+  nginx:
   backend:
   build_file:
   static-volume:
