@@ -4,9 +4,9 @@ from django.utils.translation import gettext_lazy as _
 
 # 공통 
 class SCCommonField(models.Model):
-    k_name = models.CharField(max_length=50, blank=False, null=False, default="")
-    e_name = models.CharField(max_length=10, default="")
-    market_name = models.CharField(max_length=10, default="")
+    k_name = models.CharField(max_length=20, blank=False, null=False, default="")
+    e_name = models.CharField(max_length=50, default="")
+    market_name = models.CharField(max_length=20, default="")
     
     class Meta:
         abstract: bool = True
@@ -45,8 +45,4 @@ class RealstateInformationlly(CommonField):
         
 
 
-class DataInjection(CommonField):
-    class Meta:
-        pass
-        # app_label = "default"
         

@@ -53,7 +53,7 @@ class User(AbstractBaseUser, PermissionsMixin, CommonField):
         blank=False, null=False
     )
     password = models.CharField(
-        verbose_name=_("패스워드"), max_length=100,
+        verbose_name=_("패스워드"), max_length=200,
         blank=False, null=False
     )
     
@@ -91,7 +91,7 @@ class NormalUser(AnonymousUser, CommonField):
         blank=False, null=False
     )
     password = models.CharField(
-        verbose_name=_("패스워드"), max_length=100,
+        verbose_name=_("패스워드"), max_length=200,
         blank=False, null=False
     )
     
@@ -101,3 +101,11 @@ class NormalUser(AnonymousUser, CommonField):
     class Meta:
         db_table: str = "normal_user"
         # app_label: str = "auth_user_db" 
+        
+
+class DataInjection(CommonField):
+    sync = models.BooleanField()
+    name = models.ForeignKey(NormalUser, on_delete=models.CASCADE)
+    
+    class Meta:
+        db_table: str = "user_sync_inject"

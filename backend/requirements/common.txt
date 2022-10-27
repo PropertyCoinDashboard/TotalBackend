@@ -10,7 +10,8 @@ django-debug-toolbar
 pytz
 mypy
 django-stub
-django-filter                 
+django-filter      
+requests           
 
 pymongo==3.12.1
 django-seed==0.3.1
