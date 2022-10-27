@@ -40,8 +40,8 @@ INSTALLED_APPS = [
     
     'rest_framework',
     
-    'dashboard',
-    'accounts',
+    'dashboard.apps.DashboardConfig',
+    'accounts.apps.AccountsConfig',
 ]
 
 
