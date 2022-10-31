@@ -14,7 +14,6 @@ class CoinSynchronizationSerializer(serializers.ModelSerializer):
     class Meta:
         model = DataInjection
         fields: List[str] = ["sync"]
-
-
+        
     
-                
+    

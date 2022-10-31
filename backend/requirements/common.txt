@@ -11,7 +11,8 @@ pytz
 mypy
 django-stub
 django-filter      
-requests           
+requests       
+drf-yasg    
 
 pymongo==3.12.1
 django-seed==0.3.1

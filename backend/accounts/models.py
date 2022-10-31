@@ -2,8 +2,8 @@ from django.db import models
 from django.utils.translation import gettext_lazy as _
 from django.contrib.auth.models import (
     BaseUserManager, AbstractBaseUser, PermissionsMixin, 
-    AnonymousUser
 )
+from django.core.validators import MinLengthValidator
 
 from typing import List, Any
 from argon2 import PasswordHasher
@@ -13,99 +13,109 @@ from dashboard.models import CommonField
 # 계정 injectionally
 # 프로토콜 설정 
 class UserManager(BaseUserManager):
-    def _create_user(self, email: str, name: str, password: PasswordHasher = None, **extra_field) -> None:
-        if not email:
-            raise ValueError("이미 이메일이 존재합니다..!")
+    use_in_migrations: bool = True
     
+    def _create_superuser(self, email: str, name: str, password: PasswordHasher, **extra_field):           
         user = self.model(
-            email = self.normalize_email(email),
-            name = name,
-            password = PasswordHasher().hash(password),
+            email=self.normalize_email(email),
+            name=name,
+            password=PasswordHasher().hash(password=password),
             **extra_field
         )
         user.set_password(password)
         user.save(using=self._db)
         
         return user
-    
-    def create_user(self, email: str, name: str, password: PasswordHasher = None, **extra_field) -> None:
-        extra_field.setdefault("is_staff", False)
-        extra_field.setdefault("is_admin", False)
-        extra_field.setdefault("is_superuser", False)
-        
-        return self._create_user(email, name, password, **extra_field)
-    
-    def create_superuser(self, email: str, name: str, password: PasswordHasher = None, **extra_field) -> None:
-        extra_field.setdefault("is_staff", True)
-        extra_field.setdefault("is_admin", True)
-        extra_field.setdefault("is_superuser", True)
-        
-        return self._create_user(email, name, password, **extra_field)
 
-
-class User(AbstractBaseUser, PermissionsMixin, CommonField):
+    def create_superuser(self, email: str, name: str, password: PasswordHasher, **extra_fields):
+        extra_fields.setdefault("is_staff", True)
+        extra_fields.setdefault("is_admin", True)
+        extra_fields.setdefault("is_superuser", True)
+        
+        if extra_fields.get("is_staff") is not True:
+            raise ValueError("슈퍼유저 권한은 관리자에게 문의하세요")
+        if extra_fields.get("is_superuser") is not True:
+            raise ValueError("슈퍼유저 권한은 관리자에게 문의하세요")
+        
+        return self._create_superuser(email=email, name=name, password=password, **extra_fields)
+    
+    
+class BasicInform(models.Model):
     email = models.EmailField(
-        verbose_name=_("이메일"), max_length=255, 
-        unique=True, blank=False, null=False
-    )
-    name = models.CharField(
-        verbose_name=_("이름"), max_length=5, 
-        blank=False, null=False
+        verbose_name=_("email"), max_length=50, 
+        blank=False, null=False, unique=True,
     )
     password = models.CharField(
-        verbose_name=_("패스워드"), max_length=200,
+        verbose_name=_("password"), max_length=128,
+        blank=False, null=False, validators=[MinLengthValidator(8, message="8자 이상 입력해주세요..!")]
+    )
+    created_at = models.DateTimeField(auto_now=True)
+    updated_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        abstract: bool = True
+        
+    
+class AdminUser(AbstractBaseUser, PermissionsMixin, BasicInform):
+    name = models.CharField(
+        verbose_name=_("name"), max_length=6, 
         blank=False, null=False
     )
-    
-    # 필수 필드 및 프로토콜 설정 
+
+    # 필수 setting 
+    is_superuser = models.BooleanField(default=False)
+    is_staff = models.BooleanField(default=True)
+    is_admin = models.BooleanField(default=True)
     is_active = models.BooleanField(default=True)
-    is_staff = models.BooleanField(default=False)
-    is_admin = models.BooleanField(default=False)
     
-    objects: UserManager[Any] = UserManager()
+    EMAIL_FIELD: str = "email"
     USERNAME_FIELD: str = "email"
     REQUIRED_FIELDS: List[str] = ["name", "password"]
-    
-    # 어드민 메서드 
+    objects: BaseUserManager[Any] = UserManager()
+        
     def __str__(self) -> str:
-        return f"{self.email}"
+        return self.name
     
-    def has_perm(self, perm, obj=None) -> bool:
+    # def get_absolute_url(self):
+    #     return reverse("model_detail", args=[self.pk])
+    
+    def has_perms(self, perm_list, obj) -> bool:
         return True
     
-    def has_module_perms(self, app_label) -> bool:
+    def has_module_perms(self, app_label: str) -> bool:
         return True
     
     class Meta:
         db_table: str = "admin_user"
-        # app_label: str = "auth_user_db" 
+        verbose_name = _("admin_user")
+        verbose_name_plural = _("admin_users")
 
-
-class NormalUser(AnonymousUser, CommonField):
-    email = models.EmailField(
-        verbose_name=_("이메일"), max_length=255, 
-        unique=True, blank=False, null=False
-    )
-    name = models.CharField(
-        verbose_name=_("이름"), max_length=5, 
-        blank=False, null=False
-    )
-    password = models.CharField(
-        verbose_name=_("패스워드"), max_length=200,
-        blank=False, null=False
+        
+class NormalUser(BasicInform):     
+    username = models.CharField(
+        max_length=20, verbose_name=_("유저이름"), 
+        validators=[MinLengthValidator(2, message="2자 이상 입력해주세요..!")],
+        null=False, blank=False, unique=True,
     )
     
-    def __str__(self) -> str:
-        return "일반유저"
+    def set_password(self, password: str) -> None:
+        self.password = PasswordHasher().hash(password)
+        self._password = self.password
+            
+    def __str__(self):
+        return self.email
     
     class Meta:
         db_table: str = "normal_user"
-        # app_label: str = "auth_user_db" 
+        verbose_name = _("normal_user")
+        verbose_name_plural = _("normal_users")
+                 
+    # def get_absolute_url(self):
+    #     return reverse("", args=[self.pk])
         
 
 class DataInjection(CommonField):
     sync = models.BooleanField()
-    name = models.ForeignKey(NormalUser, on_delete=models.CASCADE)
     
     class Meta:
         db_table: str = "user_sync_inject"

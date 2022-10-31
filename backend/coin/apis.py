@@ -1,34 +1,35 @@
-from rest_framework.viewsets import ModelViewSet
-from rest_framework.views import APIView
-
+from rest_framework.generics import CreateAPIView, DestroyAPIView
 from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.permissions import AllowAny
 
-import requests
 from dashboard.models import CoinInforamtionally
 from .serializer import CoinSynchronizationSerializer
+from api_injection.coin import upbit_coin_total_market_json
 
 
 
-# ModelViewSet 사용 가능 
-class CoinSynchronSet(APIView):
+class CoinSynchronSet(CreateAPIView):
     permission_classes = (AllowAny, )
     serializer_class = CoinSynchronizationSerializer
-
+    queryset = CoinInforamtionally.objects.all()
+        
     def post(self, request):
-        coin_serializer = self.serializer_class(data=request.data)
-        if coin_serializer.is_valid(raise_exception=True):
-            url = "https://api.upbit.com/v1/market/all?isDetails=false"
-            headers = {"accept": "application/json"}
-            response = requests.get(url, headers=headers)
-            info = response.json()
+        serializer = self.serializer_class(data=request.data)
+        if serializer.is_valid(raise_exception=True):
+            if serializer.data["sync"] == True:
+                self.queryset.all().delete()
+                return self.create()
+    
+    def create(self, *args, **kwargs):
+        coin_list = upbit_coin_total_market_json()
+        self.perform_create(coin_list)
+        return Response(data={"action": True}, status=status.HTTP_201_CREATED)
+        
+    def perform_create(self, serializer):
+        for data in serializer:
+            self.queryset.create(
+                k_name=data["korean_name"], e_name=data["english_name"],
+                market_name=data["market"],
+            ).save()
             
-            for data in info:
-                CoinInforamtionally.objects.create(
-                    k_name=data["korean_name"], e_name=data["english_name"],
-                    market_name=data["market"],
-                ).save()
-            return Response(data=info, status=status.HTTP_200_OK)
-        else:
-            return Response(data={"detail": False}, status=status.HTTP_204_NO_CONTENT)
