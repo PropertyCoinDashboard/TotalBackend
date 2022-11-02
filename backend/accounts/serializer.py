@@ -5,7 +5,7 @@ from rest_framework.exceptions import ValidationError
 from accounts.models import AdminUser, NormalUser
 
 
-# 회원 가입 일원화 
+# 회원 가입 및 정보 수정 일원화 
 class RegisterSerializer(serializers.ModelSerializer):
     password2 = serializers.CharField(style={'input_type':'password'}, write_only=True)
     

@@ -9,6 +9,7 @@ from api_injection.coin import upbit_coin_total_market_json
 
 
 
+# DestoryAPIView는 고려해볼것 
 class CoinSynchronSet(CreateAPIView):
     permission_classes = (AllowAny, )
     serializer_class = CoinSynchronizationSerializer
@@ -24,7 +25,7 @@ class CoinSynchronSet(CreateAPIView):
     def create(self, *args, **kwargs):
         coin_list = upbit_coin_total_market_json()
         self.perform_create(coin_list)
-        return Response(data={"action": True}, status=status.HTTP_201_CREATED)
+        return Response(data=coin_list, status=status.HTTP_201_CREATED)
         
     def perform_create(self, serializer):
         for data in serializer:

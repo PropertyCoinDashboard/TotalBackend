@@ -10,6 +10,7 @@ router.register("auth", apis.AdminRegisterAPI)
 router.register("auth-all", apis.AdminInformAPI)
 
 router.register("normal", apis.UserRegisterAPI)
+router.register("normal-all", apis.UserInformAPI)
 
 urlpatterns = [
     path("api-v1/", include(router.urls)),
