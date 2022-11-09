@@ -7,6 +7,8 @@ libsass
 django-compressor 
 django-sass-processor
 django-debug-toolbar
+django-extensions
+djangorestframework-simplejwt
 pytz
 mypy
 django-stub

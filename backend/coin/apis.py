@@ -31,6 +31,6 @@ class CoinSynchronSet(CreateAPIView):
         for data in serializer:
             self.queryset.create(
                 k_name=data["korean_name"], e_name=data["english_name"],
-                market_name=data["market"],
+                market_name=data["market"], market_warning=data["market_warning"]
             ).save()
             

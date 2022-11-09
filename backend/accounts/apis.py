@@ -1,15 +1,34 @@
-from rest_framework.viewsets import ModelViewSet
-from rest_framework.mixins import DestroyModelMixin, UpdateModelMixin
-from rest_framework.permissions import AllowAny
-from rest_framework.response import Response
-from rest_framework.permissions import IsAuthenticated, IsAdminUser
 from rest_framework import status
+from rest_framework.response import Response
+from rest_framework.viewsets import ModelViewSet
+from rest_framework.views import APIView
+from rest_framework.permissions import AllowAny
+from rest_framework.permissions import IsAuthenticated, IsAdminUser
 from .serializer import (
-    AdminSerializer, UserSerializer
+    AdminSerializer, UserSerializer, 
+    AdminLoginSerializer, UserLoginSerializer
 )
 
-from django.shortcuts import get_object_or_404
 from accounts.models import AdminUser, NormalUser
+
+
+class LoginViewAPI(APIView):
+    permission_classes = (AllowAny, )
+    
+    def post(self, request):
+        login_serializer = self.serializer_class(data=request.data)
+        if login_serializer.is_valid(raise_exception=True):
+            login = login_serializer.validate(data=request.data)
+            if login is not False:
+                data = {
+                    "login": login,
+                    "access": login["access"],
+                    "refresh": login["refresh"],
+                }
+                return Response(login, status=status.HTTP_202_ACCEPTED)
+        else:
+            data = {"msg": "비정상적인 접근입니다"}
+            return Response(data=data, status=status.HTTP_400_BAD_REQUEST)
 
 
 # 회원 가입
@@ -23,18 +42,12 @@ class UserRegisterAPI(ModelViewSet):
     queryset = NormalUser.objects.all()
     permission_classes = (AllowAny, )
     serializer_class = UserSerializer
+
+
+# 로그인 
+class AdminLoginAPI(LoginViewAPI):
+    serializer_class = AdminLoginSerializer
     
     
-# 관리자 기능 
-class AdminInformAPI(ModelViewSet):
-    queryset = AdminUser.objects.all()
-    permission_classes = (IsAdminUser, )
-    serializer_class = AdminSerializer
-    
-    
-# 일반 유저 기능 
-class UserInformAPI(ModelViewSet):
-    queryset = NormalUser.objects.all()
-    permission_classes = (IsAuthenticated, )
-    serializer_class = UserSerializer
-    
+class UserLoginAPI(LoginViewAPI):
+    serializer_class = UserLoginSerializer

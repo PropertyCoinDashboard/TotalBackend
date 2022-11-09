@@ -4,14 +4,13 @@ import os
 ALLOWED_HOSTS = ["*"]
 CSRF_TRUSTED_ORIGINS = ["http://0.0.0.0:8080", "http://127.0.0.1:8000"]
 
-# REST_FRAMEWORK = {
-#    'DEFAULT_PERMISSION_CLASSES': (
-#         'rest_framework.permissions.AllowAny',
-#         'rest_framework.permissions.IsAuthenticated',
-#         'rest_framework.permissions.IsAdminUser',
-#    ),
-# }
 
+REST_FRAMEWORK={
+    ###'NON_FIELD_ERRORS_KEY': 'error',###  요거 제외밑에부터       
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'rest_framework_simplejwt.authentication.JWTAuthentication',
+    ),
+}
 
 DATABASES = {
     'default': {

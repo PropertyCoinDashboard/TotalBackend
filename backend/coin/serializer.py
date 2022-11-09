@@ -16,4 +16,3 @@ class CoinSynchronizationSerializer(serializers.ModelSerializer):
         fields: List[str] = ["sync"]
         
     
-    

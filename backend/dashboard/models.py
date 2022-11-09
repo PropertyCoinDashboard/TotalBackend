@@ -29,6 +29,7 @@ class StockInformationally(CommonField, SCCommonField):
         
 
 class CoinInforamtionally(CommonField, SCCommonField):
+    market_warning = models.CharField(max_length=15)
     class Meta:
         db_table: str = "coin"
         # app_label = "default"
