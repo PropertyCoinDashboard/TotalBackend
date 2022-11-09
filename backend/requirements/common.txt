@@ -9,6 +9,7 @@ django-sass-processor
 django-debug-toolbar
 django-extensions
 djangorestframework-simplejwt
+kafka-python
 pytz
 mypy
 django-stub

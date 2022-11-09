@@ -1,14 +1,10 @@
 from django.db import models
 from django.utils.translation import gettext_lazy as _
-from django.conf import settings
 from django.contrib.auth.models import (
     BaseUserManager, AbstractBaseUser, PermissionsMixin, 
 )
 from django.core.validators import MinLengthValidator
-from django.db.models.signals import post_save
-from django.dispatch import receiver
-
-from rest_framework.authtoken.models import Token
+from django.contrib.auth.models import User
 
 from typing import List, Any
 from argon2 import PasswordHasher
@@ -24,7 +20,7 @@ class UserManager(BaseUserManager):
         user = self.model(
             email=self.normalize_email(email),
             name=name,
-            password=PasswordHasher().hash(password=password),
+            password=PasswordHasher().hash(password=password).strip("argon2"),
             **extra_field
         )
         user.set_password(password)
@@ -46,6 +42,10 @@ class UserManager(BaseUserManager):
     
     
 class BasicInform(models.Model):
+    name = models.CharField(
+        verbose_name=_("name"), max_length=6, 
+        blank=False, null=False
+    )
     email = models.EmailField(
         verbose_name=_("email"), max_length=50, 
         blank=False, null=False, unique=True,
@@ -62,11 +62,6 @@ class BasicInform(models.Model):
         
     
 class AdminUser(AbstractBaseUser, PermissionsMixin, BasicInform):
-    name = models.CharField(
-        verbose_name=_("name"), max_length=6, 
-        blank=False, null=False
-    )
-
     # 필수 setting 
     is_superuser = models.BooleanField(default=False)
     is_staff = models.BooleanField(default=True)
@@ -81,9 +76,6 @@ class AdminUser(AbstractBaseUser, PermissionsMixin, BasicInform):
     def __str__(self) -> str:
         return self.name
     
-    # def get_absolute_url(self):
-    #     return reverse("model_detail", args=[self.pk])
-    
     def has_perms(self, perm_list, obj) -> bool:
         return True
     
@@ -96,16 +88,10 @@ class AdminUser(AbstractBaseUser, PermissionsMixin, BasicInform):
         verbose_name_plural = _("admin_users")
 
         
-class NormalUser(BasicInform):     
-    username = models.CharField(
-        max_length=20, verbose_name=_("유저이름"), 
-        validators=[MinLengthValidator(2, message="2자 이상 입력해주세요..!")],
-        null=False, blank=False, unique=True,
-    )
-    
+class NormalUser(BasicInform):         
     def set_password(self, password: str) -> None:
         self.password = PasswordHasher().hash(password)
-        self._password = self.password
+        self._password = self.password.strip("argon2")
             
     def __str__(self):
         return self.email
@@ -115,9 +101,6 @@ class NormalUser(BasicInform):
         verbose_name = _("normal_user")
         verbose_name_plural = _("normal_users")
                  
-    # def get_absolute_url(self):
-    #     return reverse("", args=[self.pk])
-        
 
 class DataInjection(CommonField):
     sync = models.BooleanField()

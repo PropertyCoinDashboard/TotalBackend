@@ -15,7 +15,7 @@ router.register("normal", apis.UserRegisterAPI)
 urlpatterns = [
     path("api-v1/", include(router.urls)),
     path("auth/login/", apis.AdminLoginAPI.as_view()),
-    path("user/login/", apis.AdminLoginAPI.as_view()),
+    path("user/login/", apis.UserLoginAPI.as_view()),
     
     # token
     path("token", TokenObtainPairView.as_view(), name="token_obtain"),
