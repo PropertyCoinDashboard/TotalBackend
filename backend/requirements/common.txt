@@ -16,6 +16,9 @@ django-stub
 django-filter      
 requests       
 drf-yasg    
+typing
+mypy
+typing-extensions
 
 pymongo==3.12.1
 django-seed==0.3.1

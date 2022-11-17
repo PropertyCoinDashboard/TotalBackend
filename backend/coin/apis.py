@@ -1,5 +1,6 @@
 from api_injection.coin import upbit_coin_total_market_json
 from dashboard.models import CoinInforamtionally
+from typing import Dict, List
 
 from rest_framework import status
 from rest_framework.generics import CreateAPIView
@@ -22,12 +23,12 @@ class CoinSynchronSet(CreateAPIView):
                 self.queryset.all().delete()
                 return self.create()
     
-    def create(self, *args, **kwargs):
-        coin_list = upbit_coin_total_market_json()
+    def create(self, *args, **kwargs) -> Response:
+        coin_list: List[Dict[str, str]] = upbit_coin_total_market_json()
         self.perform_create(coin_list)
         return Response(data=coin_list, status=status.HTTP_201_CREATED)
         
-    def perform_create(self, serializer):
+    def perform_create(self, serializer: upbit_coin_total_market_json) -> None:
         for data in serializer:
             self.queryset.create(
                 k_name=data["korean_name"], e_name=data["english_name"],
