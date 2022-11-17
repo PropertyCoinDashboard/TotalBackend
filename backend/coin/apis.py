@@ -1,12 +1,12 @@
-from rest_framework.generics import CreateAPIView, DestroyAPIView
-from rest_framework import status
-from rest_framework.response import Response
-from rest_framework.permissions import AllowAny
-
-from dashboard.models import CoinInforamtionally
-from .serializer import CoinSynchronizationSerializer
 from api_injection.coin import upbit_coin_total_market_json
+from dashboard.models import CoinInforamtionally
 
+from rest_framework import status
+from rest_framework.generics import CreateAPIView
+from rest_framework.permissions import AllowAny
+from rest_framework.response import Response
+
+from .serializer import CoinSynchronizationSerializer
 
 
 # DestoryAPIView는 고려해볼것 
@@ -18,7 +18,7 @@ class CoinSynchronSet(CreateAPIView):
     def post(self, request):
         serializer = self.serializer_class(data=request.data)
         if serializer.is_valid(raise_exception=True):
-            if serializer.data["sync"] == True:
+            if serializer.data["sync"]:
                 self.queryset.all().delete()
                 return self.create()
     
