@@ -19,7 +19,7 @@ def header_to_json(url: str):
     
     return info
 
-def data_format(name, open, high, low, present) -> Dict:
+def data_format(name, open, high, low, present) -> pd.DataFrame:
     data = {
         "market_name": name,
         "open": open,
@@ -27,7 +27,7 @@ def data_format(name, open, high, low, present) -> Dict:
         "low": low,
         "present": present
     }
-    return data
+    return pd.DataFrame(data, index=[0])
 
 
 # 프로세스 나누기 
@@ -54,7 +54,7 @@ class UpBitAPIGeneration:
                 low     = i["low_price"],
                 present = i["trade_price"]
             )
-        return pd.DataFrame(up_bitcoin_pd, index=[0])
+        return up_bitcoin_pd
     
 
 class BithumAPIGeneration:
@@ -77,7 +77,7 @@ class BithumAPIGeneration:
             low     = data["data"]["min_price"],
             present = data["data"]["closing_price"]
         )
-        return pd.DataFrame(bbitcoin_pd, index=[0])
+        return bbitcoin_pd
 
 
 
