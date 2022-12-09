@@ -1,12 +1,15 @@
 import requests
 import pandas as pd 
-import threading
 from typing import Dict, Final, Any, List
 from kafka import KafkaProducer
 
 
 UPBIT_API_URL: Final[str] = "https://api.upbit.com/v1"
 BITHUM_API_URL: Final[str] = "https://api.bithumb.com/public/ticker"
+TOPIC_NAME: Final[str] = "TRADEBITCOINTOTAL"
+
+broker = ["kafka1:19092", "kafka2:29092", "kafka3:39092"]
+producer = KafkaProducer(bootstrap_servers=broker)
 """
 업비트 토큰 가격 업데이트 주기 카프카 맞추기
 """
@@ -27,7 +30,7 @@ def data_format(name, open, high, low, present) -> pd.DataFrame:
         "low": low,
         "present": present
     }
-    return pd.DataFrame(data, index=[0])
+    return data
 
 
 # 프로세스 나누기 
@@ -80,17 +83,19 @@ class BithumAPIGeneration:
         return bbitcoin_pd
 
 
-
 def concatnate() -> pd.DataFrame:
     bit = BithumAPIGeneration().bithum_bitcoin_present_price()
     upbit = UpBitAPIGeneration().upbit_bitcoin_present_price()
     
-    concat_data_bit = pd.concat([bit, upbit])
+    concat_data_bit = {"bitthum": bit,
+                       "upbit": upbit}
 
-    return concat_data_bit
     
+    import time
+    import json
+    while True:
+        producer.send(topic=TOPIC_NAME, value=json.dumps(concat_data_bit).encode("utf-8"))
+        time.sleep(1)
 
-import time
-while True:
-    time.sleep(1)
-    print(concatnate())
+
+concatnate()
