@@ -43,7 +43,7 @@ services:
       dockerfile: Dockerfile
     container_name: stock-nginx
     ports:
-      - "8080:8080"
+      - "8081:8081"
     volumes:
       - ./nginx/nginx-setup.conf:/etc/nginx/con.f/nginx-setup.conf
       - static-volume:/static/
