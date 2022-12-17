@@ -1,24 +1,11 @@
-import time
-import json
 import requests
-import pandas as pd 
-
 from typing import Dict, Final, Any, List
-from kafka import KafkaProducer
 
 
 UPBIT_API_URL: Final[str] = "https://api.upbit.com/v1"
 BITHUM_API_URL: Final[str] = "https://api.bithumb.com/public/ticker"
-BIT_TOPIC_NAME: Final[str] = "TRADEBITCOINTOTAL"
 
 COIN_TOTAL: Final[str] = "coin_total"
-
-
-# bootstrap_server = ["kafka1:19091", "kafka2:29092", "kafka3:39093"]
-# producer = KafkaProducer(bootstrap_servers=bootstrap_server, security_protocol="PLAINTEXT")
-"""
-업비트 토큰 가격 업데이트 주기 카프카 맞추기
-"""
 
 
 def header_to_json(url: str):
@@ -53,14 +40,14 @@ def bithum_coin_total_market_json() -> List[str]:
 
 
 # 프로세스 나누기 
-class UpBitBitcoinAPI:
+class UpbitAPIBitcoin:
     def __init__(self) -> None:
         self.up_url = UPBIT_API_URL
     
-    def upbit_coin_price_json(self) -> List[Dict[str, str]]:
-        url: str = f"{self.up_url}/candles/minutes/1?market=KRW-BTC&count=1"
+    def upbit_present_price(self) -> List[Dict[str, str]]:
+        url: str = f"{self.up_url}/ticker?markets=KRW-BTC"
         return header_to_json(url)
-    
+
     def upbit_bitcoin_present_price(self) -> Dict:
         url: str = f'{self.up_url}/ticker?markets=KRW-BTC'
         data = header_to_json(url)
@@ -91,22 +78,7 @@ class BithumAPIBitcoin:
         )
         return bbitcoin_pd
 
-
-def concatnate() -> None:
-    bit = BithumAPIBitcoin().bithum_bitcoin_present_price()
-    upbit = UpBitBitcoinAPI().upbit_bitcoin_present_price()
-    
-    concat_data_bit: Dict[Any, Any] = {"bitthum": bit,
-                                        "upbit": upbit}
-
-    
-
-    while True:
-        producer.send(topic=TOPIC_NAME, value=json.dumps(concat_data_bit).encode("utf-8"))
-        producer.flush()
-        print(concat_data_bit)
-        time.sleep(1)
-
-
-
-print(bithum_coin_total_market_json())
+    def bithum_present_price(self) -> Dict:
+        url: str = f"{self.bit_url}/BTC_KRW"
+        data: Dict[str] = header_to_json(url)
+        return data
