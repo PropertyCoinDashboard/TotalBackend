@@ -1,15 +1,16 @@
+import os
+import sys
+sys.path.append(os.path.dirname(os.path.abspath(os.path.dirname(__file__))))
+
 import time
 import json
 from kafka import KafkaProducer
 
-
-from coin_apis import (
-    BithumAPIBitcoin, UpbitAPIBitcoin
-)
-from schema import coin_present_schema, concatnate_dictionary
+from api_injection.coin_apis import (
+    BithumAPIBitcoin, UpbitAPIBitcoin)
+from api_injection.schema import coin_present_schema, concatnate_dictionary
 
 COIN_PRECENT_PRICE = "coin_price"
-
 
 start_time = time.time()
 

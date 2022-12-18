@@ -1,11 +1,15 @@
+import os
+import sys
+sys.path.append(os.path.dirname(os.path.abspath(os.path.dirname(__file__))))
+
 import time
 import json
 from typing import Final
 
 from kafka import KafkaProducer
-from coin_apis import CoinMarketBitCoinPresentPrice as cp
-from schema import bitcoin_present_schema, concatnate_dictionary
-
+from api_injection.coin_apis import CoinMarketBitCoinPresentPrice as cp
+from api_injection.schema import bitcoin_present_schema, concatnate_dictionary
+from api_injection import coin_apis
 
 BIT_TOPIC_NAME: Final[str] = "trade_bitcoin_total"
 bootstrap_server = ["kafka1:19091", "kafka2:29092", "kafka3:39093"]
