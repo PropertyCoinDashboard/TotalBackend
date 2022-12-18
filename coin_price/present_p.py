@@ -10,8 +10,8 @@ from api_injection.coin_apis import (
     BithumAPIBitcoin, UpbitAPIBitcoin)
 from api_injection.schema import coin_present_schema, concatnate_dictionary
 
-COIN_PRECENT_PRICE = "coin_price"
 
+COIN_PRECENT_PRICE = "coin_price"
 start_time = time.time()
 
 

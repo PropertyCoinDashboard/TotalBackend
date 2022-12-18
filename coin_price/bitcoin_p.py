@@ -11,6 +11,7 @@ from api_injection.coin_apis import CoinMarketBitCoinPresentPrice as cp
 from api_injection.schema import bitcoin_present_schema, concatnate_dictionary
 from api_injection import coin_apis
 
+
 BIT_TOPIC_NAME: Final[str] = "trade_bitcoin_total"
 bootstrap_server = ["kafka1:19091", "kafka2:29092", "kafka3:39093"]
 producer = KafkaProducer(bootstrap_servers=bootstrap_server, security_protocol="PLAINTEXT")
