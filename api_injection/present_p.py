@@ -1,31 +1,35 @@
+import time
+import json
+from kafka import KafkaProducer
+
+
 from coin_apis import (
     BithumAPIBitcoin, UpbitAPIBitcoin
 )
-from fastavro import writer, reader, parse_schema
+from schema import coin_present_schema, concatnate_dictionary
 
-up = UpbitAPIBitcoin().upbit_present_price()
-bit = BithumAPIBitcoin().bithum_present_price()
-
-"""
-    schema = {
-        'doc': 'A weather reading.',
-        'name': 'Weather',
-        'namespace': 'test',
-        'type': 'record',
-        'fields': [
-            {'name': 'station', 'type': 'string'},
-            {'name': 'time', 'type': 'long'},
-            {'name': 'temp', 'type': 'int'},
-        ],
-    }
-    
-    records = [
-    {u'station': u'011990-99999', u'temp': 0, u'time': 1433269388},
-    {u'station': u'011990-99999', u'temp': 22, u'time': 1433270389},
-    {u'station': u'011990-99999', u'temp': -11, u'time': 1433273379},
-    {u'station': u'012650-99999', u'temp': 111, u'time': 1433275478},
-]
-"""
+COIN_PRECENT_PRICE = "coin_price"
 
 
+start_time = time.time()
+
+
+# 현재가 객체 생성 
+upbit = UpbitAPIBitcoin()
+bit = BithumAPIBitcoin()
+
+# 로그 생성
+present_upbit: dict[str, int] = coin_present_schema(upbit[0], upbit[0]["market"], "opening_price", "trade_price", "high_price", "low_price",
+                                    "prev_closing_price", "acc_trade_volume_24h", "acc_trade_price_24h", "timestamp")
+
+present_bithum: dict[str, int] = coin_present_schema(bit["data"], bit.__namesplit__(5), "opening_price", "closing_price", "max_price", "min_price",
+                                    "prev_closing_price", "units_traded_24H", "acc_trade_value_24H", "date")
+
+
+# 스키마 생성
+schema = concatnate_dictionary(upbit=present_upbit, bithum=present_bithum)
+
+
+# print -> log 로 바꿀꺼임 일단 임시로
+print(f"end -> {time.time()-start_time}")    
 
