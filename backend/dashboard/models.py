@@ -4,9 +4,7 @@ from django.utils.translation import gettext_lazy as _
 
 # 공통 
 class SCCommonField(models.Model):
-    k_name = models.CharField(max_length=20, blank=False, null=False, default="")
     e_name = models.CharField(max_length=50, default="")
-    market_name = models.CharField(max_length=20, default="")
     
     class Meta:
         abstract: bool = True
@@ -29,7 +27,7 @@ class StockInformationally(CommonField, SCCommonField):
         
 
 class CoinInforamtionally(CommonField, SCCommonField):
-    market_warning = models.CharField(max_length=15)
+    # market_warning = models.CharField(max_length=15)
     class Meta:
         db_table: str = "coin"
         # app_label = "default"

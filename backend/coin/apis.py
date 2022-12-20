@@ -1,4 +1,9 @@
-from api_injection.coin_apis import UpbitAPIBitcoin as ua
+import os, sys
+sys.path.append(os.path.dirname(os.path.abspath(os.path.dirname(__file__))))
+sys.path.append(os.path.dirname(os.path.abspath(os.path.dirname(os.path.abspath(os.path.dirname(__file__))))))
+
+
+from api_injection.coin_apis import TotalCoinmarketListConcatnate as TKC
 from dashboard.models import CoinInforamtionally
 from typing import Dict, List
 
@@ -24,14 +29,13 @@ class CoinSynchronSet(CreateAPIView):
                 return self.create()
     
     def create(self, *args, **kwargs) -> Response:
-        coin_list: List[Dict[str, str]] = ua().upbit_market
+        coin_list: List[Dict[str, str]] = TKC().coin_total_preprecessing()
         self.perform_create(coin_list)
         return Response(data=coin_list, status=status.HTTP_201_CREATED)
         
-    def perform_create(self, serializer: ua().upbit_market) -> None:
+    def perform_create(self, serializer) -> None:
         for data in serializer:
             self.queryset.create(
-                k_name=data["korean_name"], e_name=data["english_name"],
-                market_name=data["market"], market_warning=data["market_warning"]
+                e_name=data
             ).save()
     

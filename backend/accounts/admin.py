@@ -12,8 +12,8 @@ class UserAdmin(admin.ModelAdmin):
     list_display_links = ["name"]    
 
 
-@admin.register(NormalUser)
-class NormalAdmin(admin.ModelAdmin):
-    search_fields = ["username"]
-    list_display = ["username", "email", "created_at", "updated_at"]
-    list_display_links = ["username"]    
+# @admin.register(NormalUser)
+# class NormalAdmin(admin.ModelAdmin):
+#     search_fields = ["username"]
+#     list_display = ["username", "email", "created_at", "updated_at"]
+#     list_display_links = ["username"]    
