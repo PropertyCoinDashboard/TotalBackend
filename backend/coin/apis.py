@@ -1,4 +1,4 @@
-from api_injection.coin import upbit_coin_total_market_json
+from api_injection.coin_apis import UpbitAPIBitcoin as ua
 from dashboard.models import CoinInforamtionally
 from typing import Dict, List
 
@@ -24,11 +24,11 @@ class CoinSynchronSet(CreateAPIView):
                 return self.create()
     
     def create(self, *args, **kwargs) -> Response:
-        coin_list: List[Dict[str, str]] = upbit_coin_total_market_json()
+        coin_list: List[Dict[str, str]] = ua().upbit_market
         self.perform_create(coin_list)
         return Response(data=coin_list, status=status.HTTP_201_CREATED)
         
-    def perform_create(self, serializer: upbit_coin_total_market_json()) -> None:
+    def perform_create(self, serializer: ua().upbit_market) -> None:
         for data in serializer:
             self.queryset.create(
                 k_name=data["korean_name"], e_name=data["english_name"],

@@ -1,6 +1,6 @@
 import sys
 import requests
-from typing import Dict, Final, Any, List, Tuple
+from typing import Dict, Final, List, Any
 
 
 UPBIT_API_URL: Final[str] = "https://api.upbit.com/v1"
@@ -40,10 +40,10 @@ class BithumAPIBitcoin:
         self.bithum_market = header_to_json(f"{self.bit_url}/ALL_KRW")
         self.bithum_present_price = header_to_json(f"{self.bit_url}/BTC_KRW")
 
-    def bithum_market_list(self) -> List[str]:    
+    def bithum_market_list(self) -> List[Any]:    
         return [coin for coin in self.bithum_market["data"]]
         
-    def __index__(self, index: int) -> str:
+    def __index__(self, index):
         return self.bithum_market_list[index]
 
     def __getitem__(self, index: str) -> Dict:
