@@ -14,17 +14,10 @@ from schema.schema import CoinPresentSchema, concatnate_dictionary
 
 COIN_PRECENT_PRICE: Final[str] = "coin_price"
 
-def name_injection(name: str) -> None:
-      MARKET_COIN_LIST: Final[str] = f"http://0.0.0.0:8081/coinprice/api-v1/coinsync/list?coin_symbol={name}"
-      header = header_to_json(MARKET_COIN_LIST)[0]["coin_symbol"]
-      print(header)
-      return header
-
 
 # bootstrap_server: List[str] = ["kafka1:19091", "kafka2:29092", "kafka3:39093"]
 # producer = KafkaProducer(bootstrap_servers=bootstrap_server, security_protocol="PLAINTEXT")
 
-coin_name = name_injection(name="ETH")
 
 
 # 현재가 객체 생성 (나중에 매개변수 받아올것)

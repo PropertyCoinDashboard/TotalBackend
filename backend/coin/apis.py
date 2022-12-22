@@ -1,9 +1,9 @@
+from typing import Dict, List
 from api_injection.coin_apis import TotalCoinMarketListConcatnate as TKC
 from api_injection.coin_apis import UpbitAPI, BithumAPI
 from dashboard.models import (
     CoinSymbolCoinList, UpbitCoinList, BitThumCoinList)
     
-from typing import Dict, List
 
 from rest_framework import status
 from rest_framework.generics import CreateAPIView, ListAPIView
@@ -33,7 +33,6 @@ class MarketListSynchronSet(CreateAPIView):
         return Response(data={"coin_list": coin_list}, status=status.HTTP_201_CREATED, headers=headers)
 
 
-
 class MarketListTotal(MarketListSynchronSet):
     queryset = CoinSymbolCoinList.objects.all()
     coin_model_initialization = TKC().coin_total_preprecessing()
@@ -61,12 +60,16 @@ class UpbitListInitialization(MarketListSynchronSet):
 
 class BithumListInitialization(MarketListTotal):
     queryset = BitThumCoinList.objects.all()
-    coin_model_initialization = BithumAPI().bithum_market_list()
+    coin_model_initialization = BithumAPI(name=None).bithum_market_list()
 
 
 class MarketListView(ListAPIView):
-    queryset = CoinSymbolCoinList.objects
-    permission_classes = (AllowAny, )
+    queryset = CoinSymbolCoinList.objects.all()
     serializer_class = CoinViewListSerializer
     filter_backends = [DjangoFilterBackend]
     filterset_fields = ['coin_symbol']
+
+    def get(self, *args, **kwargs):
+        qs = self.request.GET.get("coin_symbol")
+        qs = qs.upper()
+        return Response(data={"coin": qs}, status=status.HTTP_200_OK)

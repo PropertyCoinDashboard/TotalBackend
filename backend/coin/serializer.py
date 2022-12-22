@@ -15,3 +15,4 @@ class CoinViewListSerializer(serializers.ModelSerializer):
     class Meta:
         model = CoinSymbolCoinList
         fields: List[str] = ["coin_symbol"]
+        
