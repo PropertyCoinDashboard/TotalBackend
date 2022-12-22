@@ -4,11 +4,10 @@ from django.contrib.auth.models import (
     BaseUserManager, AbstractBaseUser, PermissionsMixin, 
 )
 from django.core.validators import MinLengthValidator
-from django.contrib.auth.models import User
 
 from typing import List, Any
 from argon2 import PasswordHasher
-from dashboard.models import CommonField
+from dashboard.models import Timestamp
 
 
 # 계정 injectionally
@@ -102,7 +101,7 @@ class NormalUser(BasicInform):
         verbose_name_plural = _("normal_users")
                  
 
-class DataInjection(CommonField):
+class DataInjection(Timestamp):
     sync = models.BooleanField()
     
     class Meta:

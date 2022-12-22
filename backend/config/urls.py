@@ -27,9 +27,9 @@ schema_view = get_schema_view(
     openapi.Info( 
         title="Swagger API", 
         default_version="v1", 
-        description="Swagger test를 위한 API 문서", 
+        description="Swagger dashboard 위한 API 문서", 
         terms_of_service="https://www.google.com/policies/terms/", 
-        contact=openapi.Contact(name="test", email="test@test.com"), 
+        contact=openapi.Contact(name="dashboard", email="limhaneul12@gmail.com"), 
         license=openapi.License(name="Test License"), 
     ), 
     public=True, 

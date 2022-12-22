@@ -8,7 +8,7 @@ sys.path.append(os.path.dirname(os.path.abspath(os.path.dirname(os.path.abspath(
 from kafka import KafkaProducer
 from kafka_distribute.producer import producer_optional
 
-from api_injection.coin_apis import CoinMarketBitCoinPresentPrice as cp
+from backend.api_injection.coin_apis import CoinMarketBitCoinPresentPrice as cp
 from api_injection.schema import BaiscSchema, concatnate_dictionary
 
 

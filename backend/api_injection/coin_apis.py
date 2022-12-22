@@ -1,10 +1,11 @@
 import sys
 import requests
-from typing import Dict, Final, List, Any
+from typing import Dict, Final, List, Any, Optional
 
 
 UPBIT_API_URL: Final[str] = "https://api.upbit.com/v1"
 BITHUM_API_URL: Final[str] = "https://api.bithumb.com/public/ticker"
+MY_LIST_URL: Final[str] = "http://0.0.0.0:8081/coinprice/api-v1/coinsync/list"
 
 
 def header_to_json(url: str):
@@ -21,14 +22,14 @@ class CoinMarketBitCoinPresentPrice:
         self.bithum_bitcoin_present_price = header_to_json(f"{BITHUM_API_URL}/BTC_KRW")["data"]
            
                
-class UpbitAPIBitcoin:
-    def __init__(self) -> None:
+class UpbitAPI:
+    def __init__(self, name: Optional[str] = None) -> None:
         super().__init__()
         self.up_url = UPBIT_API_URL
         self.upbit_market = header_to_json(f"{self.up_url}/market/all?isDetails=true")
         
         # 임시 
-        self.upbit_coin_present_price = header_to_json(f'{self.up_url}/ticker?markets=KRW-BTC')     
+        self.upbit_coin_present_price = header_to_json(f'{self.up_url}/ticker?markets=KRW-{name}')     
 
     def upbit_market_list(self) -> List[str]:
         return [data["market"].split("-")[1] for data in self.upbit_market]
@@ -40,14 +41,14 @@ class UpbitAPIBitcoin:
         return sys.getsizeof(self.upbit_coin_present_price)   
     
     
-class BithumAPIBitcoin:
-    def __init__(self) -> None:
+class BithumAPI:
+    def __init__(self, name: Optional[str] = None) -> None:
         super().__init__()
         self.bit_url = BITHUM_API_URL
         self.bithum_market = header_to_json(f"{self.bit_url}/ALL_KRW")
         
         # 임시 
-        self.bithum_present_price = header_to_json(f"{self.bit_url}/BTC_KRW")
+        self.bithum_present_price = header_to_json(f"{self.bit_url}/{name}_KRW")
 
     def bithum_market_list(self) -> List[Any]:
         a = [coin for coin in self.bithum_market["data"]]
@@ -68,7 +69,7 @@ class BithumAPIBitcoin:
         return f"{self.bit_url}/BTC_KRW".split("/")[index]
     
     
-class TotalCoinmarketListConcatnate(UpbitAPIBitcoin, BithumAPIBitcoin):
+class TotalCoinMarketListConcatnate(UpbitAPI, BithumAPI):
     def __init__(self) -> None:
         super().__init__()
     
@@ -81,9 +82,5 @@ class TotalCoinmarketListConcatnate(UpbitAPIBitcoin, BithumAPIBitcoin):
         up.extend(bit)
         
         return set(up)
-        
-
-    
-            
 
 

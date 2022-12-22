@@ -1,28 +1,35 @@
 import os
-import sys
+import sys, json
 from typing import List, Final
 sys.path.append(os.path.dirname(os.path.abspath(os.path.dirname(__file__))))
 sys.path.append(os.path.dirname(os.path.abspath(os.path.dirname(os.path.abspath(os.path.dirname(__file__))))))
 
 
-import time
 from kafka import KafkaProducer
 from kafka_distribute.producer import producer_optional
 
-from api_injection.coin_apis import BithumAPIBitcoin, UpbitAPIBitcoin
-from api_injection.schema import CoinPresentSchema, concatnate_dictionary
+from backend.api_injection.coin_apis import BithumAPI, UpbitAPI, header_to_json
+from schema.schema import CoinPresentSchema, concatnate_dictionary
 
 
 COIN_PRECENT_PRICE: Final[str] = "coin_price"
-start_time = time.time()
 
-bootstrap_server: List[str] = ["kafka1:19091", "kafka2:29092", "kafka3:39093"]
-producer = KafkaProducer(bootstrap_servers=bootstrap_server, security_protocol="PLAINTEXT")
+def name_injection(name: str) -> None:
+      MARKET_COIN_LIST: Final[str] = f"http://0.0.0.0:8081/coinprice/api-v1/coinsync/list?coin_symbol={name}"
+      header = header_to_json(MARKET_COIN_LIST)[0]["coin_symbol"]
+      print(header)
+      return header
+
+
+# bootstrap_server: List[str] = ["kafka1:19091", "kafka2:29092", "kafka3:39093"]
+# producer = KafkaProducer(bootstrap_servers=bootstrap_server, security_protocol="PLAINTEXT")
+
+coin_name = name_injection(name="ETH")
 
 
 # 현재가 객체 생성 (나중에 매개변수 받아올것)
-upbit = UpbitAPIBitcoin()
-bit = BithumAPIBitcoin()
+upbit = UpbitAPI(name=coin_name)
+bit = BithumAPI(name=coin_name)
 
 
 # 로그 생성
@@ -41,7 +48,8 @@ present_bithum: dict[str, int] = CoinPresentSchema(name=bit.__namesplit__(5),
 
 # # 스키마 생성
 schema = concatnate_dictionary(upbit=present_upbit, bithum=present_bithum)
-producer_optional(producer=producer, data=schema, topic=COIN_PRECENT_PRICE)
+print(schema)
+# producer_optional(producer=producer, data=schema, topic=COIN_PRECENT_PRICE)
 
    
 
