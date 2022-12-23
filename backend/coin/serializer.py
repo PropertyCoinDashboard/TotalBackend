@@ -11,8 +11,8 @@ class CoinSynchronizationSerializer(serializers.ModelSerializer):
         fields: List[str] = ["sync"]
         
 
-class CoinViewListSerializer(serializers.ModelSerializer):
+class CoinViewListSerializer(serializers.ModelSerializer):            
     class Meta:
         model = CoinSymbolCoinList
         fields: List[str] = ["coin_symbol"]
-        
+    

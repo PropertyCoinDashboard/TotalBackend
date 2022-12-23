@@ -9,7 +9,7 @@ from kafka import KafkaProducer
 from kafka_distribute.producer import producer_optional
 
 from backend.api_injection.coin_apis import CoinMarketBitCoinPresentPrice as cp
-from api_injection.schema import BaiscSchema, concatnate_dictionary
+from schema.schema import BaiscSchema, concatnate_dictionary
 
 
 BIT_TOPIC_NAME: Final[str] = "trade_bitcoin_total"

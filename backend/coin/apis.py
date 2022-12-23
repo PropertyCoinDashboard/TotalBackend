@@ -3,11 +3,12 @@ from api_injection.coin_apis import TotalCoinMarketListConcatnate as TKC
 from api_injection.coin_apis import UpbitAPI, BithumAPI
 from dashboard.models import (
     CoinSymbolCoinList, UpbitCoinList, BitThumCoinList)
-    
+from kafka import KafkaProducer
 
 from rest_framework import status
-from rest_framework.generics import CreateAPIView, ListAPIView
 from rest_framework.permissions import AllowAny
+from rest_framework.generics import CreateAPIView, GenericAPIView
+from rest_framework.mixins import RetrieveModelMixin
 from rest_framework.response import Response
 from django_filters.rest_framework import DjangoFilterBackend
 
@@ -15,7 +16,7 @@ from .serializer import CoinSynchronizationSerializer
 from .serializer import CoinViewListSerializer
 
 
-# DestoryAPIView는 고려해볼것
+# producer = KafkaProducer(bootstrap_servers = ["localhost:9092"])
 class MarketListSynchronSet(CreateAPIView):
     permission_classes = (AllowAny, )
     serializer_class = CoinSynchronizationSerializer
@@ -42,8 +43,26 @@ class MarketListTotal(MarketListSynchronSet):
             self.queryset.create(
                 coin_symbol=data
             ).save()
-        
-        
+
+class MarketListView(CreateAPIView):
+    queryset = CoinSymbolCoinList.objects.all()
+    serializer_class = CoinViewListSerializer
+    filter_backends = [DjangoFilterBackend]
+    filterset_fields = ['coin_symbol']
+    
+    
+
+class MarketListView(CreateAPIView):
+    queryset = CoinSymbolCoinList.objects.all()
+    serializer_class = CoinViewListSerializer
+    
+    def create(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True) 
+         
+        return Response(data=serializer.data, status=status.HTTP_201_CREATED)
+
+    
 class UpbitListInitialization(MarketListSynchronSet):
     queryset = UpbitCoinList.objects.all()
     coin_model_initialization = UpbitAPI(name=None).upbit_market
@@ -63,13 +82,7 @@ class BithumListInitialization(MarketListTotal):
     coin_model_initialization = BithumAPI(name=None).bithum_market_list()
 
 
-class MarketListView(ListAPIView):
-    queryset = CoinSymbolCoinList.objects.all()
-    serializer_class = CoinViewListSerializer
-    filter_backends = [DjangoFilterBackend]
-    filterset_fields = ['coin_symbol']
+    
+    
+    
 
-    def get(self, *args, **kwargs):
-        qs = self.request.GET.get("coin_symbol")
-        qs = qs.upper()
-        return Response(data={"coin": qs}, status=status.HTTP_200_OK)

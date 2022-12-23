@@ -19,7 +19,6 @@ COIN_PRECENT_PRICE: Final[str] = "coin_price"
 # producer = KafkaProducer(bootstrap_servers=bootstrap_server, security_protocol="PLAINTEXT")
 
 
-
 # 현재가 객체 생성 (나중에 매개변수 받아올것)
 upbit = UpbitAPI(name=coin_name)
 bit = BithumAPI(name=coin_name)

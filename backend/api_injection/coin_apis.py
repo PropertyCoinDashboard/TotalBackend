@@ -5,7 +5,6 @@ from typing import Dict, Final, List, Any, Optional
 
 UPBIT_API_URL: Final[str] = "https://api.upbit.com/v1"
 BITHUM_API_URL: Final[str] = "https://api.bithumb.com/public/ticker"
-MY_LIST_URL: Final[str] = "http://0.0.0.0:8081/coinprice/api-v1/coinsync/list"
 
 
 def header_to_json(url: str):
@@ -55,7 +54,7 @@ class BithumAPI:
         del a[-1]
         return a
         
-    def __index__(self, index):
+    def __index__(self, index) -> dict:
         return self.bithum_market_list[index]
 
     def __getitem__(self, index: str) -> Dict:
@@ -73,7 +72,7 @@ class TotalCoinMarketListConcatnate(UpbitAPI, BithumAPI):
     def __init__(self) -> None:
         super().__init__()
     
-    def coin_total_preprecessing(self):
+    def coin_total_preprecessing(self) -> dict[str]:
         """
         모든 거래소 코인 목록 통합 
         """
