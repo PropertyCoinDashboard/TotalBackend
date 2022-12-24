@@ -2,13 +2,6 @@ from django.db import models
 from django.utils.translation import gettext_lazy as _
 
 
-class NameSchema(models.Model):
-    k_name = models.CharField(max_length=50, default="")
-    e_name = models.CharField(max_length=50)
-    
-    class Meta:
-        abstract: bool = True
-
 
 # 공통 
 class Timestamp(models.Model):
@@ -17,15 +10,47 @@ class Timestamp(models.Model):
         
     class Meta:
         abstract: bool = True
+        
 
-
-class CoinSymbolCoinList(Timestamp):
+"""
+# ---------------- Symbol 쓰는 class ------------------ #
+"""
+class CoinSymbol(models.Model):
+    coin_symbol = models.CharField(max_length=50)
+    
+    class Meta:
+        abstract: bool = True
+        
+    
+class BitThumCoinList(Timestamp, CoinSymbol):    
+    class Meta:
+        db_table: str = "bitthum_coin_list"
+        
+        
+class CoinSymbolCoinList(Timestamp, CoinSymbol):
     coin_symbol = models.CharField(max_length=50)
     
     class Meta:
         db_table: str = "coin_symbol"
+        
+        
+class SearchBurketCoinIndexing(CoinSymbol):    
+    class Meta:
+        db_table: str = "burket_coin_list"
 
+"""
+## ---------------------------------------------------- ##
+"""
+        
 
+class NameSchema(models.Model):
+    k_name = models.CharField(max_length=50, default="")
+    e_name = models.CharField(max_length=50)
+    
+    class Meta:
+        abstract: bool = True
+        
+        
 class UpbitCoinList(Timestamp, NameSchema):
     market = models.CharField(max_length=15)
     market_warning = models.CharField(max_length=15)
@@ -34,12 +59,6 @@ class UpbitCoinList(Timestamp, NameSchema):
         db_table: str = "upbit_coin_list"
         
         
-class BitThumCoinList(Timestamp):
-    coin_symbol = models.CharField(max_length=50)
-    
-    class Meta:
-        db_table: str = "bitthum_coin_list"
-
 
 # class StockInformationally(Timestamp):
 #     k_name = models.CharField(max_length=50, default="")

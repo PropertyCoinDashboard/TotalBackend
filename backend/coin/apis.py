@@ -1,22 +1,22 @@
 from typing import Dict, List
+from kafka import KafkaProducer
 from api_injection.coin_apis import TotalCoinMarketListConcatnate as TKC
 from api_injection.coin_apis import UpbitAPI, BithumAPI
 from dashboard.models import (
-    CoinSymbolCoinList, UpbitCoinList, BitThumCoinList)
-from kafka import KafkaProducer
+    CoinSymbolCoinList, UpbitCoinList, 
+    BitThumCoinList, SearchBurketCoinIndexing)
 
 from rest_framework import status
-from rest_framework.permissions import AllowAny
-from rest_framework.generics import CreateAPIView, GenericAPIView
-from rest_framework.mixins import RetrieveModelMixin
 from rest_framework.response import Response
-from django_filters.rest_framework import DjangoFilterBackend
+from rest_framework.permissions import AllowAny
+from rest_framework.generics import (
+    CreateAPIView, ListAPIView, RetrieveAPIView)
 
-from .serializer import CoinSynchronizationSerializer
-from .serializer import CoinViewListSerializer
+from .serializer import (
+    CoinSynchronizationSerializer, CoinViewListSerializer,
+    CoinBurketSerializer
+)
 
-
-# producer = KafkaProducer(bootstrap_servers = ["localhost:9092"])
 class MarketListSynchronSet(CreateAPIView):
     permission_classes = (AllowAny, )
     serializer_class = CoinSynchronizationSerializer
@@ -44,25 +44,34 @@ class MarketListTotal(MarketListSynchronSet):
                 coin_symbol=data
             ).save()
 
-class MarketListView(CreateAPIView):
+
+class MarketRetriveView(RetrieveAPIView):
     queryset = CoinSymbolCoinList.objects.all()
     serializer_class = CoinViewListSerializer
-    filter_backends = [DjangoFilterBackend]
+    lookup_field = 'coin_symbol'
+
+
+class MarketListView(ListAPIView):
+    queryset = CoinSymbolCoinList.objects.all()
+    serializer_class = CoinViewListSerializer
     filterset_fields = ['coin_symbol']
-    
-    
 
-class MarketListView(CreateAPIView):
-    queryset = CoinSymbolCoinList.objects.all()
-    serializer_class = CoinViewListSerializer
+ 
+class MarketDataCreateBurketInitialization(CreateAPIView, ListAPIView):
+    queryset = SearchBurketCoinIndexing.objects.all()
+    serializer_class = CoinBurketSerializer
     
-    def create(self, request, *args, **kwargs):
+    def create(self, request) -> Response:
         serializer = self.get_serializer(data=request.data)
-        serializer.is_valid(raise_exception=True) 
-         
-        return Response(data=serializer.data, status=status.HTTP_201_CREATED)
-
-    
+        serializer.is_valid(raise_exception=True)
+        
+        self.queryset.all().delete()
+        self.perform_create(serializer=serializer)
+                
+        return Response(data={"coin_list": serializer.data}, 
+                        status=status.HTTP_201_CREATED)
+        
+            
 class UpbitListInitialization(MarketListSynchronSet):
     queryset = UpbitCoinList.objects.all()
     coin_model_initialization = UpbitAPI(name=None).upbit_market
