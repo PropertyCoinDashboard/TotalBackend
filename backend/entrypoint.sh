@@ -3,7 +3,8 @@
 set -e 
 
 echo "${0}: running migrations. :"
-python manage.py makemigrations
+python manage.py makemigrations accounts
+python manage.py makemigrations dashboard
 python manage.py migrate --noinput
 
 echo "${0} : collect staticfile "

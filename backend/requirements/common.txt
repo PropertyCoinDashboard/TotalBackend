@@ -1,30 +1,18 @@
-numpy
-Pillow
 asgiref
 libsass 
 
 django
 djangorestframework
-django-compressor 
-django-sass-processor
-django-debug-toolbar
 django-extensions
 djangorestframework-simplejwt
-typing-extensions
-kafka-python
+django-filter
 pytz
 mypy
-django-stub
-django-filter      
 requests       
 drf-yasg    
 typing
-mypy
 pandas
 
-django-filter==22.1
-pymongo==3.12.1
-django-seed==0.3.1
 gunicorn==20.0.4
 python-dotenv==0.13.0
 sqlparse==0.3.1

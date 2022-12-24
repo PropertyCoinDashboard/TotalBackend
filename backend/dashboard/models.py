@@ -24,7 +24,7 @@ class CoinSymbol(models.Model):
     
 class BitThumCoinList(Timestamp, CoinSymbol):    
     class Meta:
-        db_table: str = "bitthum_coin_list"
+        db_table: str = "bithum_coin_list"
         
         
 class CoinSymbolCoinList(Timestamp, CoinSymbol):

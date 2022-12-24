@@ -127,7 +127,7 @@ dmypy.json
 
 # Pyre type checker
 .pyre/
-backend/dashboard/migrations/*
-/backend/dashboard/migrations/*
-backend/dashboard/migrations/
-backend/dashboard/migrations
+backend/backend/dashboard/migrations/*
+/backend/backend/dashboard/migrations/
+backend/backend/dashboard/migrations
+migrations

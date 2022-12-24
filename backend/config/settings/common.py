@@ -38,13 +38,14 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     
+    # package    
     'django_extensions',
     'rest_framework',
     'rest_framework_simplejwt',
     'drf_yasg',
     'django_filters',
-
     
+    # app
     'dashboard.apps.DashboardConfig',
     'accounts.apps.AccountsConfig',
 ]
