@@ -15,4 +15,4 @@
 
 ## 현재 상속 관계
 ---
-<a href="inhair.png"></a>
+<img src=".inhair.png"></a>
