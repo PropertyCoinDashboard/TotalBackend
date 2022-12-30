@@ -27,7 +27,8 @@ class UpbitAPI:
         self.name = name
         self.up_url = UPBIT_API_URL
         self.upbit_market = header_to_json(f"{self.up_url}/market/all?isDetails=true")
-        self.upbit_coin_present_price = header_to_json(f'{self.up_url}/ticker?markets=KRW-{self.name}')     
+        self.upbit_present_url = f'ticker?markets=KRW-{self.name}'
+        self.upbit_coin_present_price = header_to_json(f'{self.up_url}/{self.upbit_present_url}')     
 
     def upbit_market_list(self) -> List[str]:
         return [data["market"].split("-")[1] for data in self.upbit_market]
@@ -37,6 +38,9 @@ class UpbitAPI:
      
     def __sizeof__(self) -> int:
         return sys.getsizeof(self.upbit_coin_present_price)   
+    
+    def __namesplit__(self) -> str:
+        return f"{self.up_url}/{self.upbit_present_url}".split("-")[1]
     
     
 class BithumAPI:
@@ -61,8 +65,8 @@ class BithumAPI:
     def __sizeof__(self) -> int:
         return sys.getsizeof(self.bithum_present_price)
     
-    def __namesplit__(self, index) -> str:
-        return f"{self.bit_url}/{self.name}".split("/")[index]
+    def __namesplit__(self) -> str:
+        return f"{self.bit_url}/{self.name}".split("/")[5]
     
     
 class TotalCoinMarketListConcatnate(UpbitAPI, BithumAPI):
@@ -78,5 +82,4 @@ class TotalCoinMarketListConcatnate(UpbitAPI, BithumAPI):
         up.extend(bit)
         
         return set(up)
-
 

@@ -10,6 +10,7 @@ from kafka_distribute.producer import producer_optional
 
 from backend.api_injection.coin_apis import CoinMarketBitCoinPresentPrice as cp
 from schema.schema import BaiscSchema, concatnate_dictionary
+from schema.create_log import log
 
 
 BIT_TOPIC_NAME: Final[str] = "trade_bitcoin_total"
@@ -18,26 +19,28 @@ producer = KafkaProducer(bootstrap_servers=bootstrap_server, security_protocol="
 
 
 # 비트코인 현재가 객체 생성
-present = cp()
+logging = log()
 
 
 # 로그 생성
-upbit_btc_present: dict = BaiscSchema(
-                                    name="upbit-BTC", 
-                                    api=present.upbit_bitcoin_present_price, 
-                                    args=("timestamp", "opening_price", "trade_price", 
-                                          "high_price", "low_price"),
-                                    ).kwargs
-
-
-bithum_btc_present: dict = BaiscSchema(
-                                    name="bithum-BTC", 
-                                    api=present.bithum_bitcoin_present_price, 
-                                    args=("date", "opening_price", "closing_price", 
-                                          "max_price", "min_price")
-                                    ).kwargs
+def bitcoin_present_price(name: str, api: dict, data: tuple) -> dict:
+      upbit_btc_present: dict = BaiscSchema(name=name, api=api, data=data).kwargs
+      return upbit_btc_present
 
 
 # # 스키마 생성
-schema = concatnate_dictionary(upbit=upbit_btc_present, bithum=bithum_btc_present)
-producer_optional(producer=producer, data=schema, topic=BIT_TOPIC_NAME)
+while True:
+      present = cp()
+      
+      upbit_btc: dict = bitcoin_present_price(name="upbit-BTC", 
+                                        api=present.upbit_bitcoin_present_price, 
+                                        data=("opening_price", "trade_price", "high_price", "low_price"))
+      
+      bithum_btc: dict = bitcoin_present_price(name="bithum-BTC", 
+                                         api=present.bithum_bitcoin_present_price, 
+                                         data=("opening_price", "closing_price", "max_price", "min_price"))
+      
+      
+      schema: dict[dict[str, int, float]] = concatnate_dictionary(upbit=upbit_btc, bithum=bithum_btc)
+      logging.info(f"데이터 전송 --> \n{schema}\n")
+      producer_optional(producer=producer, data=schema, topic=BIT_TOPIC_NAME)
