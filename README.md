@@ -6,7 +6,7 @@
   + coin information thread 적용하기 
 
 ## 현재 상속 관계
-<img src="./inheir.png" />
+<img src=".img/inheir.png" />
 
 ## 현재 설계도 
-<img src="./1차.png" />
+<img src=".img/1차.png" />

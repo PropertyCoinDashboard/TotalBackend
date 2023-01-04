@@ -30,10 +30,11 @@ def coin_present_price_schema(name: str, api: dict, data: tuple[str]) -> dict[st
       return present_coin
 
 
-coin_name: json = header_to_json(COIN_API_INJECTION_SYMBOL)[0]["coin_symbol"]
 while True:
       # time.sleep(1)
       # 현재가 객체 생성 
+      coin_name: json = header_to_json(COIN_API_INJECTION_SYMBOL)[0]["coin_symbol"]
+
       upbit = UpbitAPI(name=coin_name)
       bithum = BithumAPI(name=coin_name)
       try:
