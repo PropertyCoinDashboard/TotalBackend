@@ -5,14 +5,8 @@
 + ETL Server Backend 그 이상 그 이하도 아님 
   + coin information thread 적용하기 
 
-
-## Coin API injection
-+ min (1, 5, 10)
-+ hour (1, 4, 12)
-+ day (1, 7, 30)
-+ year (1)
-
-
 ## 현재 상속 관계
----
-<img src="./inheir.png"></a>
+<img src="./inheir.png" />
+
+## 현재 설계도 
+<img src="./1차.png" />
