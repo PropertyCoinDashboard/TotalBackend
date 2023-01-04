@@ -9,4 +9,4 @@
 <img src="./img/inheir.png" />
 
 ## 현재 설계도 
-<img src="./img/1차.png" />
+<img src="./img/first.png" />
