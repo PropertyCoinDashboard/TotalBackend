@@ -67,7 +67,7 @@ class UpbitListInitialization(MarketListSynchronSet):
             
 class MarketListTotalInitialization(BithumListInitialization):
     queryset = CoinSymbolCoinList.objects.all()
-    coin_model_initialization = TKC().coin_total_preprecessing()
+    coin_model_initialization = TKC().coin_total_list()
     
             
 class MarketDataCreateBurketInitialization(ListCreateAPIView, MarketListSynchronSet):
