@@ -69,7 +69,7 @@ class CoinPresentSchema(BaiscSchema):
                 self.kwargs["data"].update({
                         "prev_closing_price"   : float(api[data[4]]),        # 전일 종가 
                         "acc_trade_volume_24h" : float(api[data[5]]),      # 24시간 거래량 
-                        "acc_trade_price_24h"  : float(api[data[6]]),      # 24시간 금액량 
+                        # "acc_trade_price_24h"  : float(api[data[6]]),      # 24시간 금액량 
                 })
 
 

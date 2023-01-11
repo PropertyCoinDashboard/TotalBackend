@@ -4,6 +4,7 @@ from typing import Dict, Final, List, Any, Optional
 
 
 UPBIT_API_URL: Final[str] = "https://api.upbit.com/v1"
+KOBIT_API_URL: Final[str] = "https://api.korbit.co.kr/v1"
 BITHUM_API_URL: Final[str] = "https://api.bithumb.com/public/ticker"
 
 
@@ -18,9 +19,10 @@ def header_to_json(url: str):
 class CoinMarketBitCoinPresentPrice:
     def __init__(self) -> None:
         self.upbit_bitcoin_present_price = header_to_json(f"{UPBIT_API_URL}/ticker?markets=KRW-BTC")[0]
+        self.korbit_bitcoin_present_price = header_to_json(f"{KOBIT_API_URL}/ticker/detailed?currency_pair=btc_krw")
         self.bithum_bitcoin_present_price = header_to_json(f"{BITHUM_API_URL}/BTC_KRW")["data"]
-           
-               
+        
+
 class UpbitAPI:
     def __init__(self, name: Optional[str] = None) -> None:
         super().__init__()
@@ -40,9 +42,9 @@ class UpbitAPI:
         return sys.getsizeof(self.upbit_coin_present_price)   
     
     def __namesplit__(self) -> str:
-        return f"{self.up_url}/{self.upbit_present_url}".split("-")[1]
+        return self.name.upper()
     
-    
+
 class BithumAPI:
     def __init__(self, name: Optional[str] = None) -> None:
         super().__init__()
@@ -66,10 +68,24 @@ class BithumAPI:
         return sys.getsizeof(self.bithum_present_price)
     
     def __namesplit__(self) -> str:
-        return f"{self.bit_url}/{self.name}".split("/")[5]
+        return self.name.upper()
+
+
+class KorbitAPI:
+    def __init__(self, name: Optional[str] = None) -> None:
+        self.name = name 
+        self.url = KOBIT_API_URL
+        self.korbit_market = header_to_json(f"{self.url}/ticker/detailed/all")
+        self.korbit_present_price = f"{self.url}/ticker/detailed?currency_pair"
+
+    def __getitem__(self, index: str) -> Dict:
+        return header_to_json(f"{self.korbit_present_price}={index.lower()}_krw")
+    
+    def __namesplit__(self) -> str:
+        return self.name.upper()
     
     
-class TotalCoinMarketListConcatnate(UpbitAPI, BithumAPI):
+class TotalCoinMarketListConcatnate(UpbitAPI, BithumAPI, KorbitAPI):
     def __init__(self) -> None:
         super().__init__()
     
@@ -82,4 +98,3 @@ class TotalCoinMarketListConcatnate(UpbitAPI, BithumAPI):
         up.extend(bit)
         
         return set(up)
-
