@@ -1,5 +1,5 @@
-import sys
 import requests
+from collections import Counter
 from typing import Final, Any, Optional
 
 
@@ -16,52 +16,41 @@ def header_to_json(url: str):
     return info
 
 
-def dict_organizer(target) -> dict:
-    d: dict = {}
-    for data in target:
-        if data in d: # 이미 등장한 값의 경우
-            d[data] += 1
-        else: # 처음 등장한 값의 경우
-            d[data] = 1        
-    return d
-
-
 class CoinMarketBitCoinPresentPrice:
     def __init__(self) -> None:
         self.upbit_bitcoin_present_price = header_to_json(f"{UPBIT_API_URL}/ticker?markets=KRW-BTC")[0]
         self.korbit_bitcoin_present_price = header_to_json(f"{KOBIT_API_URL}/ticker/detailed?currency_pair=btc_krw")
         self.bithum_bitcoin_present_price = header_to_json(f"{BITHUM_API_URL}/BTC_KRW")["data"]
-        
 
-class UpbitAPI:
+
+class ApiBasicArchitecture:
     def __init__(self, name: Optional[str] = None) -> None:
-        super().__init__()
-        self.name = name
-        self.up_url = UPBIT_API_URL
-        self.upbit_market = header_to_json(f"{self.up_url}/market/all?isDetails=true")
+        self.name = name 
+        
+    def __namesplit__(self) -> str:
+        return self.name.upper()
+
+
+class UpbitAPI(ApiBasicArchitecture):
+    def __init__(self, name: Optional[str] = None) -> None:
+        super().__init__(name=name)
+        self.upbit_market = header_to_json(f"{UPBIT_API_URL}/market/all?isDetails=true")
         self.upbit_present_url_parameter = f'ticker?markets=KRW-{self.name}'
-        self.upbit_coin_present_price = header_to_json(f'{self.up_url}/{self.upbit_present_url_parameter}')     
+        self.upbit_coin_present_price = header_to_json(f'{UPBIT_API_URL}/{self.upbit_present_url_parameter}')     
 
     def upbit_market_list(self) -> list[str]:
         return [data["market"].split("-")[1] for data in self.upbit_market]
 
     def __getitem__(self, index: int) -> dict:
-        return self.upbit_coin_present_price[index]
-     
-    def __sizeof__(self) -> int:
-        return sys.getsizeof(self.upbit_coin_present_price)   
-    
-    def __namesplit__(self) -> str:
-        return self.name.upper()
+        return self.upbit_coin_present_price[index] 
     
 
-class BithumAPI:
+class BithumAPI(ApiBasicArchitecture):
     def __init__(self, name: Optional[str] = None) -> None:
-        super().__init__()
-        self.name = name
+        super().__init__(name=name)
         self.bit_url = BITHUM_API_URL
-        self.bithum_market = header_to_json(f"{self.bit_url}/ALL_KRW")
-        self.bithum_present_price = header_to_json(f"{self.bit_url}/{name}_KRW")
+        self.bithum_market = header_to_json(f"{BITHUM_API_URL}/ALL_KRW")
+        self.bithum_present_price = header_to_json(f"{BITHUM_API_URL}/{self.name}_KRW")
 
     def bithum_market_list(self) -> list[Any]:
         a = [coin for coin in self.bithum_market["data"]]
@@ -71,29 +60,18 @@ class BithumAPI:
     def __getitem__(self, index: str) -> dict:
         return self.bithum_present_price[index]
     
-    def __sizeof__(self) -> int:
-        return sys.getsizeof(self.bithum_present_price)
-    
-    def __namesplit__(self) -> str:
-        return self.name.upper()
 
-
-class KorbitAPI:
+class KorbitAPI(ApiBasicArchitecture):
     def __init__(self, name: Optional[str] = None) -> None:
-        super().__init__()
-        self.name = name 
-        self.url = KOBIT_API_URL
-        self.korbit_market = header_to_json(f"{self.url}/ticker/detailed/all")
-        self.korbit_present_price = f"{self.url}/ticker/detailed?currency_pair"
+        super().__init__(name=name)
+        self.korbit_market = header_to_json(f"{KOBIT_API_URL}/ticker/detailed/all")
+        self.korbit_present_price = f"{KOBIT_API_URL}/ticker/detailed?currency_pair"
 
     def korbit_market_list(self) -> list[str]:
         return [i.strip("_krw").upper() for i in self.korbit_market]
 
     def __getitem__(self, index: str) -> dict:
         return header_to_json(f"{self.korbit_present_price}={index.lower()}_krw")
-    
-    def __namesplit__(self) -> str:
-        return self.name.upper()
     
     
 class TotalCoinMarketlistConcatnate(UpbitAPI, BithumAPI, KorbitAPI):
@@ -109,8 +87,9 @@ class TotalCoinMarketlistConcatnate(UpbitAPI, BithumAPI, KorbitAPI):
         kor = self.korbit_market_list()   
         
         total: list = up + bit + kor
-        return dict_organizer(target=total)
+        return Counter(total)
         
     def coin_total_list(self) -> list:
         return [name for name, index in self.coin_total_preprecessing().items() if index >= 2]
         
+

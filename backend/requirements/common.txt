@@ -11,7 +11,6 @@ mypy
 requests       
 drf-yasg    
 typing
-pandas
 
 gunicorn==20.0.4
 python-dotenv==0.13.0

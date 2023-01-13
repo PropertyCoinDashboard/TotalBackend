@@ -11,8 +11,7 @@ from rest_framework.response import Response
 from rest_framework.permissions import AllowAny, IsAdminUser
 from rest_framework.mixins import DestroyModelMixin
 from rest_framework.generics import (
-    CreateAPIView, ListAPIView,
-    RetrieveAPIView, ListCreateAPIView
+    CreateAPIView, ListAPIView, RetrieveAPIView
 )
 
 from .serializer import (
@@ -21,6 +20,7 @@ from .serializer import (
 )
 
 
+# 추상화된 기능 
 class MarketListSynchronSet(CreateAPIView, DestroyModelMixin):
     serializer_class = CoinSynchronizationSerializer
     coin_model_initialization = None
@@ -39,7 +39,8 @@ class MarketListSynchronSet(CreateAPIView, DestroyModelMixin):
                 
         return Response(data={"coin_list": coin_list}, status=status.HTTP_201_CREATED, headers=headers)
     
-    
+
+# 빗썸 코인 저장 
 class BithumListInitialization(MarketListSynchronSet):
     queryset = BitThumCoinList.objects.all()
     coin_model_initialization = BithumAPI(name=None).bithum_market_list()
@@ -50,7 +51,8 @@ class BithumListInitialization(MarketListSynchronSet):
                 coin_symbol=data
             ).save()
 
-                        
+
+# 업비트 코인 저장                         
 class UpbitListInitialization(MarketListSynchronSet):
     queryset = UpbitCoinList.objects.all()
     coin_model_initialization = UpbitAPI(name=None).upbit_market
@@ -64,16 +66,18 @@ class UpbitListInitialization(MarketListSynchronSet):
                 market_warning=data["market"],
             ).save()
        
-            
+
+# 모든 코인 저장 
 class MarketListTotalInitialization(BithumListInitialization):
     queryset = CoinSymbolCoinList.objects.all()
     coin_model_initialization = TKC().coin_total_list()
     
-            
-class MarketDataCreateBurketInitialization(ListCreateAPIView, MarketListSynchronSet):
+
+# 데이터 반환 
+class MarketDataCreateBurketInitialization(MarketListSynchronSet):
     queryset = SearchBurketCoinIndexing.objects.all()
     serializer_class = CoinBurketSerializer
-    
+        
     def create(self, request) -> Response:
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
@@ -87,12 +91,7 @@ class MarketDataCreateBurketInitialization(ListCreateAPIView, MarketListSynchron
 # -----------------------------------------------------------------------------------------#
 
 
-class MarketRetriveView(RetrieveAPIView):
-    queryset = CoinSymbolCoinList.objects.all()
-    serializer_class = CoinViewListSerializer
-    lookup_field = 'coin_symbol'
-
-
+# 전체 코인 리스트
 class MarketListView(ListAPIView):
     queryset = CoinSymbolCoinList.objects.all()
     serializer_class = CoinViewListSerializer
