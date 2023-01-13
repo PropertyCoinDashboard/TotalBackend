@@ -1,5 +1,5 @@
 from typing import Dict, List
-from api_injection.coin_apis import TotalCoinMarketListConcatnate as TKC
+from api_injection.coin_apis import TotalCoinMarketlistConcatnate as TKC
 from api_injection.coin_apis import UpbitAPI, BithumAPI
 from dashboard.models import (
     CoinSymbolCoinList, UpbitCoinList, 
