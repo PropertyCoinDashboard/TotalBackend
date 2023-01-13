@@ -1,6 +1,6 @@
 import sys
 import requests
-from typing import Final, Any
+from typing import Final, Any, Optional
 
 
 UPBIT_API_URL: Final[str] = "https://api.upbit.com/v1"
@@ -35,7 +35,7 @@ class CoinMarketBitCoinPresentPrice:
         
 
 class UpbitAPI:
-    def __init__(self, name: str | None = None) -> None:
+    def __init__(self, name: Optional[str] = None) -> None:
         super().__init__()
         self.name = name
         self.up_url = UPBIT_API_URL
@@ -57,7 +57,7 @@ class UpbitAPI:
     
 
 class BithumAPI:
-    def __init__(self, name: str | None = None) -> None:
+    def __init__(self, name: Optional[str] = None) -> None:
         super().__init__()
         self.name = name
         self.bit_url = BITHUM_API_URL
@@ -80,7 +80,7 @@ class BithumAPI:
 
 
 class KorbitAPI:
-    def __init__(self, name: str | None = None) -> None:
+    def __init__(self, name: Optional[str] = None) -> None:
         super().__init__()
         self.name = name 
         self.url = KOBIT_API_URL
@@ -115,5 +115,3 @@ class TotalCoinMarketlistConcatnate(UpbitAPI, BithumAPI, KorbitAPI):
     def coin_total_list(self) -> list:
         return [name for name, index in self.coin_total_preprecessing().items() if index >= 2]
         
-
-print(TotalCoinMarketlistConcatnate().coin_total_list())
