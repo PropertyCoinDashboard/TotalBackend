@@ -11,7 +11,7 @@ from rest_framework.response import Response
 from rest_framework.permissions import AllowAny, IsAdminUser
 from rest_framework.mixins import DestroyModelMixin
 from rest_framework.generics import (
-    CreateAPIView, ListAPIView, RetrieveAPIView
+    CreateAPIView, ListAPIView
 )
 
 from .serializer import (
