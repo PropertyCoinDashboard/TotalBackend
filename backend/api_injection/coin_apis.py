@@ -26,7 +26,6 @@ def dict_organizer(target) -> dict:
     return d
 
 
-
 class CoinMarketBitCoinPresentPrice:
     def __init__(self) -> None:
         self.upbit_bitcoin_present_price = header_to_json(f"{UPBIT_API_URL}/ticker?markets=KRW-BTC")[0]
