@@ -11,7 +11,7 @@ from rest_framework.response import Response
 from rest_framework.permissions import AllowAny, IsAdminUser
 from rest_framework.mixins import DestroyModelMixin
 from rest_framework.generics import (
-    CreateAPIView, ListAPIView
+    CreateAPIView, ListAPIView, ListCreateAPIView
 )
 
 from .serializer import (
@@ -74,7 +74,7 @@ class MarketListTotalInitialization(BithumListInitialization):
     
 
 # 데이터 반환 
-class MarketDataCreateBurketInitialization(MarketListSynchronSet):
+class MarketDataCreateBurketInitialization(ListCreateAPIView, MarketListSynchronSet):
     queryset = SearchBurketCoinIndexing.objects.all()
     serializer_class = CoinBurketSerializer
         
