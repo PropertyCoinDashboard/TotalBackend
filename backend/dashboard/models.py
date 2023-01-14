@@ -27,9 +27,7 @@ class BitThumCoinList(Timestamp, CoinSymbol):
         db_table: str = "bithum_coin_list"
         
         
-class CoinSymbolCoinList(Timestamp, CoinSymbol):
-    coin_symbol = models.CharField(max_length=50)
-    
+class CoinSymbolCoinList(Timestamp, CoinSymbol):    
     class Meta:
         db_table: str = "coin_symbol"
         
