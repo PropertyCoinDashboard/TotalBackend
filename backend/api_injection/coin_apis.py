@@ -85,7 +85,6 @@ class TotalCoinMarketlistConcatnate(UpbitAPI, BithumAPI, KorbitAPI):
         up = self.upbit_market_list()
         bit = self.bithum_market_list()     
         kor = self.korbit_market_list()   
-        
         total: list = up + bit + kor
         return Counter(total)
         
