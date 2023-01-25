@@ -5,7 +5,7 @@ from typing import Final, Any, Optional
 
 UPBIT_API_URL: Final[str] = "https://api.upbit.com/v1"
 KOBIT_API_URL: Final[str] = "https://api.korbit.co.kr/v1"
-BITHUM_API_URL: Final[str] = "https://api.bithumb.com/public/ticker"
+BITHUM_API_URL: Final[str] = "https://api.bithumb.com/public"
 
 
 def header_to_json(url: str):
@@ -35,8 +35,13 @@ class UpbitAPI(ApiBasicArchitecture):
     def __init__(self, name: Optional[str] = None) -> None:
         super().__init__(name=name)
         self.upbit_market = header_to_json(f"{UPBIT_API_URL}/market/all?isDetails=true")
-        self.upbit_present_url_parameter = f'ticker?markets=KRW-{self.name}'
-        self.upbit_coin_present_price = header_to_json(f'{UPBIT_API_URL}/{self.upbit_present_url_parameter}')     
+        
+        # 현재가 
+        self.upbit_present_url_parameter: str = f'ticker?markets=KRW-{self.name}'
+        self.upbit_coin_present_price = header_to_json(f'{UPBIT_API_URL}/{self.upbit_present_url_parameter}')   
+        
+        # candle
+        self.upbit_candle_price = header_to_json(f"{UPBIT_API_URL}/candles/minutes/1?market=KRW-{self.name}&count=1")
 
     def upbit_market_list(self) -> list[str]:
         return [data["market"].split("-")[1] for data in self.upbit_market]
@@ -48,9 +53,13 @@ class UpbitAPI(ApiBasicArchitecture):
 class BithumAPI(ApiBasicArchitecture):
     def __init__(self, name: Optional[str] = None) -> None:
         super().__init__(name=name)
-        self.bit_url = BITHUM_API_URL
-        self.bithum_market = header_to_json(f"{BITHUM_API_URL}/ALL_KRW")
-        self.bithum_present_price = header_to_json(f"{BITHUM_API_URL}/{self.name}_KRW")
+        self.bit_url: str = BITHUM_API_URL
+        self.bithum_market = header_to_json(f"{BITHUM_API_URL}/ticker/ALL_KRW")
+        self.bithum_present_price = header_to_json(f"{BITHUM_API_URL}/ticker/{self.name}_KRW")
+        
+        # 현재가 
+        self.bithum_candle_price = header_to_json(f"{BITHUM_API_URL}/candlestick/{self.name}_KRW/24h")
+        
 
     def bithum_market_list(self) -> list[Any]:
         a = [coin for coin in self.bithum_market["data"]]
@@ -65,7 +74,7 @@ class KorbitAPI(ApiBasicArchitecture):
     def __init__(self, name: Optional[str] = None) -> None:
         super().__init__(name=name)
         self.korbit_market = header_to_json(f"{KOBIT_API_URL}/ticker/detailed/all")
-        self.korbit_present_price = f"{KOBIT_API_URL}/ticker/detailed?currency_pair"
+        self.korbit_present_price: str = f"{KOBIT_API_URL}/ticker/detailed?currency_pair"
 
     def korbit_market_list(self) -> list[str]:
         return [i.strip("_krw").upper() for i in self.korbit_market]
@@ -90,5 +99,3 @@ class TotalCoinMarketlistConcatnate(UpbitAPI, BithumAPI, KorbitAPI):
         
     def coin_total_list(self) -> list:
         return [name for name, index in self.coin_total_preprecessing().items() if index >= 2]
-        
-

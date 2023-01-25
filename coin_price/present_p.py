@@ -1,6 +1,6 @@
 import os
 import sys
-import json
+import json, time
 from typing import Final, List
 sys.path.append(os.path.dirname(os.path.abspath(os.path.dirname(__file__))))
 sys.path.append(os.path.dirname(os.path.abspath(os.path.dirname(os.path.abspath(os.path.dirname(__file__))))))
@@ -10,7 +10,8 @@ from kafka import KafkaProducer
 from kafka_distribute.producer import producer_optional
 
 from backend.api_injection.coin_apis import (
-      BithumAPI, UpbitAPI, KorbitAPI, header_to_json)
+      BithumAPI, UpbitAPI, KorbitAPI, header_to_json
+)
 from schema.schema import CoinPresentSchema, concatnate_dictionary
 from schema.create_log import log
 logging = log()
@@ -31,9 +32,9 @@ def coin_present_price_schema(name: str, api: dict, data: tuple[str]) -> dict[st
       return present_coin
 
 
-def present():
+def present() -> None:
       while True:
-            # time.sleep(1)
+            time.sleep(1)
             # 현재가 객체 생성 
             coin_name: json = header_to_json(COIN_API_INJECTION_SYMBOL)[0]["coin_symbol"]
 
