@@ -6,6 +6,7 @@ djangorestframework
 django-extensions
 djangorestframework-simplejwt
 django-filter
+
 pytz
 mypy
 requests       

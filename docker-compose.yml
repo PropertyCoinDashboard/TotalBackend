@@ -35,8 +35,8 @@ services:
       - static-volume:/backend/config/static
     env_file:
       - ./.env
-    ports:
-      - "8000:8000"
+    expose:
+      - "8000"
     depends_on:
       - sql
   
