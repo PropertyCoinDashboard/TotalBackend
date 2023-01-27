@@ -78,12 +78,12 @@ class LoginSerializer(serializers.ModelSerializer):
             
             
 # 분권화 
-class AdminSerializer(RegisterSerializer):  
+class AdminRegisterSerializer(RegisterSerializer):  
     class Meta(RegisterSerializer.Meta):
         model = AdminUser  
 
         
-class UserSerializer(RegisterSerializer):    
+class UserRegisterSerializer(RegisterSerializer):    
     class Meta(RegisterSerializer.Meta):
         model = NormalUser
         

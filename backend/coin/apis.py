@@ -19,6 +19,8 @@ from .serializer import (
     CoinBurketSerializer
 )
 
+from drf_yasg.utils import swagger_auto_schema
+
 
 # 추상화된 기능 
 class MarketListSynchronSet(CreateAPIView, DestroyModelMixin):
@@ -97,7 +99,8 @@ class MarketListView(ListAPIView):
     serializer_class = CoinViewListSerializer
     filter_backends = [DjangoFilterBackend]
     filterset_fields = ['coin_symbol']
-    
+        
+
 
     
 

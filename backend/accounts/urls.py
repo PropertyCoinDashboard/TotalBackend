@@ -9,11 +9,11 @@ from . import apis
 app_name = "auth"
 router = DefaultRouter()
 
-router.register("authinform", apis.AdminInformAPI)
-router.register("userinform", apis.UserInformAPI)
+# router.register("authinform", apis.AdminInformAPI)
+# router.register("userinform", apis.UserInformAPI)
 
 urlpatterns = [
-    path("api-v1/", include(router.urls)),
+    # path("api-v1/", include(router.urls)),
     path("api-v1/auth-login", apis.AdminLoginAPI.as_view(), name="auth-login"),
     path("api-v1/user-login", apis.UserLoginAPI.as_view(), name="user-login"),
     
