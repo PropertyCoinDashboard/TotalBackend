@@ -28,8 +28,17 @@ class BitThumCoinList(Timestamp, CoinSymbol):
         
         
 class CoinSymbolCoinList(Timestamp, CoinSymbol):    
+    korea_name = models.CharField(max_length=15, blank=False, null=False)
+    bithum_existence = models.BooleanField()
+    upbit_existence = models.BooleanField()
+    korbit_existence = models.BooleanField()
+    
     class Meta:
         db_table: str = "coin_symbol"
+        indexes = [
+            models.Index(fields=["korea_name", "coin_symbol"]),
+            models.Index(fields=["korea_name"], name="korea_name_idx")
+        ]
         
         
 class SearchBurketCoinIndexing(CoinSymbol):    
