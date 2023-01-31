@@ -2,8 +2,9 @@ from typing import Dict, List
 from api_injection.coin_apis import TotalCoinMarketlistConcatnate as TKC
 from api_injection.coin_apis import UpbitAPI, BithumAPI
 from dashboard.models import (
-    CoinSymbolCoinList, UpbitCoinList, 
-    BitThumCoinList, SearchBurketCoinIndexing)
+    CoinSymbolCoinList, UpbitCoinList,
+    BitThumCoinList, SearchBurketCoinIndexing
+)
 
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import status
@@ -18,9 +19,6 @@ from .serializer import (
     CoinSynchronizationSerializer, CoinViewListSerializer,
     CoinBurketSerializer
 )
-
-from drf_yasg.utils import swagger_auto_schema
-
 
 # 추상화된 기능 
 class MarketListSynchronSet(CreateAPIView, DestroyModelMixin):
@@ -70,10 +68,20 @@ class UpbitListInitialization(MarketListSynchronSet):
        
 
 # 모든 코인 저장 
-class MarketListTotalInitialization(BithumListInitialization):
+class MarketListTotalInitialization(MarketListSynchronSet):
     queryset = CoinSymbolCoinList.objects.all()
-    coin_model_initialization = TKC().coin_total_list()
+    coin_model_initialization = TKC().coin_total_dict()
     
+    def perform_create(self, serializer):
+        for data in serializer:
+            self.queryset.create(
+                korea_name=data["korean_name"],
+                coin_symbol=data["coin_symbol"],
+                bithum_existence=data["market_depend"]["bithum"],
+                upbit_existence=data["market_depend"]["upbit"],
+                korbit_existence=data["market_depend"]["korbit"],
+            ).save()
+
 
 # 데이터 반환 
 class MarketDataCreateBurketInitialization(ListCreateAPIView, MarketListSynchronSet):
@@ -99,7 +107,8 @@ class MarketListView(ListAPIView):
     serializer_class = CoinViewListSerializer
     filter_backends = [DjangoFilterBackend]
     filterset_fields = ['coin_symbol']
-        
+    
+    
 
 
     
