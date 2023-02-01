@@ -42,6 +42,10 @@ import time
 a = BithumCandlingAPI(name="BTC").bithum_candle_price(mint="1m")
 b = pd.DataFrame(a.get("data"), columns=["timestamp", "opening_price", "trade_price", "high_price", "low_price", "candle_acc_trade_volume"])
 b["timestamp"] = b["timestamp"].apply(lambda x: time.strftime('%Y-%m-%d %H:%M', time.localtime(x/1000)))
+b["opening_price"] = b["opening_price"].apply(lambda x: float(x))
+b["trade_price"] = b["trade_price"].apply(lambda x: float(x))
+b["high_price"] = b["high_price"].apply(lambda x: float(x))
+b["low_price"] = b["low_price"].apply(lambda x: float(x))
 print(b)
 
 c = UpBitCandlingAPI("BTC").upbit_candle_price(type="minutes", mint=1, count=200)
