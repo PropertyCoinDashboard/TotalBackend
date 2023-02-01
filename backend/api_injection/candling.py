@@ -10,7 +10,8 @@ import pandas as pd
 class UpBitCandlingAPI(ApiBasicArchitecture):
     """
     :param time 
-        - 분, 시간, 일, 년 
+        minutes, days, weeks, year
+        - 분, 일, 주, 년 
     :param minit
         - 시간 단위
     :param count 
@@ -31,11 +32,21 @@ class BithumCandlingAPI(ApiBasicArchitecture):
     def __init__(self, name: Optional[str] = None) -> None:
         super().__init__(name)
     
-        # 시간별 통합으로 되어 있음
+    # 시간별 통합으로 되어 있음
     def bithum_candle_price(self, mint: str) -> list[dict[Any]]:
         return header_to_json(f"{BITHUM_API_URL}/candlestick/{self.name}_KRW/{mint}")
 
 
+
+import time
 a = BithumCandlingAPI(name="BTC").bithum_candle_price(mint="1m")
-b = pd.DataFrame(a.get("data"))
+b = pd.DataFrame(a.get("data"), columns=["timestamp", "opening_price", "trade_price", "high_price", "low_price", "candle_acc_trade_volume"])
+b["timestamp"] = b["timestamp"].apply(lambda x: time.strftime('%Y-%m-%d %H:%M', time.localtime(x/1000)))
 print(b)
+
+c = UpBitCandlingAPI("BTC").upbit_candle_price(type="minutes", mint=1, count=200)
+c = pd.DataFrame(c)
+c["timestamp"] = c["timestamp"].apply(lambda x: time.strftime(r'%Y-%m-%d %H:%M', time.localtime(x/1000)))
+a = c.drop(["market", "candle_date_time_utc","candle_date_time_kst","candle_acc_trade_price", "unit"], axis=1)
+data = a[["timestamp", "opening_price", "trade_price", "high_price", "low_price", "candle_acc_trade_volume"]]
+print(data)
