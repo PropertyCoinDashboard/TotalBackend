@@ -5,18 +5,17 @@ from typing import Final, List
 sys.path.append(os.path.dirname(os.path.abspath(os.path.dirname(__file__))))
 sys.path.append(os.path.dirname(os.path.abspath(os.path.dirname(os.path.abspath(os.path.dirname(__file__))))))
 
-
 from kafka import KafkaProducer
-from kafka_distribute.producer import producer_optional
-
-from backend.api_injection.coin_apis import (
-      BithumAPI, UpbitAPI, KorbitAPI, header_to_json
-)
 from schema.schema import CoinPresentSchema, concatnate_dictionary
 from schema.create_log import log
+
+from backend_pre.api_injection.coin_apis import (
+      BithumAPI, UpbitAPI, KorbitAPI, header_to_json
+)
+
+
+
 logging = log()
-
-
 COIN_PRECENT_PRICE: Final[str] = "coin_price"
 COIN_API_INJECTION_SYMBOL: Final[str] = "http://0.0.0.0:8081/coinprice/api-v1/coin/burket"
 
@@ -36,7 +35,7 @@ def present() -> None:
       while True:
             time.sleep(1)
             # 현재가 객체 생성 
-            coin_name: json = header_to_json(COIN_API_INJECTION_SYMBOL)[0]["coin_symbol"]
+            coin_name: json = header_to_json(COIN_API_INJECTION_SYMBOL)["results"][0]["coin_symbol"]
 
             upbit = UpbitAPI(name=coin_name)
             bithum = BithumAPI(name=coin_name)
@@ -63,8 +62,7 @@ def present() -> None:
                   # # 스키마 생성
                   schema: dict[str, int]= concatnate_dictionary(upbit=present_upbit, bithum=present_bithum, korbit=present_korbit)
                   logging.info(f"데이터 전송 --> \n{json.dumps(schema)}\n")
-                  producer_optional(producer=producer, data=schema, topic=COIN_PRECENT_PRICE)
-                  
+                  producer.send(topic=COIN_PRECENT_PRICE, value=json.dumps(schema).encode("utf-8"))
             except KeyError:
                   logging.error(f"에러가 일어났습니다 --> \n{KeyError}\n")
 

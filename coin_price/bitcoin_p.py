@@ -1,6 +1,4 @@
-import os
-import sys
-import json
+import json, time, sys, os
 from typing import Final, List
 sys.path.append(os.path.dirname(os.path.abspath(os.path.dirname(__file__))))
 sys.path.append(os.path.dirname(os.path.abspath(os.path.dirname(os.path.abspath(os.path.dirname(__file__))))))
@@ -9,7 +7,7 @@ sys.path.append(os.path.dirname(os.path.abspath(os.path.dirname(os.path.abspath(
 from kafka import KafkaProducer
 from kafka_distribute.producer import producer_optional
 
-from backend.api_injection.coin_apis import CoinMarketBitCoinPresentPrice as cp
+from backend_pre.api_injection.coin_apis import CoinMarketBitCoinPresentPrice as cp
 from schema.schema import BaiscSchema, concatnate_dictionary
 from schema.create_log import log
 
@@ -33,6 +31,7 @@ def bitcoin_present_price(name: str, api: dict, data: tuple) -> dict:
 def schema_flume() -> None:
       while True:
             try:
+                  time.sleep(1)
                   present = cp()
                   
                   upbit_btc: dict = bitcoin_present_price(name="upbit-BTC", 

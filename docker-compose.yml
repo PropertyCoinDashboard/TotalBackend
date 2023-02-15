@@ -20,25 +20,29 @@ services:
       - --lower_case_table_names=1
     volumes:
       - .sqlVolume:/var/lib/mysql
+    networks:
+      - drf-network
 
   backend:
     container_name: stock-django
     build: 
-      context: ./backend
+      context: ./backend_pre
       dockerfile: Dockerfile
     command:
       - /bin/sh
       - -c
       - /usr/src/local/entrypoint.sh
     volumes:
-      - ./backend/:/backend
-      - static-volume:/backend/config/static
+      - ./backend_pre/:/backend_pre
+      - static-volume:/backend_pre/config/static
     env_file:
       - ./.env
     expose:
       - "8000"
     depends_on:
       - sql
+    networks:
+      - drf-network
   
   ngnix:
     build: 
@@ -49,11 +53,18 @@ services:
       - "8081:8081"
     volumes:
       - ./nginx/nginx-setup.conf:/etc/nginx/con.f/nginx-setup.conf
-      - static-volume:/backend/config/static
+      - static-volume:/backend_pre/config/static
     depends_on:
       - sql
       - backend
+    networks:
+      - drf-network
 
+
+networks:
+  drf-network:
+    external: 
+      name: kafka-network
 
 volumes:
   mysql:

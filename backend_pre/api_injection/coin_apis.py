@@ -1,5 +1,5 @@
 from typing import Final, Any, Optional
-from schema.schema import (
+from api_injection.schema.schema import (
     header_to_json, csv_read_json, coin_classification
 )
 
