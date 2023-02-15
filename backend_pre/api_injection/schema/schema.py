@@ -1,5 +1,6 @@
+import csv
 import requests
-from typing import Optional, Any 
+from typing import Any 
 
 
 
@@ -18,8 +19,6 @@ def header_to_json(url: str):
 
 # CSV -> JSON 변환 
 def csv_read_json(read_data: str) -> list[dict[str, Any]]:
-    import csv
-
     with open(read_data, "r") as cj:
         csv_data = csv.DictReader(cj)
         data = list(csv_data)
@@ -41,24 +40,15 @@ def data_format(coin_symbol: str, korean_name: str,
     return data
 
 
-# 개극혐 너무 불편 쌉불편 바꾸고싶음 소름돋음 
-def coin_classification(up = None, bit = None, kor = None,
-                        target: Optional[str] = None, 
-                        korean_name: Optional[str] = None) -> list[dict[str, str]]:
+def coin_classification(up: list = None, bit: list = None, kor: list = None,
+                        target: str = None, 
+                        korean_name: str = None) -> list[dict[str, str]]:
     listup: list = []
-    if (target in up) and (target in bit) and (target in kor):
-        listup.append(data_format(coin_symbol=target, korean_name=korean_name, up=True, bit=True, kor=True))
-    elif (target in up) and (target in bit):
-        listup.append(data_format(coin_symbol=target, korean_name=korean_name, up=True, bit=True, kor=False))
-    elif (target in up) and (target in kor):
-        listup.append(data_format(coin_symbol=target, korean_name=korean_name, up=True, bit=False, kor=True))
-    elif (target in bit) and (target in kor):
-        listup.append(data_format(coin_symbol=target, korean_name=korean_name, up=False, bit=True, kor=True))
-    elif target in up:
-        listup.append(data_format(coin_symbol=target, korean_name=korean_name, up=True, bit=False, kor=False))
-    elif target in bit:
-        listup.append(data_format(coin_symbol=target, korean_name=korean_name, up=False, bit=True, kor=False))
-    elif target in kor:
-        listup.append(data_format(coin_symbol=target, korean_name=korean_name, up=False, bit=False, kor=True))
-        
+    for exchange in ['up', 'bit', 'kor']:
+        if target in locals()[exchange]:
+            up_value, bit_value, kor_value = (exchange == 'up', exchange == 'bit', exchange == 'kor')
+            listup.append(data_format(coin_symbol=target, korean_name=korean_name, 
+                                      up=up_value, bit=bit_value, kor=kor_value))
+            break
     return listup
+

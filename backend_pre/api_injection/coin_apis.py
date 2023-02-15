@@ -1,5 +1,5 @@
 from typing import Final, Any, Optional
-from api_injection.schema.schema import (
+from schema.schema import (
     header_to_json, csv_read_json, coin_classification
 )
 
@@ -26,7 +26,7 @@ class ApiBasicArchitecture:
 
 
 class UpbitAPI(ApiBasicArchitecture):
-    def __init__(self, name: Optional[str] = None) -> None:
+    def __init__(self, name: str = None) -> None:
         super().__init__(name=name)
         self.upbit_market = header_to_json(f"{UPBIT_API_URL}/market/all?isDetails=true")
         
@@ -35,11 +35,11 @@ class UpbitAPI(ApiBasicArchitecture):
         self.upbit_coin_present_price = header_to_json(f'{UPBIT_API_URL}/{self.upbit_present_url_parameter}')   
         
     def upbit_market_list(self) -> list[str]:
-        return [i["market"].split("-")[1] for i in self.upbit_market if i["market"].split("-")[0] == "KRW"]
+        return [i["market"].split("-")[1] for i in self.upbit_market if i["market"].startswith("KRW-")]
     
     def upbit_market_keyvalue(self) -> list[dict[str, str]]:        
         return [{"korean_name": i["korean_name"], "coin_symbol": i["market"].split("-")[1]} 
-                 for i in self.upbit_market if i["market"].split("-")[0] == "KRW"]
+                 for i in self.upbit_market if i["market"].startswith("KRW-")]
                 
     def __getitem__(self, index: int) -> dict:
         return self.upbit_coin_present_price[index] 
@@ -102,19 +102,6 @@ class TotalCoinMarketlistConcatnate(UpbitAPI, BithumAPI, KorbitAPI):
         a = list({v['coin_symbol']:v for v in total}.values())
         return a
     
-    # def __coin_mixin(self) -> dict:
-    #     """
-    #     모든 거래소 코인 목록 통합 
-    #     """
-    #     up = self.upbit_market_list()
-    #     bit = self.bithum_market_list()     
-    #     kor = self.korbit_market_list()   
-    #     total: list[str] = up + bit + kor
-    #     return Counter(total)
-    
-    # def coin_total_list(self) -> list[str]:
-    #     return [name for name, index in self.__coin_mixin().items() if index >= 3]
-    
     def coin_total_dict(self) -> list[dict[str, str]]:
         up = self.upbit_market_list()
         bit = self.bithum_market_list()
@@ -127,3 +114,4 @@ class TotalCoinMarketlistConcatnate(UpbitAPI, BithumAPI, KorbitAPI):
         b = [data for i in a for data in i]
         
         return b
+
