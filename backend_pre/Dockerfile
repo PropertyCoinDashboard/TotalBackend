@@ -7,8 +7,8 @@ WORKDIR /backend_pre/
 RUN apt-get update && apt-get -y install libpq-dev
 RUN apt-get install -y netcat
 
-COPY data/bithum.csv /backend_pre/api_injection/data/bithum.csv
-COPY data/korbit.csv /backend_pre/api_injection/data/korbit.csv
+COPY api_injection/data/bithum.csv /backend_pre/api_injection/data/bithum.csv
+COPY api_injection/data/korbit.csv /backend_pre/api_injection/data/korbit.csv
 
 COPY entrypoint.sh /usr/src/local/entrypoint.sh
 COPY requirements/common.txt /backend_pre/

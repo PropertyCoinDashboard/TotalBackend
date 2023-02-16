@@ -12,7 +12,6 @@ mypy
 requests       
 drf-yasg    
 typing
-kafka-python
 gunicorn==20.0.4
 python-dotenv==0.13.0
 sqlparse==0.3.1

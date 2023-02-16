@@ -1,24 +1,32 @@
-import json, time, sys, os
+import json, time, sys
+from pathlib import Path
 from typing import Final, List
-sys.path.append(os.path.dirname(os.path.abspath(os.path.dirname(__file__))))
-sys.path.append(os.path.dirname(os.path.abspath(os.path.dirname(os.path.abspath(os.path.dirname(__file__))))))
+from concurrent.futures import ThreadPoolExecutor
+# 현재 파일의 경로
+file_path = Path(__file__).resolve()
 
+# 상위 경로 backend
+parent_path = file_path.parent
+
+# 상위 경로 backed_pre -> sys 경로 추가
+grandparent_path = parent_path.parent
+sys.path.append(str(parent_path))
+sys.path.append(str(grandparent_path))
 
 from kafka import KafkaProducer
-from kafka_distribute.producer import producer_optional
-
 from backend_pre.api_injection.coin_apis import CoinMarketBitCoinPresentPrice as cp
 from schema.schema import BaiscSchema, concatnate_dictionary
 from schema.create_log import log
 
 
 BIT_TOPIC_NAME: Final[str] = "trade_bitcoin_total"
-bootstrap_server: List[str] = ["kafka1:19091", "kafka2:29092", "kafka3:39093"]
-producer = KafkaProducer(bootstrap_servers=bootstrap_server, security_protocol="PLAINTEXT")
+BOOTSTRAP_SERVER: Final[List[str]] = ["kafka1:19091", "kafka2:29092", "kafka3:39093"]
+producer = KafkaProducer(bootstrap_servers=BOOTSTRAP_SERVER, security_protocol="PLAINTEXT")
 
 
 # 비트코인 현재가 객체 생성
 logging = log()
+
 
 
 # 로그 생성
@@ -29,29 +37,30 @@ def bitcoin_present_price(name: str, api: dict, data: tuple) -> dict:
 
 # # 스키마 생성
 def schema_flume() -> None:
-      while True:
+    with ThreadPoolExecutor() as executor:
+        while True:
             try:
-                  time.sleep(1)
-                  present = cp()
-                  
-                  upbit_btc: dict = bitcoin_present_price(name="upbit-BTC", 
-                                                api=present.upbit_bitcoin_present_price, 
-                                                data=("opening_price", "trade_price", "high_price", "low_price"))
-                  
-                  bithum_btc: dict = bitcoin_present_price(name="bithum-BTC", 
-                                                api=present.bithum_bitcoin_present_price, 
-                                                data=("opening_price", "closing_price", "max_price", "min_price"))
-                  
-                  kobit_btc: dict = bitcoin_present_price(name="kobit-BTC",
-                                                      api=present.korbit_bitcoin_present_price,
-                                                      data=("open", "last", "bid", "ask"))
-                  
-                  schema: dict[dict[str, int, float]] = concatnate_dictionary(upbit=upbit_btc, bithum=bithum_btc, kobit=kobit_btc)
-                  json_to_schema = json.dumps(schema)
-                  logging.info(f"데이터 전송 --> \n{json_to_schema}\n")
-                  producer_optional(producer=producer, data=schema, topic=BIT_TOPIC_NAME)
-            except KeyError:
-                  logging.error(f"전송 오류 --> \n{KeyError}\n")
+                time.sleep(1)
+                present = cp()
+
+                # upbit, bithum, kobit 각각의 가격을 병렬처리로 가져옴
+                futures = [
+                    executor.submit(bitcoin_present_price, name=f"{ex_name}-BTC", api=api_func, data=data)
+                    for ex_name, api_func, data in [
+                        ("upbit", present.upbit_bitcoin_present_price, ("opening_price", "trade_price", "high_price", "low_price")),
+                        ("bithum", present.bithum_bitcoin_present_price, ("opening_price", "closing_price", "max_price", "min_price")),
+                        ("kobit", present.korbit_bitcoin_present_price, ("open", "last", "bid", "ask"))
+                    ]
+                ]
+
+                # futures를 이용하여 각각의 가격을 딕셔너리로 만들고 병합
+                schema = concatnate_dictionary(**{ex_name: future.result() for ex_name, future in zip(("upbit", "bithum", "kobit"), futures)})
+                json_to_schema = json.dumps(schema).encode("utf-8")
+                logging.info(f"데이터 전송 --> \n{json_to_schema}\n")
+                producer.send(topic=BIT_TOPIC_NAME, value=json_to_schema)
+            except Exception as e:
+                logging.error(f"전송 실패 --> {e}")
+
                   
                   
 schema_flume()

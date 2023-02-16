@@ -3,43 +3,19 @@ from dashboard.models import (
     CoinSymbolCoinList, UpbitCoinList,
     BitThumCoinList, SearchBurketCoinIndexing
 )
-from .serializer import (
-    CoinSynchronizationSerializer, CoinViewListSerializer,
-    CoinBurketSerializer
-)
 
 from api_injection.coin_apis import TotalCoinMarketlistConcatnate as TKC
 from api_injection.coin_apis import UpbitAPI, BithumAPI
-from kafka import KafkaConsumer
-
 from django_filters.rest_framework import DjangoFilterBackend
+
 from rest_framework import status
 from rest_framework.response import Response
-from rest_framework.views import APIView
 from rest_framework.permissions import AllowAny, IsAdminUser
 from rest_framework.mixins import DestroyModelMixin
 from rest_framework.generics import (
-    CreateAPIView, ListAPIView, ListCreateAPIView
-)
-
-
-consumer = KafkaConsumer(
-    'coin_price',
-    bootstrap_servers=["kafka1:19092", "kafka2:29092", "kafka3:39093"],
-    auto_offset_reset='earliest',
-    enable_auto_commit=True,
-)
-
-def message_handeling(message):
-    print(f"{message.value}")
-    return message.value
-
-class KafkaCoinConsumer(APIView):
-    def get(self, request, format=None):
-        # Consumer에서 새로운 메시지를 가져와 처리합니다.
-        for message in consumer:
-            message_handeling(message)
-        return Response({'status': 'success'})
+    CreateAPIView, ListAPIView, ListCreateAPIView)
+from .serializer import (
+    CoinSynchronizationSerializer, CoinViewListSerializer, CoinBurketSerializer)
 
 
 # 추상화된 기능 

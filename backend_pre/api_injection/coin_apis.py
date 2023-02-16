@@ -1,20 +1,65 @@
+import csv
+import requests
+from pathlib import Path
 from typing import Final, Any, Optional
-from schema.schema import (
-    header_to_json, csv_read_json, coin_classification
-)
 
 
 UPBIT_API_URL: Final[str] = "https://api.upbit.com/v1"
 KOBIT_API_URL: Final[str] = "https://api.korbit.co.kr/v1"
 BITHUM_API_URL: Final[str] = "https://api.bithumb.com/public"
+PRESENT_DIR: Final[Path] = Path(__file__).resolve().parent
 
+
+def header_to_json(url: str):
+    headers: dict[str, str] = {"accept": "application/json"}
+    response = requests.get(url, headers=headers)
+    info = response.json()
+    
+    return info
+
+
+# CSV -> JSON 변환 
+def csv_read_json(read_data: str) -> list[dict[str, Any]]:
+    with open(read_data, "r") as cj:
+        csv_data = csv.DictReader(cj)
+        data = list(csv_data)
+
+    return data
+
+
+def data_format(coin_symbol: str, korean_name: str, 
+                up: bool, bit: bool, kor: bool) -> dict[str, dict[str, bool]]:
+    data: dict = {
+        "coin_symbol": coin_symbol,
+        "korean_name": korean_name,
+        "market_depend": {
+                "upbit": up, 
+                "bithum": bit,
+                "korbit": kor,
+            }
+    }
+    return data
+
+
+def coin_classification(up: list = None, bit: list = None, kor: list = None,
+                        target: str = None, 
+                        korean_name: str = None) -> list[dict[str, str]]:
+    listup: list = []
+    for exchange in ['up', 'bit', 'kor']:
+        if target in locals()[exchange]:
+            up_value, bit_value, kor_value = (exchange == 'up', exchange == 'bit', exchange == 'kor')
+            listup.append(data_format(coin_symbol=target, korean_name=korean_name, 
+                                      up=up_value, bit=bit_value, kor=kor_value))
+            break
+    return listup
 
 
 class CoinMarketBitCoinPresentPrice:
     def __init__(self) -> None:
         self.upbit_bitcoin_present_price = header_to_json(f"{UPBIT_API_URL}/ticker?markets=KRW-BTC")[0]
         self.korbit_bitcoin_present_price = header_to_json(f"{KOBIT_API_URL}/ticker/detailed?currency_pair=btc_krw")
-        self.bithum_bitcoin_present_price = header_to_json(f"{BITHUM_API_URL}/BTC_KRW")["data"]
+        self.bithum_bitcoin_present_price = header_to_json(f"{BITHUM_API_URL}/ticker/BTC_KRW")["data"]
+        print(self.bithum_bitcoin_present_price)
 
 
 class ApiBasicArchitecture:     
@@ -46,8 +91,8 @@ class UpbitAPI(ApiBasicArchitecture):
     
 
 class BithumAPI(ApiBasicArchitecture):
-    data = "data/bithum.csv"
-    
+    data = f"{PRESENT_DIR}/data/bithum.csv"
+
     def __init__(self, name: Optional[str] = None) -> None:
         super().__init__(name=name)
         self.bit_url: str = BITHUM_API_URL
@@ -67,8 +112,8 @@ class BithumAPI(ApiBasicArchitecture):
     
 
 class KorbitAPI(ApiBasicArchitecture):
-    data = "data/korbit.csv"
-    
+    data = f"{PRESENT_DIR}/data/korbit.csv"
+
     def __init__(self, name: Optional[str] = None) -> None:
         super().__init__(name=name)
         self.korbit_market = header_to_json(f"{KOBIT_API_URL}/ticker/detailed/all")
