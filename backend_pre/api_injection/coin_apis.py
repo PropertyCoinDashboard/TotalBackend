@@ -53,13 +53,19 @@ def coin_classification(up: list = None, bit: list = None, kor: list = None,
             break
     return listup
 
-
+# 비트코인 현재가
 class CoinMarketBitCoinPresentPrice:
     def __init__(self) -> None:
         self.upbit_bitcoin_present_price = header_to_json(f"{UPBIT_API_URL}/ticker?markets=KRW-BTC")[0]
         self.korbit_bitcoin_present_price = header_to_json(f"{KOBIT_API_URL}/ticker/detailed?currency_pair=btc_krw")
         self.bithum_bitcoin_present_price = header_to_json(f"{BITHUM_API_URL}/ticker/BTC_KRW")["data"]
-        print(self.bithum_bitcoin_present_price)
+
+# 이더리움 현재가 
+class CoinMarketEthereumPresentPrice:
+    def __init__(self) -> None:
+        self.upbit_ethereum_present_price = header_to_json(f"{UPBIT_API_URL}/ticker?markets=KRW-ETH")[0]
+        self.korbit_ethereum_present_price = header_to_json(f"{KOBIT_API_URL}/ticker/detailed?currency_pair=eth_krw")
+        self.bithum_ethereum_present_price = header_to_json(f"{BITHUM_API_URL}/ticker/eth_KRW")["data"]
 
 
 class ApiBasicArchitecture:     
