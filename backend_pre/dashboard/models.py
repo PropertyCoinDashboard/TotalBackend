@@ -20,12 +20,7 @@ class CoinSymbol(models.Model):
     
     class Meta:
         abstract: bool = True
-        
-    
-class BitThumCoinList(Timestamp, CoinSymbol):    
-    class Meta:
-        db_table: str = "bithum_coin_list"
-        
+            
         
 class CoinSymbolCoinList(Timestamp, CoinSymbol):    
     korea_name = models.CharField(max_length=15, unique=True, 
@@ -46,25 +41,7 @@ class SearchBurketCoinIndexing(CoinSymbol):
 """
 ## ---------------------------------------------------- ##
 """
-        
-
-class NameSchema(models.Model):
-    k_name = models.CharField(max_length=50, default="")
-    e_name = models.CharField(max_length=50)
-    
-    class Meta:
-        abstract: bool = True
-        
-        
-class UpbitCoinList(Timestamp, NameSchema):
-    market = models.CharField(max_length=15)
-    market_warning = models.CharField(max_length=15)
-    
-    class Meta:
-        db_table: str = "upbit_coin_list"
-        
-        
-
+                
 # class StockInformationally(Timestamp):
 #     k_name = models.CharField(max_length=50, default="")
     

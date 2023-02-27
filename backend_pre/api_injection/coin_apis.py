@@ -159,9 +159,9 @@ class TotalCoinMarketlistConcatnate(UpbitAPI, BithumAPI, KorbitAPI):
         kor = self.korbit_market_list()
         coin_info = self.coin_key_value_concat()
 
-        a = (coin_classification(up=up, bit=bit, kor=kor,
-                                target=name["coin_symbol"], 
-                                korean_name=name["korean_name"]) for name in coin_info)
+        a = (coin_classification(up=up, bit=bit, kor=kor, 
+                                target=name["coin_symbol"], korean_name=name["korean_name"]) 
+                                for name in coin_info)
         b = [data for i in a for data in i]
         
         return b

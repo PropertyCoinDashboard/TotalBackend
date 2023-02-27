@@ -54,7 +54,7 @@ def schema_flume() -> None:
                 ]
 
                 # futures를 이용하여 각각의 가격을 딕셔너리로 만들고 병합
-                schema = concatnate_dictionary(**{ex_name: future.result() for ex_name, future in zip(("upbit", "bithum", "kobit"), futures)})
+                schema = concatnate_dictionary(**{ex_name: future.result() for ex_name, future in zip(("upbit", "bithum", "korbit"), futures)})
                 json_to_schema = json.dumps(schema).encode("utf-8")
                 logging.info(f"데이터 전송 --> \n{json_to_schema}\n")
                 producer.send(topic=BIT_TOPIC_NAME, value=json_to_schema)
