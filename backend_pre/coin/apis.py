@@ -1,11 +1,9 @@
 from typing import Dict, List
 from dashboard.models import (
-    CoinSymbolCoinList, UpbitCoinList,
-    BitThumCoinList, SearchBurketCoinIndexing
+    CoinSymbolCoinList, SearchBurketCoinIndexing
 )
 
 from api_injection.coin_apis import TotalCoinMarketlistConcatnate as TKC
-from api_injection.coin_apis import UpbitAPI, BithumAPI
 from django_filters.rest_framework import DjangoFilterBackend
 
 from rest_framework import status
@@ -13,9 +11,11 @@ from rest_framework.response import Response
 from rest_framework.permissions import AllowAny, IsAdminUser
 from rest_framework.mixins import DestroyModelMixin
 from rest_framework.generics import (
-    CreateAPIView, ListAPIView, ListCreateAPIView)
+    CreateAPIView, ListAPIView, ListCreateAPIView
+)
 from .serializer import (
-    CoinSynchronizationSerializer, CoinViewListSerializer, CoinBurketSerializer)
+    CoinSynchronizationSerializer, CoinViewListSerializer, CoinBurketSerializer
+)
 
 
 # 추상화된 기능 
@@ -37,33 +37,6 @@ class MarketListSynchronSet(CreateAPIView, DestroyModelMixin):
                 
         return Response(data={"coin_list": coin_list}, status=status.HTTP_201_CREATED, headers=headers)
     
-
-# 빗썸 코인 저장 
-class BithumListInitialization(MarketListSynchronSet):
-    queryset = BitThumCoinList.objects.all()
-    coin_model_initialization = BithumAPI(name=None).bithum_market_list()
-    
-    def perform_create(self, serializer) -> None:
-        for data in serializer:
-            self.queryset.create(
-                coin_symbol=data
-            ).save()
-
-
-# 업비트 코인 저장                         
-class UpbitListInitialization(MarketListSynchronSet):
-    queryset = UpbitCoinList.objects.all()
-    coin_model_initialization = UpbitAPI(name=None).upbit_market
-    
-    def perform_create(self, serializer) -> None:
-        for data in serializer:
-            self.queryset.create(
-                market=data["market"],
-                k_name=data["korean_name"], 
-                e_name=data["english_name"],
-                market_warning=data["market"],
-            ).save()
-       
 
 # 모든 코인 저장 
 class MarketListTotalInitialization(MarketListSynchronSet):
