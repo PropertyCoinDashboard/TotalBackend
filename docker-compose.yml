@@ -58,7 +58,7 @@ services:
 
 
 volumes:
-  mysql:
+  sql:
   nginx:
   backend:
   build_file:
