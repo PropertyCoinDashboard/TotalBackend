@@ -1,16 +1,16 @@
 import csv
 import requests
 from pathlib import Path
-from typing import Final, Any, Optional
+from typing import Any, Optional, Literal
 
 
-UPBIT_API_URL: Final[str] = "https://api.upbit.com/v1"
-KOBIT_API_URL: Final[str] = "https://api.korbit.co.kr/v1"
-BITHUM_API_URL: Final[str] = "https://api.bithumb.com/public"
-PRESENT_DIR: Final[Path] = Path(__file__).resolve().parent
+UPBIT_API_URL: Literal = "https://api.upbit.com/v1"
+KOBIT_API_URL: Literal = "https://api.korbit.co.kr/v1"
+BITHUM_API_URL: Literal = "https://api.bithumb.com/public"
+PRESENT_DIR: Path = Path(__file__).resolve().parent
 
 
-def header_to_json(url: str):
+def header_to_json(url: str) -> Any:
     headers: dict[str, str] = {"accept": "application/json"}
     response = requests.get(url, headers=headers)
     info = response.json()
@@ -53,12 +53,14 @@ def coin_classification(up: list = None, bit: list = None, kor: list = None,
             break
     return listup
 
+
 # 비트코인 현재가
 class CoinMarketBitCoinPresentPrice:
     def __init__(self) -> None:
         self.upbit_bitcoin_present_price = header_to_json(f"{UPBIT_API_URL}/ticker?markets=KRW-BTC")[0]
         self.korbit_bitcoin_present_price = header_to_json(f"{KOBIT_API_URL}/ticker/detailed?currency_pair=btc_krw")
         self.bithum_bitcoin_present_price = header_to_json(f"{BITHUM_API_URL}/ticker/BTC_KRW")["data"]
+
 
 # 이더리움 현재가 
 class CoinMarketEthereumPresentPrice:

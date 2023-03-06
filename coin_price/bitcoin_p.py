@@ -1,7 +1,6 @@
-import json, time, sys
+import sys
 from pathlib import Path
-from typing import Final, List
-from concurrent.futures import ThreadPoolExecutor
+
 # 현재 파일의 경로
 file_path = Path(__file__).resolve()
 
@@ -13,14 +12,20 @@ grandparent_path = parent_path.parent
 sys.path.append(str(parent_path))
 sys.path.append(str(grandparent_path))
 
+
+import json, time
+from typing import Literal
+from concurrent.futures import ThreadPoolExecutor
+
 from kafka import KafkaProducer
 from backend_pre.api_injection.coin_apis import CoinMarketBitCoinPresentPrice as cp
+
 from schema.schema import BaiscSchema, concatnate_dictionary
 from schema.create_log import log
 
 
-BIT_TOPIC_NAME: Final[str] = "trade_bitcoin_total"
-BOOTSTRAP_SERVER: Final[List[str]] = ["kafka1:19091", "kafka2:29092", "kafka3:39093"]
+BIT_TOPIC_NAME: Literal = "trade_bitcoin_total"
+BOOTSTRAP_SERVER: list[str] = ["kafka1:19091", "kafka2:29092", "kafka3:39093"]
 producer = KafkaProducer(bootstrap_servers=BOOTSTRAP_SERVER, security_protocol="PLAINTEXT")
 
 

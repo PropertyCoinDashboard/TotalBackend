@@ -1,7 +1,6 @@
-import sys, time, json
+import sys
 from pathlib import Path
-from typing import Final
-import asyncio
+
 # 현재 파일의 경로
 file_path = Path(__file__).resolve()
 
@@ -14,21 +13,22 @@ sys.path.append(str(parent_path))
 sys.path.append(str(grandparent_path))
 
 
+
+from typing import Literal
+import asyncio, json
 from kafka import KafkaProducer
 from schema.schema import CoinPresentSchema, concatnate_dictionary
 from schema.create_log import log
-
 from backend_pre.api_injection.coin_apis import (
       BithumAPI, UpbitAPI, KorbitAPI, header_to_json
 )
 
-
 logging = log()
 
 # kafka and coin information
-COIN_PRECENT_PRICE: Final[str] = "coin_price"
-COIN_API_INJECTION_SYMBOL: Final[str] = "http://0.0.0.0:8081/coinprice/api-v1/coin/burket"
-BOOTSTRAP_SERVER: Final[list[str]] = ["kafka1:19091", "kafka2:29092", "kafka3:39093"]
+COIN_PRECENT_PRICE: Literal = "coin_price"
+COIN_API_INJECTION_SYMBOL: Literal = "http://0.0.0.0:8081/coinprice/api-v1/coin/burket"
+BOOTSTRAP_SERVER: list[str] = ["kafka1:19091", "kafka2:29092", "kafka3:39093"]
 producer = KafkaProducer(bootstrap_servers=BOOTSTRAP_SERVER, security_protocol="PLAINTEXT")
 
 
@@ -67,7 +67,7 @@ async def present() -> None:
                             "ask", "low", "volume")
                 )
                 
-                results = [present_upbit, present_bithum, present_korbit]
+                results: list[dict[str, int]] = [present_upbit, present_bithum, present_korbit]
                 
                 # # 스키마 생성
                 schema: dict[str, int]= concatnate_dictionary(upbit=results[0], bithum=results[1], korbit=results[2])
