@@ -1,6 +1,14 @@
 version: '3.9'
 
-services:      
+services:   
+  redis:
+    container_name: stock-redis
+    image: redis:latest
+    ports:
+      - "6379:6380"
+    networks:
+      - redisnet
+
   sql:
     container_name: stock-sql
     image: mysql
@@ -20,6 +28,8 @@ services:
       - --lower_case_table_names=1
     volumes:
       - .sqlVolume:/var/lib/mysql
+    networks:
+      - redisnet
 
 
   backend:
@@ -38,10 +48,12 @@ services:
       - ./.env
     expose:
       - "8000"
+    networks:
+      - redisnet
     depends_on:
       - sql
+      - redis
 
-  
   ngnix:
     build: 
       context: ./nginx
@@ -52,13 +64,19 @@ services:
     volumes:
       - ./nginx/nginx-setup.conf:/etc/nginx/con.f/nginx-setup.conf
       - static-volume:/backend_pre/config/static
+    networks:
+      - redisnet
     depends_on:
       - sql
+      - redis
       - backend
 
+networks:
+  redisnet:
 
 volumes:
   sql:
+  redis:
   nginx:
   backend:
   build_file:

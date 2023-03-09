@@ -8,6 +8,11 @@ djangorestframework-simplejwt
 django-filter
 channels
 
+redis
+channels-redis
+websockets
+websocket-client   
+daphne
 pytz
 mypy
 requests       
