@@ -8,6 +8,7 @@ class BitcoinAverageSocketing(AsyncWebsocketConsumer):
             'stream_group',
             self.channel_name
         )
+        print(self.channel_layer)
         await self.accept()
 
     async def disconnect(self, close_code):

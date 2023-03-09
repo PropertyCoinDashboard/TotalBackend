@@ -27,9 +27,23 @@ SECRET_KEY = 'django-insecure-tl(9n58d-d%$gp*g@1c$n(8zzu^xve3dw&6np!49j$z%0-siav
 DEBUG = True
 
 
+# Channels Asyc
+ASGI_APPLICATION = 'config.asgi.application'
+REDIS_PORT_NUMBER = os.getenv('redis')
+
+# 레디스 
+CHANNEL_LAYERS = {
+    "default": {
+        "BACKEND": "channels_redis.core.RedisChannelLayer",
+        "CONFIG": {
+            "hosts": [(REDIS_PORT_NUMBER, 6379)],
+        },
+    },
+}
+
+
 
 # Application definition
-
 INSTALLED_APPS = [
     'django.contrib.admin',
     'django.contrib.auth',
@@ -75,25 +89,25 @@ PASSWORD_HASHERS = [
 ROOT_URLCONF = 'config.urls'
 
 
-LOGGING = {
-    'version': 1,
-    'disable_existing_loggers': False,
-    'handlers': {
-        'console': {
-            'class': 'logging.StreamHandler',
-        },
-        'file': {
-            'class': 'logging.FileHandler',
-            'filename': 'error.log',
-        },
-    },
-    'loggers': {
-        'django': {
-            'handlers': ['console', 'file'],
-            'level': 'ERROR',
-        },
-    },
-}
+# LOGGING = {
+#     'version': 1,
+#     'disable_existing_loggers': False,
+#     'handlers': {
+#         'console': {
+#             'class': 'logging.StreamHandler',
+#         },
+#         'file': {
+#             'class': 'logging.FileHandler',
+#             'filename': 'error.log',
+#         },
+#     },
+#     'loggers': {
+#         'django': {
+#             'handlers': ['console', 'file'],
+#             'level': 'ERROR',
+#         },
+#     },
+# }
 
 
 TEMPLATES = [
