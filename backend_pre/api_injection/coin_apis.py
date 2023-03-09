@@ -1,8 +1,9 @@
 import csv
 import requests
 from pathlib import Path
-from typing import Any, Optional, Literal
-
+from typing import (
+    Any, Optional, Literal, Dict, List, Generator
+)
 
 UPBIT_API_URL: Literal = "https://api.upbit.com/v1"
 KOBIT_API_URL: Literal = "https://api.korbit.co.kr/v1"
@@ -11,7 +12,7 @@ PRESENT_DIR: Path = Path(__file__).resolve().parent
 
 
 def header_to_json(url: str) -> Any:
-    headers: dict[str, str] = {"accept": "application/json"}
+    headers: Dict[str, str] = {"accept": "application/json"}
     response = requests.get(url, headers=headers)
     info = response.json()
     
@@ -19,7 +20,7 @@ def header_to_json(url: str) -> Any:
 
 
 # CSV -> JSON 변환 
-def csv_read_json(read_data: str) -> list[dict[str, Any]]:
+def csv_read_json(read_data: str) -> List[Dict[str, Any]]:
     with open(read_data, "r") as cj:
         csv_data = csv.DictReader(cj)
         data = list(csv_data)
@@ -28,8 +29,8 @@ def csv_read_json(read_data: str) -> list[dict[str, Any]]:
 
 
 def data_format(coin_symbol: str, korean_name: str, 
-                up: bool, bit: bool, kor: bool) -> dict[str, dict[str, bool]]:
-    data: dict = {
+                up: bool, bit: bool, kor: bool) -> Dict[str, Dict[str, bool]]:
+    data: Dict = {
         "coin_symbol": coin_symbol,
         "korean_name": korean_name,
         "market_depend": {
@@ -41,10 +42,9 @@ def data_format(coin_symbol: str, korean_name: str,
     return data
 
 
-def coin_classification(up: list = None, bit: list = None, kor: list = None,
-                        target: str = None, 
-                        korean_name: str = None) -> list[dict[str, str]]:
-    listup: list = []
+def coin_classification(up: List = None, bit: List = None, kor: List = None,
+                        target: str = None, korean_name: str = None) -> List[Dict[str, str]]:
+    listup: List = []
     for exchange in ['up', 'bit', 'kor']:
         if target in locals()[exchange]:
             up_value, bit_value, kor_value = (exchange == 'up', exchange == 'bit', exchange == 'kor')
@@ -87,19 +87,19 @@ class UpbitAPI(ApiBasicArchitecture):
         self.upbit_present_url_parameter: str = f'ticker?markets=KRW-{self.name}'
         self.upbit_coin_present_price = header_to_json(f'{UPBIT_API_URL}/{self.upbit_present_url_parameter}')   
         
-    def upbit_market_list(self) -> list[str]:
+    def upbit_market_list(self) -> List[str]:
         return [i["market"].split("-")[1] for i in self.upbit_market if i["market"].startswith("KRW-")]
     
-    def upbit_market_keyvalue(self) -> list[dict[str, str]]:        
+    def upbit_market_keyvalue(self) -> List[Dict[str, str]]:        
         return [{"korean_name": i["korean_name"], "coin_symbol": i["market"].split("-")[1]} 
                  for i in self.upbit_market if i["market"].startswith("KRW-")]
                 
-    def __getitem__(self, index: int) -> dict:
+    def __getitem__(self, index: int) -> Dict:
         return self.upbit_coin_present_price[index] 
     
 
 class BithumAPI(ApiBasicArchitecture):
-    data = f"{PRESENT_DIR}/data/bithum.csv"
+    data: str = f"{PRESENT_DIR}/data/bithum.csv"
 
     def __init__(self, name: Optional[str] = None) -> None:
         super().__init__(name=name)
@@ -107,7 +107,7 @@ class BithumAPI(ApiBasicArchitecture):
         self.bithum_market = header_to_json(f"{BITHUM_API_URL}/ticker/ALL_KRW")
         self.bithum_present_price = header_to_json(f"{BITHUM_API_URL}/ticker/{self.name}_KRW")
         
-    def bithum_market_list(self) -> list[Any]:
+    def bithum_market_list(self) -> List[Any]:
         a = [coin for coin in self.bithum_market["data"]]
         del a[-1]
         return a
@@ -115,25 +115,25 @@ class BithumAPI(ApiBasicArchitecture):
     def bithum_market_keyvalue(self) -> csv_read_json:      
         return csv_read_json(self.data)
              
-    def __getitem__(self, index: str) -> dict:
+    def __getitem__(self, index: str) -> Dict:
         return self.bithum_present_price[index]
     
 
 class KorbitAPI(ApiBasicArchitecture):
-    data = f"{PRESENT_DIR}/data/korbit.csv"
+    data: str = f"{PRESENT_DIR}/data/korbit.csv"
 
     def __init__(self, name: Optional[str] = None) -> None:
         super().__init__(name=name)
         self.korbit_market = header_to_json(f"{KOBIT_API_URL}/ticker/detailed/all")
         self.korbit_present_price: str = f"{KOBIT_API_URL}/ticker/detailed?currency_pair"
 
-    def korbit_market_list(self) -> list[str]:
+    def korbit_market_list(self) -> List[str]:
         return [i.split("_")[0].upper() for i in self.korbit_market]
     
     def korbit_market_keyvalue(self) -> csv_read_json:        
         return csv_read_json(self.data)
 
-    def __getitem__(self, index: str) -> dict:
+    def __getitem__(self, index: str) -> Dict:
         """
         :param index : str 
             ex) btc eth 
@@ -147,24 +147,24 @@ class TotalCoinMarketlistConcatnate(UpbitAPI, BithumAPI, KorbitAPI):
     def __init__(self) -> None:
         super().__init__()
     
-    def coin_key_value_concat(self) -> list[dict[str, str]]:
+    def coin_key_value_concat(self) -> Generator[Dict[str, str], Any, Any]:
         up = self.upbit_market_keyvalue()
         bit = self.bithum_market_keyvalue()
         kor = self.korbit_market_keyvalue()
-        total: list = up + bit + kor
-        a = list({v['coin_symbol']:v for v in total}.values())
+        total: List = up + bit + kor
+        a = ({v['coin_symbol']:v for v in total}.values())
         return a
     
-    def coin_total_dict(self) -> list[dict[str, str]]:
+    def coin_total_dict(self) -> List[Dict[str, str]]:
         up = self.upbit_market_list()
         bit = self.bithum_market_list()
         kor = self.korbit_market_list()
         coin_info = self.coin_key_value_concat()
 
-        a = (coin_classification(up=up, bit=bit, kor=kor, 
-                                target=name["coin_symbol"], korean_name=name["korean_name"]) 
-                                for name in coin_info)
-        b = [data for i in a for data in i]
+        a: Generator[List[Dict[str, str]]] = (coin_classification(up=up, bit=bit, kor=kor, 
+                                                target=name["coin_symbol"], korean_name=name["korean_name"]) 
+                                                for name in coin_info)
+        b: List[Dict[str, str]] = [data for i in a for data in i]
         
         return b
 

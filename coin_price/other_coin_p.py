@@ -14,7 +14,7 @@ sys.path.append(str(grandparent_path))
 
 
 
-from typing import Literal
+from typing import Literal, Tuple, Dict, List
 import asyncio, json
 from kafka import KafkaProducer
 from schema.schema import CoinPresentSchema, concatnate_dictionary
@@ -32,8 +32,8 @@ BOOTSTRAP_SERVER: list[str] = ["kafka1:19091", "kafka2:29092", "kafka3:39093"]
 producer = KafkaProducer(bootstrap_servers=BOOTSTRAP_SERVER, security_protocol="PLAINTEXT")
 
 
-async def coin_present_price_schema(name: str, api: dict, data: tuple[str]) -> dict[str, int]:
-      present_coin: dict[str, int, float] = CoinPresentSchema(
+async def coin_present_price_schema(name: str, api: Dict, data: Tuple[str]) -> dict[str, int]:
+      present_coin: dict[str, int] = CoinPresentSchema(
             name=name, api=api, data=data).kwargs
       
       return present_coin
@@ -49,29 +49,29 @@ async def present() -> None:
             bithum = BithumAPI(name=coin_name)
             korbit = KorbitAPI(name=coin_name)
             try:
-                present_upbit: dict =  await coin_present_price_schema(
+                present_upbit: Dict[str, int] =  await coin_present_price_schema(
                     name=upbit.__namesplit__(), api=upbit[0], 
                     data=("opening_price", "trade_price", "high_price", 
                             "low_price", "prev_closing_price", "acc_trade_volume_24h")
                 )
 
-                present_bithum: dict = await coin_present_price_schema(
+                present_bithum: Dict[str, int] = await coin_present_price_schema(
                     name=bithum.__namesplit__(), api=bithum["data"],
                     data=("opening_price", "closing_price", "max_price", 
                             "min_price", "prev_closing_price", "units_traded_24H")
                 )
 
-                present_korbit: dict = await coin_present_price_schema(
+                present_korbit: Dict[str, int] = await coin_present_price_schema(
                     name=korbit.__namesplit__(), api=korbit[coin_name],
                     data=("open", "last", "bid", 
                             "ask", "low", "volume")
                 )
                 
-                results: list[dict[str, int]] = [present_upbit, present_bithum, present_korbit]
+                results: List[Dict[str, int]] = [present_upbit, present_bithum, present_korbit]
                 
                 # # 스키마 생성
-                schema: dict[str, int]= concatnate_dictionary(upbit=results[0], bithum=results[1], korbit=results[2])
-                json_to_schema = json.dumps(schema).encode("utf-8")
+                schema: Dict[str, int]= concatnate_dictionary(upbit=results[0], bithum=results[1], korbit=results[2])
+                json_to_schema: bytes = json.dumps(schema).encode("utf-8")
                 logging.info(f"데이터 전송 --> \n{json_to_schema}\n")
                 producer.send(topic=COIN_PRECENT_PRICE, value=json.dumps(schema).encode("utf-8"))
                 

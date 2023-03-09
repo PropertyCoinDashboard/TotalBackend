@@ -14,7 +14,7 @@ sys.path.append(str(grandparent_path))
 
 
 import json, time
-from typing import Literal
+from typing import Literal, Dict, Tuple, Any, List
 from concurrent.futures import ThreadPoolExecutor
 
 from kafka import KafkaProducer
@@ -25,7 +25,7 @@ from schema.create_log import log
 
 
 BIT_TOPIC_NAME: Literal = "trade_bitcoin_total"
-BOOTSTRAP_SERVER: list[str] = ["kafka1:19091", "kafka2:29092", "kafka3:39093"]
+BOOTSTRAP_SERVER: List[str] = ["kafka1:19091", "kafka2:29092", "kafka3:39093"]
 producer = KafkaProducer(bootstrap_servers=BOOTSTRAP_SERVER, security_protocol="PLAINTEXT")
 
 
@@ -35,7 +35,7 @@ logging = log()
 
 
 # 로그 생성
-def bitcoin_present_price(name: str, api: dict, data: tuple) -> dict:
+def bitcoin_present_price(name: str, api: Dict, data: Tuple) -> Dict[str, Any]:
       upbit_btc_present: dict = BaiscSchema(name=name, api=api, data=data).kwargs
       return upbit_btc_present
 
@@ -59,8 +59,8 @@ def schema_flume() -> None:
                 ]
 
                 # futures를 이용하여 각각의 가격을 딕셔너리로 만들고 병합
-                schema = concatnate_dictionary(**{ex_name: future.result() for ex_name, future in zip(("upbit", "bithum", "korbit"), futures)})
-                json_to_schema = json.dumps(schema).encode("utf-8")
+                schema: Dict[str, Any] = concatnate_dictionary(**{ex_name: future.result() for ex_name, future in zip(("upbit", "bithum", "korbit"), futures)})
+                json_to_schema: bytes = json.dumps(schema).encode("utf-8")
                 logging.info(f"데이터 전송 --> \n{json_to_schema}\n")
                 producer.send(topic=BIT_TOPIC_NAME, value=json_to_schema)
             except Exception as e:
