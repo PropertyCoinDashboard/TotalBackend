@@ -14,7 +14,7 @@ sys.path.append(str(grandparent_path))
 
 
 
-from typing import Literal, Tuple, Dict, List
+from typing import Literal, Tuple, Dict, List, Any
 import asyncio, json
 from kafka import KafkaProducer
 from schema.schema import CoinPresentSchema, concatnate_dictionary
@@ -28,12 +28,12 @@ logging = log()
 # kafka and coin information
 COIN_PRECENT_PRICE: Literal = "coin_price"
 COIN_API_INJECTION_SYMBOL: Literal = "http://0.0.0.0:8081/coinprice/api-v1/coin/burket"
-BOOTSTRAP_SERVER: list[str] = ["kafka1:19091", "kafka2:29092", "kafka3:39093"]
+BOOTSTRAP_SERVER: List[str] = ["kafka1:19091", "kafka2:29092", "kafka3:39093"]
 producer = KafkaProducer(bootstrap_servers=BOOTSTRAP_SERVER, security_protocol="PLAINTEXT")
 
 
-async def coin_present_price_schema(name: str, api: Dict, data: Tuple[str]) -> dict[str, int]:
-      present_coin: dict[str, int] = CoinPresentSchema(
+async def coin_present_price_schema(name: str, api: Dict, data: Tuple[str]) -> Dict[str, int]:
+      present_coin: Dict[str, int] = CoinPresentSchema(
             name=name, api=api, data=data).kwargs
       
       return present_coin
@@ -70,7 +70,7 @@ async def present() -> None:
                 results: List[Dict[str, int]] = [present_upbit, present_bithum, present_korbit]
                 
                 # # 스키마 생성
-                schema: Dict[str, int]= concatnate_dictionary(upbit=results[0], bithum=results[1], korbit=results[2])
+                schema: Dict[str, Any]= concatnate_dictionary(upbit=results[0], bithum=results[1], korbit=results[2])
                 json_to_schema: bytes = json.dumps(schema).encode("utf-8")
                 logging.info(f"데이터 전송 --> \n{json_to_schema}\n")
                 producer.send(topic=COIN_PRECENT_PRICE, value=json.dumps(schema).encode("utf-8"))

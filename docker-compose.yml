@@ -31,7 +31,6 @@ services:
     networks:
       - redisnet
 
-
   backend:
     container_name: stock-django
     build: 
