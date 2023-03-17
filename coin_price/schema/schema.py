@@ -1,19 +1,13 @@
 from dataclasses import dataclass
 from typing import Any, Mapping
 
-from datetime import timezone
+import pytz
 import datetime
   
 
-def utc_time() -> int:
-        # Getting the current date
-        # and time
-        dt = datetime.datetime.now(timezone.utc)
-        
-        utc_time = dt.replace(tzinfo=timezone.utc)
-        utc_timestamp = utc_time.timestamp()
-        
-        return utc_timestamp
+def utc_time() -> datetime.datetime:
+    # Getting the current UTC time
+    return datetime.datetime.now(pytz.utc)
 
 
 def concatnate_dictionary(**kwargs): 

@@ -50,19 +50,19 @@ async def present() -> None:
             korbit = KorbitAPI(name=coin_name)
             try:
                 present_upbit: Dict[str, int] =  await coin_present_price_schema(
-                    name=upbit.__namesplit__(), api=upbit[0], 
+                    name=f"upbit-{upbit.__namesplit__()}", api=upbit[0], 
                     data=("opening_price", "trade_price", "high_price", 
                             "low_price", "prev_closing_price", "acc_trade_volume_24h")
                 )
 
                 present_bithum: Dict[str, int] = await coin_present_price_schema(
-                    name=bithum.__namesplit__(), api=bithum["data"],
+                    name=f"bithum-{bithum.__namesplit__()}", api=bithum["data"],
                     data=("opening_price", "closing_price", "max_price", 
                             "min_price", "prev_closing_price", "units_traded_24H")
                 )
 
                 present_korbit: Dict[str, int] = await coin_present_price_schema(
-                    name=korbit.__namesplit__(), api=korbit[coin_name],
+                    name=f"korbit-{korbit.__namesplit__()}", api=korbit[coin_name],
                     data=("open", "last", "bid", 
                             "ask", "low", "volume")
                 )

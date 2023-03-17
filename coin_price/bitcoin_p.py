@@ -20,7 +20,7 @@ from concurrent.futures import ThreadPoolExecutor
 from kafka import KafkaProducer
 from backend_pre.api_injection.coin_apis import CoinMarketBitCoinPresentPrice as cp
 
-from schema.schema import BaiscSchema, concatnate_dictionary
+from schema.schema import CoinPresentSchema, concatnate_dictionary
 from schema.create_log import log
 
 
@@ -33,10 +33,9 @@ producer = KafkaProducer(bootstrap_servers=BOOTSTRAP_SERVER, security_protocol="
 logging = log()
 
 
-
 # 로그 생성
 def bitcoin_present_price(name: str, api: Dict, data: Tuple) -> Dict[str, Any]:
-      upbit_btc_present: dict = BaiscSchema(name=name, api=api, data=data).kwargs
+      upbit_btc_present: dict = CoinPresentSchema(name=name, api=api, data=data).kwargs
       return upbit_btc_present
 
 
@@ -52,9 +51,14 @@ def schema_flume() -> None:
                 futures = [
                     executor.submit(bitcoin_present_price, name=f"{ex_name}-BTC", api=api_func, data=data)
                     for ex_name, api_func, data in [
-                        ("upbit", present.upbit_bitcoin_present_price, ("opening_price", "trade_price", "high_price", "low_price")),
-                        ("bithum", present.bithum_bitcoin_present_price, ("opening_price", "closing_price", "max_price", "min_price")),
-                        ("kobit", present.korbit_bitcoin_present_price, ("open", "last", "bid", "ask"))
+                        ("upbit", present.upbit_bitcoin_present_price, ("opening_price", "trade_price", "high_price", 
+                                                                        "low_price", "prev_closing_price", "acc_trade_volume_24h")),
+                        
+                        ("bithum", present.bithum_bitcoin_present_price, ("opening_price", "closing_price", "max_price", 
+                                                                          "min_price", "prev_closing_price", "units_traded_24H")),
+                        
+                        ("kobit", present.korbit_bitcoin_present_price, ("open", "last", "bid", 
+                                                                         "ask", "low", "volume"))
                     ]
                 ]
 
