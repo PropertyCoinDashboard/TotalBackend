@@ -29,20 +29,20 @@ BITHUM_API_URL: Literal = "https://api.bithumb.com/public"
 PRESENT_DIR: Path = Path(__file__).resolve().parent
 
 
-# 비트코인 현재가
-class CoinMarketBitCoinPresentPrice:
-    def __init__(self) -> None:
-        self.upbit_bitcoin_present_price = header_to_json(f"{UPBIT_API_URL}/ticker?markets=KRW-BTC")[0]
-        self.korbit_bitcoin_present_price = header_to_json(f"{KOBIT_API_URL}/ticker/detailed?currency_pair=btc_krw")
-        self.bithum_bitcoin_present_price = header_to_json(f"{BITHUM_API_URL}/ticker/BTC_KRW")["data"]
+# # 비트코인 현재가
+# class CoinMarketBitCoinPresentPrice:
+#     def __init__(self) -> None:
+#         self.upbit_bitcoin_present_price = header_to_json(f"{UPBIT_API_URL}/ticker?markets=KRW-BTC")[0]
+#         self.bithum_bitcoin_present_price = header_to_json(f"{BITHUM_API_URL}/ticker/BTC_KRW")["data"]
+#         self.korbit_bitcoin_present_price = header_to_json(f"{KOBIT_API_URL}/ticker/detailed?currency_pair=btc_krw")
 
 
-# 이더리움 현재가 
-class CoinMarketEthereumPresentPrice:
-    def __init__(self) -> None:
-        self.upbit_ethereum_present_price = header_to_json(f"{UPBIT_API_URL}/ticker?markets=KRW-ETH")[0]
-        self.korbit_ethereum_present_price = header_to_json(f"{KOBIT_API_URL}/ticker/detailed?currency_pair=eth_krw")
-        self.bithum_ethereum_present_price = header_to_json(f"{BITHUM_API_URL}/ticker/eth_KRW")["data"]
+# # 이더리움 현재가 
+# class CoinMarketEthereumPresentPrice:
+#     def __init__(self) -> None:
+#         self.upbit_ethereum_present_price = header_to_json(f"{UPBIT_API_URL}/ticker?markets=KRW-ETH")[0]
+#         self.bithum_ethereum_present_price = header_to_json(f"{BITHUM_API_URL}/ticker/ETH_KRW")["data"]
+#         self.korbit_ethereum_present_price = header_to_json(f"{KOBIT_API_URL}/ticker/detailed?currency_pair=eth_krw")
 
 
 class ApiBasicArchitecture:     
@@ -57,7 +57,7 @@ class ApiBasicArchitecture:
 
 
 class UpbitAPI(ApiBasicArchitecture):
-    def __init__(self, name: str = None) -> None:
+    def __init__(self, name: Optional[str] = None) -> None:
         super().__init__(name=name)        
         # 현재가 
         self.upbit_present_url_parameter: str = f'ticker?markets=KRW-{self.name}'
@@ -106,7 +106,7 @@ class KorbitAPI(ApiBasicArchitecture):
     def korbit_market_keyvalue(self) -> List[Dict[str, Any]]:        
         return csv_read_json(self.data)
 
-    def __getitem__(self, index: str) -> Dict:
+    def __getitem__(self, index: str) -> Any:
         """
         :param index : str 
             ex) btc eth 

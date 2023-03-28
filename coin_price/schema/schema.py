@@ -5,9 +5,9 @@ import pytz
 import datetime
   
 
-def utc_time() -> datetime.datetime:
-    # Getting the current UTC time
-    return datetime.datetime.now(pytz.utc)
+def get_utc_time() -> int:
+    utc_now = datetime.datetime.utcnow()
+    return utc_now
 
 
 def concatnate_dictionary(**kwargs): 
@@ -33,7 +33,7 @@ class NescessarySchema:
         def __init__(self, name: str) -> None:
                 self.kwargs = {
                         "name"                 : name,              # 이름
-                        "timestamp"            : utc_time(),        # 시간
+                        "timestamp"            : get_utc_time(),        # 시간
                 }
         
         
