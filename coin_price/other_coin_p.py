@@ -26,7 +26,6 @@ from backend_pre.api_injection.coin_apis import (
 logging = log()
 
 # kafka and coin information
-COIN_PRECENT_PRICE: Literal = "coin_price"
 COIN_API_INJECTION_SYMBOL: Literal = "http://0.0.0.0:8081/coinprice/api-v1/coin/burket"
 BOOTSTRAP_SERVER: List[str] = ["kafka1:19091", "kafka2:29092", "kafka3:39093"]
 producer = KafkaProducer(bootstrap_servers=BOOTSTRAP_SERVER, security_protocol="PLAINTEXT")
@@ -39,7 +38,7 @@ async def coin_present_price_schema(name: str, api: Dict, data: Tuple[str]) -> D
       return present_coin
 
 
-async def present() -> None:
+async def present(topic_name: str) -> None:
         while True:
             await asyncio.sleep(1)
             # 현재가 객체 생성 
@@ -73,10 +72,8 @@ async def present() -> None:
                 schema: Dict[str, Any]= concatnate_dictionary(upbit=results[0], bithum=results[1], korbit=results[2])
                 json_to_schema: bytes = json.dumps(schema).encode("utf-8")
                 logging.info(f"데이터 전송 --> \n{json_to_schema}\n")
-                producer.send(topic=COIN_PRECENT_PRICE, value=json.dumps(schema).encode("utf-8"))
+                producer.send(topic=topic_name, value=json_to_schema)
                 
             except KeyError:
                     logging.error(f"에러가 일어났습니다 --> \n{KeyError}\n")
 
-            
-asyncio.run(present())

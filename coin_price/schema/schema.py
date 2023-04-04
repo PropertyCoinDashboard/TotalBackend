@@ -5,9 +5,9 @@ import pytz
 import datetime
   
 
-def get_utc_time() -> int:
+def get_utc_time():
     utc_now = datetime.datetime.utcnow()
-    return utc_now
+    return utc_now.timestamp()
 
 
 def concatnate_dictionary(**kwargs): 
