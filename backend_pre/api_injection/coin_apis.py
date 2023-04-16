@@ -14,7 +14,6 @@ sys.path.append(str(grandparent_path))
 sys.path.append(backend__)
 
 
-from pathlib import Path
 from typing import (
     Any, Optional, Literal, Dict, List, Generator
 )
@@ -67,8 +66,13 @@ class UpbitAPI(ApiBasicArchitecture):
         return [i["market"].split("-")[1] for i in self.upbit_market if i["market"].startswith("KRW-")]
     
     def upbit_market_keyvalue(self) -> List[Dict[str, str]]:        
-        return [{"korean_name": i["korean_name"], "coin_symbol": i["market"].split("-")[1]} 
-                 for i in self.upbit_market if i["market"].startswith("KRW-")]
+        return [
+                {
+                    "korean_name": i["korean_name"], 
+                    "coin_symbol": i["market"].split("-")[1]
+                } 
+                    for i in self.upbit_market if i["market"].startswith("KRW-")
+                ]
                 
     def __getitem__(self, index: int) -> Dict:
         return self.upbit_coin_present_price[index] 
@@ -141,4 +145,8 @@ class TotalCoinMarketlistConcatnate(UpbitAPI, BithumAPI, KorbitAPI):
         result: List[Dict[str, str]] = [data for i in coin_info_generator for data in i]
         
         return result
+    
 
+a = TotalCoinMarketlistConcatnate().coin_total_dict()
+for i in a:
+    print(i)

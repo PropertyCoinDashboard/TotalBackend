@@ -1,7 +1,6 @@
 from dataclasses import dataclass
-from typing import Any, Mapping
+from typing import *
 
-import pytz
 import datetime
   
 
@@ -10,7 +9,7 @@ def get_utc_time():
     return utc_now.timestamp()
 
 
-def concatnate_dictionary(**kwargs): 
+def concatnate_dictionary(**kwargs: Dict) -> Dict[str, Dict]: 
         """
         dictionary 합침
         """
@@ -41,7 +40,7 @@ class BaiscSchema(NescessarySchema):
         """
         로그 건들지 말것
         """ 
-        def __init__(self, name: str, api: dict, data: tuple) -> None:
+        def __init__(self, name: str, api: Dict, data: Tuple) -> None:
                 super().__init__(name)
                 
                 self.kwargs.update({
@@ -58,7 +57,7 @@ class CoinPresentSchema(BaiscSchema):
         """
         로그 건들지 말것
         """ 
-        def __init__(self, name: str, api: dict, data: tuple) -> None:
+        def __init__(self, name: str, api: Dict, data: Tuple) -> None:
                 super().__init__(name, api, data)
                 self.kwargs["data"].update({
                         "prev_closing_price"   : float(api[data[4]]),        # 전일 종가 
