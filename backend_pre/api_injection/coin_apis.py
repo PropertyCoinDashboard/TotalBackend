@@ -129,16 +129,16 @@ class TotalCoinMarketlistConcatnate(UpbitAPI, BithumAPI, KorbitAPI):
         bit = self.bithum_market_keyvalue()
         kor = self.korbit_market_keyvalue()
         total: List = up + bit + kor
-        a = ({v['coin_symbol']:v for v in total}.values())
+        a = ({v['coin_symbol']: v for v in total}.values())
         return a
     
     def coin_total_dict(self) -> List[Dict[str, str]]:
         up = self.upbit_market_list()
         bit = self.bithum_market_list()
         kor = self.korbit_market_list()
-        coin_info = self.coin_key_value_concat()
+        coin_info: Generator[Dict[str, str], Any, Any] = self.coin_key_value_concat()
 
-        coin_info_generator: Generator[List[Dict[str, str]]] = (
+        coin_info_generator: Generator[List[Dict[str, str]], None, None] = (
             coin_classification(up=up, bit=bit, kor=kor, 
                                 target=name["coin_symbol"], korean_name=name["korean_name"]) 
                                 for name in coin_info)
@@ -146,7 +146,3 @@ class TotalCoinMarketlistConcatnate(UpbitAPI, BithumAPI, KorbitAPI):
         
         return result
     
-
-a = TotalCoinMarketlistConcatnate().coin_total_dict()
-for i in a:
-    print(i)

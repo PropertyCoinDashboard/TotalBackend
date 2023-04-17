@@ -43,7 +43,7 @@ def data_format(coin_symbol: str, korean_name: str,
 
     
 def coin_classification(up: List = None, bit: List = None, kor: List = None,
-                        target: str = None, korean_name: str = None) -> list:
+                        target: str = None, korean_name: str = None) -> List:
     listup: List = []
     if (target in up) and (target in bit) and (target in kor):
         listup.append(data_format(coin_symbol=target, korean_name=korean_name, up=True, bit=True, kor=True))
