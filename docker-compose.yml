@@ -6,8 +6,6 @@ services:
     image: redis:latest
     ports:
       - "6379:6380"
-    networks:
-      - redisnet
 
   sql:
     container_name: stock-sql
@@ -28,8 +26,6 @@ services:
       - --lower_case_table_names=1
     volumes:
       - .sqlVolume:/var/lib/mysql
-    networks:
-      - redisnet
 
   backend:
     container_name: stock-django
@@ -47,8 +43,6 @@ services:
       - ./.env
     expose:
       - "8000"
-    networks:
-      - redisnet
     depends_on:
       - sql
       - redis
@@ -63,15 +57,11 @@ services:
     volumes:
       - ./nginx/nginx-setup.conf:/etc/nginx/con.f/nginx-setup.conf
       - static-volume:/backend_pre/config/static
-    networks:
-      - redisnet
     depends_on:
       - sql
       - redis
       - backend
 
-networks:
-  redisnet:
 
 volumes:
   sql:
