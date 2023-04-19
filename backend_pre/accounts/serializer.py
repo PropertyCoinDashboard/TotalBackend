@@ -1,8 +1,7 @@
-from typing import Dict, List
+from typing import *
 from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
 from rest_framework_simplejwt.tokens import RefreshToken
-from rest_framework_simplejwt.views import TokenObtainPairView
 
 from accounts.models import AdminUser, NormalUser
 from argon2.exceptions import VerifyMismatchError
@@ -57,14 +56,14 @@ class LoginSerializer(serializers.ModelSerializer):
         password: PasswordHasher = data.get("password")
         
         try:
-            user =  self.Meta.model.objects.get(email=email)
+            user = self.Meta.model.objects.get(email=email)
             user_password: PasswordHasher = user.password 
             pc: bool = PasswordHasher().verify(str(user_password).strip("argon2"), password)
-            if pc is True:
+            if pc:
                 token = RefreshToken.for_user(user)
                 refresh = str(token)
                 access = str(token.access_token)
-                data = {
+                data: Dict[str, Any] = {
                     "msg": "로그인 성공",
                     "info": {
                         "email": user.email,
