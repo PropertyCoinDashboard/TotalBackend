@@ -7,7 +7,7 @@ django-extensions
 djangorestframework-simplejwt
 django-filter
 channels
-
+kafka-python
 redis
 channels-redis
 websockets

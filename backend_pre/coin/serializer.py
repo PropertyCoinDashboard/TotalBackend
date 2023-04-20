@@ -1,8 +1,9 @@
 from rest_framework import serializers
 
 from accounts.models import DataInjection
-from dashboard.models import (
+from dashboaring.models import (
     CoinSymbolCoinList, SearchBurketCoinIndexing,
+
 )
 
 

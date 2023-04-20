@@ -21,7 +21,7 @@ AUTH_USER_MODEL = "accounts.AdminUser"
 # See https://docs.djangoproject.com/en/4.1/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-tl(9n58d-d%$gp*g@1c$n(8zzu^xve3dw&6np!49j$z%0-siav'
+SECRET_KEY = os.getenv("DJANGO_SECRET_KEY")
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
@@ -53,8 +53,8 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     
     # app
-    'dashboard',
     'accounts',
+    'dashboaring',
     
     # package    
     'django_extensions',

@@ -4,7 +4,7 @@ set -e
 
 echo "${0}: running migrations. :"
 python manage.py makemigrations accounts
-python manage.py makemigrations dashboard
+python manage.py makemigrations dashboaring
 python manage.py migrate --noinput
 
 echo "${0} : collect staticfile "

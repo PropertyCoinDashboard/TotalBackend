@@ -57,6 +57,3 @@ class SearchBurketCoinIndexing(CoinSymbol):
 #     class Meta:
 #         db_table: str = "real"
         
-
-
-        

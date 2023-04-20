@@ -69,7 +69,7 @@ async def present(topic_name: str) -> None:
                 results: List[Dict[str, int]] = [present_upbit, present_bithum, present_korbit]
                 
                 # # 스키마 생성
-                schema: Dict[str, Any] = concatnate_dictionary(upbit=results[0], bithum=results[1], korbit=results[2])
+                schema: Dict[str, Dict] = concatnate_dictionary(upbit=results[0], bithum=results[1], korbit=results[2])
                 json_to_schema: bytes = json.dumps(schema).encode("utf-8")
                 logging.info(f"데이터 전송 --> \n{json_to_schema}\n")
                 producer.send(topic=topic_name, value=json_to_schema)

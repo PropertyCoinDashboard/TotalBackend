@@ -6,6 +6,8 @@ services:
     image: redis:latest
     ports:
       - "6379:6380"
+    networks:
+      - drf-network
 
   sql:
     container_name: stock-sql
@@ -26,6 +28,8 @@ services:
       - --lower_case_table_names=1
     volumes:
       - .sqlVolume:/var/lib/mysql
+    networks:
+      - drf-network 
 
   backend:
     container_name: stock-django
@@ -46,6 +50,8 @@ services:
     depends_on:
       - sql
       - redis
+    networks:
+      - drf-network
 
   ngnix:
     build: 
@@ -61,7 +67,14 @@ services:
       - sql
       - redis
       - backend
+    networks:
+      - drf-network
 
+
+networks:
+  drf-network:
+    external: 
+      name: kafka-network
 
 volumes:
   sql:
@@ -70,3 +83,4 @@ volumes:
   backend:
   build_file:
   static-volume:
+
