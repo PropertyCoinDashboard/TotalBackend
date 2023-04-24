@@ -8,6 +8,7 @@ class MyConsumer(AsyncWebsocketConsumer):
             self.channel_name
         )
         await self.accept()
+        print(self.channel_layer.group_add)
 
     async def disconnect(self, close_code):
         await self.channel_layer.group_discard(
@@ -16,5 +17,6 @@ class MyConsumer(AsyncWebsocketConsumer):
         )
 
     async def send_data_to_consumers(self, event):
-        data = event['data']
+        data = event['text']
+        print(data)
         await self.send(json.dumps(data))
