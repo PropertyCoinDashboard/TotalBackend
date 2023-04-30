@@ -146,3 +146,5 @@ class TotalCoinMarketlistConcatnate(UpbitAPI, BithumAPI, KorbitAPI):
         
         return result
     
+
+a

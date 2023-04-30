@@ -1,89 +1,171 @@
-# from typing import Any, Optional, List, Tuple
-# from coin_apis import (
-#     UPBIT_API_URL, BITHUM_API_URL,
-#     header_to_json, ApiBasicArchitecture
+import datetime
+import time
+import requests
+import pandas as pd
+from typing import *
+import plotly.graph_objects as go
+from api_util import UPBIT_API_URL, BITHUM_API_URL
+
+
+def making_time() -> List:
+    # 현재 시간 구하기
+    now = datetime.datetime.now()
+
+    # 목표 날짜 구하기
+    # 현재 시간으로부터 200일씩 뒤로 가면서 datetime 객체 생성하기
+    target_date = datetime.datetime(2013, 12, 27, 0, 0, 0)
+    result = []
+    while now >= target_date:
+        result.append(now)
+        now -= datetime.timedelta(days=200)
+
+    return result
+
+
+class ApiBasicArchitecture:
+    def __init__(self,
+                 name: Optional[str] = None,
+                 date: Optional[datetime.datetime] = None,
+                 count:  Optional[int] = None) -> None:
+        self.name: Optional[str] = name
+        self.date: Optional[str] = date
+        self.count: Optional[int] = count
+
+    def header_to_json(self, url: str) -> Any:
+        headers: Dict[str, str] = {"accept": "application/json"}
+        response = requests.get(url, headers=headers)
+        info = response.json()
+
+        return info
+
+    def __namesplit__(self) -> str:
+        return self.name.upper()
+
+
+class BithumCandlingAPI(ApiBasicArchitecture):
+    """
+    :param minit
+        - 차트 간격, 기본값 : 24h {1m, 3m, 5m, 10m, 30m, 1h, 6h, 12h, 24h 사용 가능}
+    """
+
+    # 시간별 통합으로 되어 있음
+    def bithum_candle_price(self, mint: str) -> List:
+        return self.header_to_json(f"{BITHUM_API_URL}/candlestick/{self.name}_KRW/{mint}")
+
+
+class UpBitCandlingAPI(ApiBasicArchitecture):
+    """
+    :param time
+        minutes, days, weeks, year
+        - 분, 일, 주, 년
+    :param minit
+        - 시간 단위
+    :param count
+        - 얼마나 가져올것인지
+    :param date
+        - 시간 단위
+    """
+
+    def __init__(self, name: Optional[str] = None,
+                 date: Optional[datetime.datetime] = None,
+                 count: Optional[int] = None) -> None:
+        super().__init__(name, date, count)
+        self.name_candle_count = f"market=KRW-{self.name}&count={self.count}"
+        self.name_candle_count_date = f"market=KRW-{self.name}&to={self.date}&count={self.count}"
+
+    def upbit_candle_price(self, mint: int) -> List:
+        return self.header_to_json(
+            f"{UPBIT_API_URL}/candles/minutes/{mint}?{self.name_candle_count}"
+        )
+
+    # 상위 200개
+    def upbit_candle_day_price(self) -> List:
+        return self.header_to_json(f"{UPBIT_API_URL}/candles/days?{self.name_candle_count}")
+
+    # 날짜 커스텀
+    def upbit_candle_day_custom_price(self) -> List:
+        return self.header_to_json(
+            f"{UPBIT_API_URL}/candles/days?{self.name_candle_count_date}"
+        )
+
+
+def api_injectional(api: Any, inject_parmeter: Any) -> pd.DataFrame:
+    # API 호출
+    api_init = api
+
+    api_init = pd.DataFrame(
+        inject_parmeter,
+        columns=["timestamp", "opening_price", "trade_price",
+                 "high_price", "low_price", "candle_acc_trade_volume"]
+    )
+
+    api_init["timestamp"] = api_init["timestamp"].apply(
+        lambda x: time.strftime(r"%Y-%m-%d %H:%M", time.localtime(x / 1000))
+    )
+    
+    api_init["opening_price"] = api_init["opening_price"].apply(lambda x: float(x))
+    api_init["trade_price"] = api_init["trade_price"].apply(lambda x: float(x))
+    api_init["high_price"] = api_init["high_price"].apply(lambda x: float(x))
+    api_init["low_price"] = api_init["low_price"].apply(lambda x: float(x))
+
+    return api_init
+
+
+# 결과 출력하기
+def upbit_trade_all_list(time_data: List[datetime.datetime]) -> List[pd.DataFrame]:
+    timer: List[datetime.datetime] = time_data
+    result_upbit_data = []
+
+    for dt in timer:
+        try:
+            a = dt.strftime("%Y-%m-%d %H:%M:%S")
+
+            upbit_init = UpBitCandlingAPI(
+                name="BTC", count=200, date=a
+            ).upbit_candle_day_custom_price()
+
+            # API 호출
+            maket_init = api_injectional(upbit_init, upbit_init)
+
+            if maket_init.empty:
+                continue
+            result_upbit_data.append([maket_init])
+        except requests.exceptions.JSONDecodeError:
+            continue
+
+    return result_upbit_data
+
+
+# 데이터 병합
+def upbit_trade_data_concat(data: List) -> pd.DataFrame:
+    result_upbit_data_concat = pd.concat([df for [df] in data], ignore_index=True)
+    return result_upbit_data_concat
+
+
+bithum_init = BithumCandlingAPI(name="BTC").bithum_candle_price(mint="24h")
+bithum_init = api_injectional(bithum_init, bithum_init.get("data"))
+upbit_init = upbit_trade_all_list(time_data=making_time())
+upbit_init = upbit_trade_data_concat(upbit_init)
+
+
+# bithum_init.to_csv("test.csv", index_label=False, index=False)
+# upbit_init.to_csv("upbit_test.csv", index=False, index_label=False)
+
+# fig = go.Figure(layout=go.Layout(title=go.layout.Title(text="Bitcoin -- BTC")))
+# fig.add_trace(
+#     go.Scatter(
+#         x=bithum_init["timestamp"],
+#         y=bithum_init["opening_price"],
+#         name="bithum",
+#         mode="lines",
+#     )
 # )
-# import pandas as pd 
-# 'https://api.upbit.com/v1/candles/minutes/1?market=KRW-BTC&count=1'
-# class UpBitCandlingAPI(ApiBasicArchitecture):
-#     """
-#     :param time 
-#         minutes, days, weeks, year
-#         - 분, 일, 주, 년 
-#     :param minit
-#         - 시간 단위
-#     :param count 
-#         - 얼마나 가져올것인지 
-#     """
-#     def __init__(self, name: Optional[str] = None, count: Optional[int] = None) -> None:
-#         super().__init__(name)
-#         self.count = count
-#         self.name_candle_count = f'market=KRW-{self.name}&count={self.count}'
-        
-#     def upbit_candle_price(self, mint: int) -> list[dict[Any]]:
-#         return header_to_json(f"{UPBIT_API_URL}/candles/minutes/{mint}?{self.name_candle_count}")
-
-#     def upbit_candle_day_price(self) -> list[dict[Any]]:
-#         return header_to_json(f"{UPBIT_API_URL}/candles/days?{self.name_candle_count}")
-    
-#     def upbit_candle_week_price(self) -> list[dict[Any]]:
-#         pass
-    
-#     def upbit_candle_year_price(self) -> list[dict[Any]]:
-#         pass
-
-# class BithumCandlingAPI(ApiBasicArchitecture):
-#     """
-#     :param minit
-#         - 차트 간격, 기본값 : 24h {1m, 3m, 5m, 10m, 30m, 1h, 6h, 12h, 24h 사용 가능}
-#     """
-#     def __init__(self, name: Optional[str] = None) -> None:
-#         super().__init__(name)
-    
-#     # 시간별 통합으로 되어 있음
-#     def bithum_candle_price(self, mint: str) -> list[dict[Any]]:
-#         return header_to_json(f"{BITHUM_API_URL}/candlestick/{self.name}_KRW/{mint}")
-
-
-
-# # import time
-# # c = UpBitCandlingAPI(name="BTC", count=200).upbit_candle_price(mint=10)
-# # c = pd.DataFrame(c)
-# # c["timestamp"] = c["timestamp"].apply(lambda x: time.strftime(r'%Y-%m-%d %H:%M', time.localtime(x/1000)))
-# # a = c.drop(["market", "candle_date_time_utc","candle_date_time_kst","candle_acc_trade_price", "unit"], axis=1)
-# # data = a[["timestamp", "opening_price", "trade_price", "high_price", "low_price", "candle_acc_trade_volume"]]
-
-
-# # a = BithumCandlingAPI(name="BTC").bithum_candle_price(mint="10m")
-# # b = pd.DataFrame(a.get("data"), columns=["timestamp", "opening_price", "trade_price", "high_price", "low_price", "candle_acc_trade_volume"])
-# # b["timestamp"] = b["timestamp"].apply(lambda x: time.strftime(r'%Y-%m-%d %H:%M', time.localtime(x/1000)))
-# # b["opening_price"] = b["opening_price"].apply(lambda x: float(x))
-# # b["trade_price"] = b["trade_price"].apply(lambda x: float(x))
-# # b["high_price"] = b["high_price"].apply(lambda x: float(x))
-# # b["low_price"] = b["low_price"].apply(lambda x: float(x))
-
-
-# # test = UpBitCandlingAPI(name="BTC", count=200).upbit_candle_day_price()
-# # test = pd.DataFrame(test)
-# # test["timestamp"] = test["timestamp"].apply(lambda x: time.strftime(r'%Y-%m-%d %H:%M', time.localtime(x/1000)))
-# # test["candle_acc_trade_price"] = test["candle_acc_trade_price"].apply(lambda x: x/1000000)
-
-
-# # # import plotly.graph_objects as go
-# # # fig = go.Figure()
-# # # fig.add_trace(go.Scatter(x=b["timestamp"], y=b["opening_price"], mode="lines"))
-# # # fig.add_trace(go.Scatter(x=data["timestamp"], y=data["opening_price"], mode="lines"))
-# # # fig.show()
-
-# # import numpy as np
-# # import pandas as pd 
-
-# # common_time = pd.Series(np.intersect1d(data["timestamp"], b["timestamp"]))
-
-# # upbit_time_date = data[data["timestamp"].isin(common_time)]
-# # bithum_time_date = b[b["timestamp"].isin(common_time)]
-
-# # merged_data = pd.concat([upbit_time_date, bithum_time_date])
-
-# # merge_time_sortd = merged_data.sort_values("timestamp")
-# # merge_time_sortd.to_csv("test.csv", index=False, index_label=False)
+# fig.add_trace(
+#     go.Scatter(
+#         x=upbit_init["timestamp"],
+#         y=upbit_init["opening_price"],
+#         name="upbit",
+#         mode="lines",
+#     )
+# )
+# fig.show()

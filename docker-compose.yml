@@ -63,6 +63,8 @@ services:
     volumes:
       - ./nginx/nginx-setup.conf:/etc/nginx/con.f/nginx-setup.conf
       - static-volume:/backend_pre/config/static
+    environment:
+      - buffer-size=65535
     depends_on:
       - sql
       - redis

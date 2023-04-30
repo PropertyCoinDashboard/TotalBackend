@@ -1,6 +1,6 @@
-from django.urls import path
+from django.urls import re_path
 from . import consumer
 
 websocket_urlpatterns = [
-    path("ws/bitcoin-streaming/", consumer.MyConsumer.as_asgi())
+    re_path(r"ws/bitcoin-streaming/$", consumer.MyConsumer.as_asgi()),
 ]
