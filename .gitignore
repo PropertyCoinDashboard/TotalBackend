@@ -127,8 +127,6 @@ dmypy.json
 
 # Pyre type checker
 .pyre/
-.backend/backend/dashboard/migrations/*
-.backend/dashboard/migrations
-.backend/accounts/migrations/*
-.backend/accounts/migrations/
+.sqlVolume/
+migrations/
 migrations
