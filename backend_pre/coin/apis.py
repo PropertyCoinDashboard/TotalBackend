@@ -1,84 +1,60 @@
-from typing import Dict, List
-from dashboaring.models import (
-    CoinSymbolCoinList, SearchBurketCoinIndexing
-)
+from typing import *
+from dashboaring.models import CoinSymbolCoinList
 
 from api_injection.coin_apis import TotalCoinMarketlistConcatnate as TKC
 from django_filters.rest_framework import DjangoFilterBackend
 
 from rest_framework import status
 from rest_framework.response import Response
+from rest_framework.views import APIView
 from rest_framework.permissions import AllowAny, IsAdminUser
-from rest_framework.mixins import DestroyModelMixin
-from rest_framework.generics import (
-    CreateAPIView, ListAPIView, ListCreateAPIView
-)
-from .serializer import (
-    CoinSynchronizationSerializer, CoinViewListSerializer, CoinBurketSerializer
-)
+from rest_framework.generics import ListAPIView, ListCreateAPIView
+from .serializer import *
 
 
-# 추상화된 기능 
-class MarketListSynchronSet(CreateAPIView, DestroyModelMixin):
-    serializer_class = CoinSynchronizationSerializer
-    coin_model_initialization = None
-    
-    def perform_destroy(self):
-        return self.queryset.all().delete()
-
-    def create(self, request) -> Response:
-        serializer = self.get_serializer(data=request.data)
-        serializer.is_valid(raise_exception=True)
-
-        self.perform_destroy()
-        coin_list: List[Dict[str, str]] = self.coin_model_initialization
-        self.perform_create(coin_list)
-        headers = self.get_success_headers(serializer.data)
-                
-        return Response(data={"coin_list": coin_list}, status=status.HTTP_201_CREATED, headers=headers)
-    
-
-# 모든 코인 저장 
-class MarketListTotalInitialization(MarketListSynchronSet):
-    queryset = CoinSymbolCoinList.objects.all()
-    coin_model_initialization = TKC().coin_total_dict()
-    
-    def perform_create(self, serializer):
-        for data in serializer:
-            self.queryset.create(
-                korea_name=data["korean_name"],
-                coin_symbol=data["coin_symbol"],
-                bithum_existence=data["market_depend"]["bithum"],
-                upbit_existence=data["market_depend"]["upbit"],
-                korbit_existence=data["market_depend"]["korbit"],
-            ).save()
-
-
-# 데이터 반환 
-class MarketDataCreateBurketInitialization(ListCreateAPIView, MarketListSynchronSet):
-    queryset = SearchBurketCoinIndexing.objects.all()
-    serializer_class = CoinBurketSerializer
-        
-    def create(self, request) -> Response:
-        serializer = self.get_serializer(data=request.data)
-        serializer.is_valid(raise_exception=True)
-        
-        self.perform_destroy()        
-        self.perform_create(serializer=serializer)
-                
-        return Response(data=serializer.data, status=status.HTTP_201_CREATED)
 
 
 # -----------------------------------------------------------------------------------------#
+# 모든 코인 저장
+class MarketListTotalInitialization(APIView):
+    queryset = CoinSymbolCoinList.objects.all()
+    coin_model_initialization: List[Dict[str, str]] = TKC().coin_total_dict()
+
+    def perform_create(self, serializer: Dict[str, str]) -> None:
+        self.queryset.create(
+            korea_name=serializer["korean_name"],
+            coin_symbol=serializer["coin_symbol"],
+            bithum_existence=serializer["market_depend"]["bithum"],
+            upbit_existence=serializer["market_depend"]["upbit"],
+            korbit_existence=serializer["market_depend"]["korbit"],
+        )
 
 
+# # coin symbol 동기화
+class MarketCoinListCreateInitalization(MarketListTotalInitialization):    
+    def post(self, request, format=None) -> Response:
+        if request.data.get("is_sync"):
+            # 일괄 삭제
+            self.queryset.delete()
+            
+            # 일괄 생성
+            for data in self.coin_model_initialization:
+                self.perform_create(data)
+            
+            return Response(
+                {"coin_list": self.coin_model_initialization}, 
+                status=status.HTTP_201_CREATED
+            )
+        else:
+            return Response(
+                {"error": "Not coin list synchronization"},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+            
+        
 # 전체 코인 리스트
 class MarketListView(ListAPIView):
     queryset = CoinSymbolCoinList.objects.all()
     serializer_class = CoinViewListSerializer
     filter_backends = [DjangoFilterBackend]
-    filterset_fields = ['coin_symbol']
-    
-    
-    
-
+    filterset_fields = ["coin_symbol"]
