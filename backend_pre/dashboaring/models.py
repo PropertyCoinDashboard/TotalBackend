@@ -18,8 +18,10 @@ class Timestamp(models.Model):
 
 
 class CoinSymbolCoinList(Timestamp):
-    coin_symbol = models.CharField(max_length=16, unique=True, primary_key=True)
-    korea_name = models.CharField(max_length=15, unique=True, blank=False, null=False)
+    coin_symbol = models.CharField(
+        max_length=16, unique=True, primary_key=True)
+    korea_name = models.CharField(
+        max_length=15, unique=True, blank=False, null=False)
     bithum_existence = models.BooleanField()
     upbit_existence = models.BooleanField()
     korbit_existence = models.BooleanField()

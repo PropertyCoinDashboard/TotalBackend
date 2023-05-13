@@ -102,8 +102,9 @@ def api_injectional(api: Any, inject_parmeter: Any) -> pd.DataFrame:
     api_init["timestamp"] = api_init["timestamp"].apply(
         lambda x: time.strftime(r"%Y-%m-%d %H:%M", time.localtime(x / 1000))
     )
-    
-    api_init["opening_price"] = api_init["opening_price"].apply(lambda x: float(x))
+
+    api_init["opening_price"] = api_init["opening_price"].apply(
+        lambda x: float(x))
     api_init["trade_price"] = api_init["trade_price"].apply(lambda x: float(x))
     api_init["high_price"] = api_init["high_price"].apply(lambda x: float(x))
     api_init["low_price"] = api_init["low_price"].apply(lambda x: float(x))
@@ -138,7 +139,8 @@ def upbit_trade_all_list(time_data: List[datetime.datetime]) -> List[pd.DataFram
 
 # 데이터 병합
 def upbit_trade_data_concat(data: List) -> pd.DataFrame:
-    result_upbit_data_concat = pd.concat([df for [df] in data], ignore_index=True)
+    result_upbit_data_concat = pd.concat(
+        [df for [df] in data], ignore_index=True)
     return result_upbit_data_concat
 
 

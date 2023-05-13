@@ -17,5 +17,3 @@ class CoinViewListSerializer(serializers.ModelSerializer):
         response = super().to_representation(instance)
         response["market_depend"] = CoinViewExistSerializer(instance).data
         return response
-
-

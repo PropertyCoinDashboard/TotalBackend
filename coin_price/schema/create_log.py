@@ -9,7 +9,8 @@ def log():
     logger.setLevel(logging.INFO)
 
     # log 출력 형식
-    formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+    formatter = logging.Formatter(
+        '%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 
     # log 출력
     stream_handler = logging.StreamHandler()

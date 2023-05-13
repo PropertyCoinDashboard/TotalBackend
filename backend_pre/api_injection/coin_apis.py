@@ -1,3 +1,6 @@
+from api_util import UPBIT_API_URL, BITHUM_API_URL, KOBIT_API_URL
+from api_util import header_to_json, coin_classification, csv_read_json
+from typing import Any, Optional, Dict, List, Generator
 import sys
 from pathlib import Path
 
@@ -14,18 +17,17 @@ sys.path.append(str(grandparent_path))
 sys.path.append(backend__)
 
 
-from typing import Any, Optional, Dict, List, Generator
-from api_util import header_to_json, coin_classification, csv_read_json
-from api_util import UPBIT_API_URL, BITHUM_API_URL, KOBIT_API_URL
 PRESENT_DIR: Path = Path(__file__).resolve().parent
 
 
 class ApiBasicArchitecture:
     def __init__(self, name: Optional[str] = None) -> None:
         self.name: str = name
-        self.upbit_market = header_to_json(f"{UPBIT_API_URL}/market/all?isDetails=true")
+        self.upbit_market = header_to_json(
+            f"{UPBIT_API_URL}/market/all?isDetails=true")
         self.bithum_market = header_to_json(f"{BITHUM_API_URL}/ticker/ALL_KRW")
-        self.korbit_market = header_to_json(f"{KOBIT_API_URL}/ticker/detailed/all")
+        self.korbit_market = header_to_json(
+            f"{KOBIT_API_URL}/ticker/detailed/all")
 
     def __namesplit__(self) -> str:
         return self.name.upper()
@@ -49,7 +51,8 @@ class UpbitAPI(ApiBasicArchitecture):
 
     def upbit_market_keyvalue(self) -> List[Dict[str, str]]:
         return [
-            {"korean_name": i["korean_name"], "coin_symbol": i["market"].split("-")[1]}
+            {"korean_name": i["korean_name"],
+                "coin_symbol": i["market"].split("-")[1]}
             for i in self.upbit_market if i["market"].startswith("KRW-")
         ]
 
@@ -119,7 +122,8 @@ class TotalCoinMarketlistConcatnate(UpbitAPI, BithumAPI, KorbitAPI):
         up = self.upbit_market_list()
         bit = self.bithum_market_list()
         kor = self.korbit_market_list()
-        coin_info: Generator[Dict[str, str], Any, Any] = self.coin_key_value_concat()
+        coin_info: Generator[Dict[str, str], Any,
+                             Any] = self.coin_key_value_concat()
 
         coin_info_generator: Generator[List[Dict[str, str]], None, None] = (
             coin_classification(
@@ -131,7 +135,7 @@ class TotalCoinMarketlistConcatnate(UpbitAPI, BithumAPI, KorbitAPI):
             )
             for name in coin_info
         )
-        result: List[Dict[str, str]] = [data for i in coin_info_generator for data in i]
+        result: List[Dict[str, str]] = [
+            data for i in coin_info_generator for data in i]
 
         return result
-
