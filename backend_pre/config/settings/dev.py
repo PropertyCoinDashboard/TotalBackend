@@ -3,6 +3,7 @@ import os
 
 ALLOWED_HOSTS = ["*"]
 CSRF_TRUSTED_ORIGINS = ["http://0.0.0.0:8080", "http://127.0.0.1:8000", "http://0.0.0.0:8081"]
+DEBUG = True
 
 
 REST_FRAMEWORK = {

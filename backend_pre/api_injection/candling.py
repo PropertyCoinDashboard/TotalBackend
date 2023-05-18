@@ -4,22 +4,8 @@ import requests
 import pandas as pd
 from typing import *
 import plotly.graph_objects as go
-from api_util import UPBIT_API_URL, BITHUM_API_URL
-
-
-def making_time() -> List:
-    # 현재 시간 구하기
-    now = datetime.datetime.now()
-
-    # 목표 날짜 구하기
-    # 현재 시간으로부터 200일씩 뒤로 가면서 datetime 객체 생성하기
-    target_date = datetime.datetime(2013, 12, 27, 0, 0, 0)
-    result = []
-    while now >= target_date:
-        result.append(now)
-        now -= datetime.timedelta(days=200)
-
-    return result
+from .api_util import header_to_json, making_time
+from .api_util import UPBIT_API_URL, BITHUM_API_URL
 
 
 class ApiBasicArchitecture:
@@ -30,13 +16,6 @@ class ApiBasicArchitecture:
         self.name: Optional[str] = name
         self.date: Optional[str] = date
         self.count: Optional[int] = count
-
-    def header_to_json(self, url: str) -> Any:
-        headers: Dict[str, str] = {"accept": "application/json"}
-        response = requests.get(url, headers=headers)
-        info = response.json()
-
-        return info
 
     def __namesplit__(self) -> str:
         return self.name.upper()
@@ -50,7 +29,7 @@ class BithumCandlingAPI(ApiBasicArchitecture):
 
     # 시간별 통합으로 되어 있음
     def bithum_candle_price(self, mint: str) -> List:
-        return self.header_to_json(f"{BITHUM_API_URL}/candlestick/{self.name}_KRW/{mint}")
+        return header_to_json(f"{BITHUM_API_URL}/candlestick/{self.name}_KRW/{mint}")
 
 
 class UpBitCandlingAPI(ApiBasicArchitecture):
@@ -74,17 +53,17 @@ class UpBitCandlingAPI(ApiBasicArchitecture):
         self.name_candle_count_date = f"market=KRW-{self.name}&to={self.date}&count={self.count}"
 
     def upbit_candle_price(self, mint: int) -> List:
-        return self.header_to_json(
+        return header_to_json(
             f"{UPBIT_API_URL}/candles/minutes/{mint}?{self.name_candle_count}"
         )
 
     # 상위 200개
     def upbit_candle_day_price(self) -> List:
-        return self.header_to_json(f"{UPBIT_API_URL}/candles/days?{self.name_candle_count}")
+        return header_to_json(f"{UPBIT_API_URL}/candles/days?{self.name_candle_count}")
 
     # 날짜 커스텀
     def upbit_candle_day_custom_price(self) -> List:
-        return self.header_to_json(
+        return header_to_json(
             f"{UPBIT_API_URL}/candles/days?{self.name_candle_count_date}"
         )
 
