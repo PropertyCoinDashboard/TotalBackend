@@ -56,3 +56,4 @@ class MarketListView(ListAPIView):
     serializer_class = CoinViewListSerializer
     filter_backends = [DjangoFilterBackend]
     filterset_fields = ["coin_symbol"]
+

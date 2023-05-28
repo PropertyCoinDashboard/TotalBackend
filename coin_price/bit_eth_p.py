@@ -1,13 +1,3 @@
-import asyncio
-import json
-from .schema.create_log import log
-from .schema.schema import CoinPresentSchema, concatnate_dictionary
-from backend_pre.api_injection.coin_apis import (
-    UpbitAPI, BithumAPI, KorbitAPI
-)
-from kafka import KafkaProducer
-from concurrent.futures import ThreadPoolExecutor
-from typing import *
 import sys
 from pathlib import Path
 
@@ -22,6 +12,18 @@ grandparent_path = parent_path.parent
 sys.path.append(str(parent_path))
 sys.path.append(str(grandparent_path))
 
+
+
+import asyncio
+import json
+from .schema.create_log import log
+from .schema.schema import CoinPresentSchema, concatnate_dictionary
+from backend_pre.api_injection.coin_apis import (
+    UpbitAPI, BithumAPI, KorbitAPI
+)
+from kafka import KafkaProducer
+from concurrent.futures import ThreadPoolExecutor
+from typing import *
 
 BOOTSTRAP_SERVER: List[str] = ["kafka1:19091", "kafka2:29092", "kafka3:39093"]
 producer = KafkaProducer(
@@ -50,15 +52,18 @@ async def schema_flume(coin_name: str, topic_name: Literal) -> None:
                 bithum_api = BithumAPI(name=coin_name)["data"]
                 korbit_api = KorbitAPI(name=coin_name)[coin_name]
                 futures = [
-                    asyncio.create_task(present_price_schema(
-                        name=f"{ex_name}-{coin_name}", api=api_func, data=data))
+                    asyncio.create_task(present_price_schema(name=f"{ex_name}-{coin_name}", 
+                                                             api=api_func, 
+                                                             data=data))
                     for ex_name, api_func, data in [
                         ("upbit", upbit_api, ("opening_price", "trade_price", "high_price",
-                         "low_price", "prev_closing_price", "acc_trade_volume_24h")),
-                        ("bithum", bithum_api, ("opening_price", "closing_price",
-                         "max_price", "min_price", "prev_closing_price", "units_traded_24H")),
-                        ("korbit", korbit_api,
-                         ("open", "last", "bid", "ask", "low", "volume"))
+                                              "low_price", "prev_closing_price", "acc_trade_volume_24h")),
+                        
+                        ("bithum", bithum_api, ("opening_price", "closing_price", "max_price", 
+                                                "min_price", "prev_closing_price", "units_traded_24H")),
+                        
+                        ("korbit", korbit_api, ("open", "last", "bid", 
+                                                "ask", "low", "volume"))
                     ]
                 ]
 

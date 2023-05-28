@@ -1,14 +1,6 @@
-import json
-import asyncio
-from backend_pre.api_injection.coin_apis import (
-    BithumAPI, UpbitAPI, KorbitAPI, header_to_json
-)
-from .schema.create_log import log
-from .schema.schema import CoinPresentSchema, concatnate_dictionary
-from kafka import KafkaProducer
-from typing import Literal, Tuple, Dict, List, Any
 import sys
 from pathlib import Path
+
 
 # 현재 파일의 경로
 file_path = Path(__file__).resolve()
@@ -22,10 +14,21 @@ sys.path.append(str(parent_path))
 sys.path.append(str(grandparent_path))
 
 
+import json
+import asyncio
+from backend_pre.api_injection.coin_apis import (
+    BithumAPI, UpbitAPI, KorbitAPI, header_to_json
+)
+from .schema.create_log import log
+from .schema.schema import CoinPresentSchema, concatnate_dictionary
+from kafka import KafkaProducer
+from typing import Literal, Tuple, Dict, List, Any
+
+
 logging = log()
 
 # kafka and coin information
-COIN_API_INJECTION_SYMBOL: Literal = "http://0.0.0.0:8081/coinprice/api-v1/coin/burket"
+COIN_API_INJECTION_SYMBOL: Literal = "http://0.0.0.0:8081/coinprice/api-v1/test"
 BOOTSTRAP_SERVER: List[str] = ["kafka1:19091", "kafka2:29092", "kafka3:39093"]
 producer = KafkaProducer(
     bootstrap_servers=BOOTSTRAP_SERVER, security_protocol="PLAINTEXT")

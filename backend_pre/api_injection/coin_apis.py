@@ -1,6 +1,3 @@
-from api_util import UPBIT_API_URL, BITHUM_API_URL, KOBIT_API_URL
-from api_util import header_to_json, coin_classification, csv_read_json
-from typing import Any, Optional, Dict, List, Generator
 import sys
 from pathlib import Path
 
@@ -15,6 +12,11 @@ backend__ = f"{str(grandparent_path)}/backend/backend_pre/api_injection/schema"
 sys.path.append(str(parent_path))
 sys.path.append(str(grandparent_path))
 sys.path.append(backend__)
+
+
+from api_util import UPBIT_API_URL, BITHUM_API_URL, KOBIT_API_URL
+from api_util import header_to_json, coin_classification, csv_read_json
+from typing import Any, Optional, Dict, List, Generator
 
 
 PRESENT_DIR: Path = Path(__file__).resolve().parent
