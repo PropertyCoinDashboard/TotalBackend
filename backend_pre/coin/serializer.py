@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from dashboaring.models import CoinSymbolCoinList, TestOR
+from dashboaring.models import CoinSymbolCoinList
 
 
 class CoinViewExistSerializer(serializers.ModelSerializer):
