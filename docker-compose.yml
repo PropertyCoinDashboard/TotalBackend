@@ -85,4 +85,3 @@ volumes:
   backend:
   build_file:
   static-volume:
-

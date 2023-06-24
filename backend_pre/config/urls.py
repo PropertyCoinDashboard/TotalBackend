@@ -36,8 +36,8 @@ schema_view = get_schema_view(
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('coinprice/', include("coin.urls")),
-    path('account/', include("accounts.urls")),
+    path('coinprice/', include("apps.apis.coin.urls")),
+    path('account/', include("authentication.urls")),
 ]
 
 if settings.DEBUG:

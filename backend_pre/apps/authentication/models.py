@@ -9,7 +9,6 @@ from django.core.validators import MinLengthValidator
 
 from typing import List, Any
 from argon2 import PasswordHasher
-from dashboaring.models import Timestamp
 
 
 # 계정 injectionally
