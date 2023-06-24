@@ -3,7 +3,7 @@
 set -e 
 
 echo "${0}: running migrations. :"
-python manage.py makemigrations accounts
+python manage.py makemigrations authentication
 python manage.py makemigrations dashboaring
 python manage.py migrate --noinput
 

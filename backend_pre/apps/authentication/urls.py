@@ -1,17 +1,11 @@
-from django.urls import path, include
-from rest_framework.routers import DefaultRouter
+from django.urls import path
 from rest_framework_simplejwt.views import (
     TokenObtainPairView, TokenRefreshView, TokenVerifyView
 )
 from . import apis
 
+
 # api modelviewset setting 
-app_name = "auth"
-router = DefaultRouter()
-
-# router.register("authinform", apis.AdminInformAPI)
-# router.register("userinform", apis.UserInformAPI)
-
 urlpatterns = [
     path("api-v1/auth-login", apis.AdminLoginAPI.as_view(), name="auth-login"),
     path("api-v1/user-login", apis.UserLoginAPI.as_view(), name="user-login"),

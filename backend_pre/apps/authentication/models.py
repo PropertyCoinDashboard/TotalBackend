@@ -11,14 +11,17 @@ from typing import List, Any
 from argon2 import PasswordHasher
 
 
-# 계정 injectionally
 # 프로토콜 설정
 class UserManager(BaseUserManager):
     use_in_migrations: bool = True
 
     def _create_superuser(
-        self, email: str, name: str, password: PasswordHasher, **extra_field
-    ):
+        self, 
+        email: str, 
+        name: str, 
+        password: PasswordHasher, 
+        **extra_field
+    ) -> Any:
         user = self.model(
             email=self.normalize_email(email),
             name=name,
@@ -31,8 +34,12 @@ class UserManager(BaseUserManager):
         return user
 
     def create_superuser(
-        self, email: str, name: str, password: PasswordHasher, **extra_fields
-    ):
+        self, 
+        email: str, 
+        name: str, 
+        password: PasswordHasher, 
+        **extra_fields
+    ) -> Any:
         extra_fields.setdefault("is_staff", True)
         extra_fields.setdefault("is_admin", True)
         extra_fields.setdefault("is_superuser", True)

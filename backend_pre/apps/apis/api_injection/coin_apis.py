@@ -4,7 +4,7 @@ from pathlib import Path
 # 현재 파일의 경로
 file_path = Path(__file__).resolve()
 # 상위 경로 backend
-parent_path = file_path.parent
+parent_path: Path = file_path.parent
 
 # 상위 경로 backed_pre -> sys 경로 추가
 grandparent_path = parent_path.parent
@@ -25,11 +25,9 @@ PRESENT_DIR: Path = Path(__file__).resolve().parent
 class ApiBasicArchitecture:
     def __init__(self, name: Optional[str] = None) -> None:
         self.name: str = name
-        self.upbit_market = header_to_json(
-            f"{UPBIT_API_URL}/market/all?isDetails=true")
+        self.upbit_market = header_to_json( f"{UPBIT_API_URL}/market/all?isDetails=true")
         self.bithum_market = header_to_json(f"{BITHUM_API_URL}/ticker/ALL_KRW")
-        self.korbit_market = header_to_json(
-            f"{KOBIT_API_URL}/ticker/detailed/all")
+        self.korbit_market = header_to_json(f"{KOBIT_API_URL}/ticker/detailed/all")
 
     def __namesplit__(self) -> str:
         return self.name.upper()
@@ -40,9 +38,7 @@ class UpbitAPI(ApiBasicArchitecture):
         super().__init__(name=name)
         # 현재가
         self.upbit_present_url_parameter: str = f"ticker?markets=KRW-{self.name}"
-        self.upbit_coin_present_price = header_to_json(
-            f"{UPBIT_API_URL}/{self.upbit_present_url_parameter}"
-        )
+        self.upbit_coin_present_price = header_to_json(f"{UPBIT_API_URL}/{self.upbit_present_url_parameter}")
 
     def upbit_market_list(self) -> List[str]:
         return [

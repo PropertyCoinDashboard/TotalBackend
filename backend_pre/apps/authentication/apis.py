@@ -10,7 +10,7 @@ from .serializer import (
     AdminLoginSerializer, UserLoginSerializer
 )
 from drf_yasg.utils import swagger_auto_schema
-from accounts.models import AdminUser, NormalUser
+from .models import AdminUser, NormalUser
 
 
 class LoginAPI(APIView):
