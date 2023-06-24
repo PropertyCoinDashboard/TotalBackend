@@ -16,7 +16,8 @@ sys.path.append(str(grandparent_path))
 
 import json
 import asyncio
-from backend_pre.api_injection.coin_apis import (
+
+from backend_pre.apps.apis.api_injection.coin_apis import (
     BithumAPI, UpbitAPI, KorbitAPI, header_to_json
 )
 from .schema.create_log import log

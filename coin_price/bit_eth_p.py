@@ -18,9 +18,11 @@ import asyncio
 import json
 from .schema.create_log import log
 from .schema.schema import CoinPresentSchema, concatnate_dictionary
-from backend_pre.api_injection.coin_apis import (
+from backend_pre.apps.apis.api_injection.coin_apis import (
     UpbitAPI, BithumAPI, KorbitAPI
+
 )
+
 from kafka import KafkaProducer
 from concurrent.futures import ThreadPoolExecutor
 from typing import *

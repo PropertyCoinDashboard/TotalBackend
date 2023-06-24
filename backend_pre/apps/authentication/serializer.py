@@ -3,7 +3,7 @@ from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
 from rest_framework_simplejwt.tokens import RefreshToken
 
-from accounts.models import AdminUser, NormalUser
+from authentication.models import AdminUser, NormalUser
 from argon2.exceptions import VerifyMismatchError
 from argon2 import PasswordHasher
 
