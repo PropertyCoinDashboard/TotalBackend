@@ -13,7 +13,6 @@ sys.path.append(str(parent_path))
 sys.path.append(str(grandparent_path))
 
 
-
 import asyncio
 import json
 from .schema.create_log import log
@@ -28,8 +27,7 @@ from concurrent.futures import ThreadPoolExecutor
 from typing import *
 
 BOOTSTRAP_SERVER: List[str] = ["kafka1:19091", "kafka2:29092", "kafka3:39093"]
-producer = KafkaProducer(
-    bootstrap_servers=BOOTSTRAP_SERVER, security_protocol="PLAINTEXT")
+producer = KafkaProducer(bootstrap_servers=BOOTSTRAP_SERVER, security_protocol="PLAINTEXT")
 
 
 # 비트코인 현재가 객체 생성
@@ -38,8 +36,7 @@ logging = log()
 
 # 로그 생성
 async def present_price_schema(name: str, api: Dict, data: Tuple) -> Dict[str, Any]:
-    present: Dict[str, Any] = CoinPresentSchema(
-        name=name, api=api, data=data).kwargs
+    present: Dict[str, Any] = CoinPresentSchema(name=name, api=api, data=data).kwargs
     return present
 
 
@@ -70,7 +67,9 @@ async def schema_flume(coin_name: str, topic_name: Literal) -> None:
                 ]
 
                 # futures를 이용하여 각각의 가격을 딕셔너리로 만들고 병합
-                schema: Dict[str, Any] = concatnate_dictionary(**{ex_name: await future for ex_name, future in zip(("upbit", "bithum", "korbit"), futures)})
+                schema: Dict[str, Any] = concatnate_dictionary(
+                    **{ex_name: await future for ex_name, future in zip(("upbit", "bithum", "korbit"), futures)}
+                )
                 json_to_schema: bytes = json.dumps(schema).encode("utf-8")
                 logging.info(f"데이터 전송 --> \n{json_to_schema}\n")
                 producer.send(topic=topic_name, value=json_to_schema)

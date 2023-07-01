@@ -46,8 +46,7 @@ async def present(topic_name: str) -> None:
     while True:
         await asyncio.sleep(1)
         # 현재가 객체 생성
-        coin_name: json = header_to_json(COIN_API_INJECTION_SYMBOL)[
-            "results"][0]["coin_symbol"]
+        coin_name: json = header_to_json(COIN_API_INJECTION_SYMBOL)["results"][0]["coin_symbol"]
 
         upbit = UpbitAPI(name=coin_name)
         bithum = BithumAPI(name=coin_name)
@@ -61,22 +60,22 @@ async def present(topic_name: str) -> None:
 
             present_bithum: Dict[str, int] = await coin_present_price_schema(
                 name=f"bithum-{bithum.__namesplit__()}", api=bithum["data"],
-                data=("opening_price", "closing_price", "max_price",
+                data=("opening_price", "closing_price", "max_price", 
                       "min_price", "prev_closing_price", "units_traded_24H")
             )
 
             present_korbit: Dict[str, int] = await coin_present_price_schema(
                 name=f"korbit-{korbit.__namesplit__()}", api=korbit[coin_name],
-                data=("open", "last", "bid",
+                data=("open", "last", "bid", 
                       "ask", "low", "volume")
             )
 
-            results: List[Dict[str, int]] = [
-                present_upbit, present_bithum, present_korbit]
+            results: List[Dict[str, int]] = [present_upbit, present_bithum, present_korbit]
 
             # # 스키마 생성
             schema: Dict[str, Dict] = concatnate_dictionary(
-                upbit=results[0], bithum=results[1], korbit=results[2])
+                upbit=results[0], bithum=results[1], korbit=results[2]
+            )
             json_to_schema: bytes = json.dumps(schema).encode("utf-8")
             logging.info(f"데이터 전송 --> \n{json_to_schema}\n")
             producer.send(topic=topic_name, value=json_to_schema)

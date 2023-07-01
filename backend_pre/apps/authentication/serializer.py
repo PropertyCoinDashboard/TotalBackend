@@ -14,7 +14,7 @@ class RegisterSerializer(serializers.ModelSerializer):
     
     class Meta:
         fields: List[str] = ["id", "name", "email", "password", "password2"]
-        extra_kwargs: Dict = {
+        extra_kwargs: Dict[str, Dict[str, Any]] = {
             'password' : {
                 'write_only': True,
                 "style": {"input_type": "password"}

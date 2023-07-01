@@ -1,7 +1,7 @@
 from typing import *
 from ...dashboaring.models import CoinSymbolCoinList
 
-from ..api_injection.coin_apis import TotalCoinMarketlistConcatnate as TKC
+from coin_api_injection.coin_apis import TotalCoinMarketlistConcatnate as TKC
 from django_filters.rest_framework import DjangoFilterBackend
 
 
