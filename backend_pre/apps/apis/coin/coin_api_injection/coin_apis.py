@@ -5,17 +5,17 @@ from typing import (
     List,
     Optional, 
 )
-
-from api_util import CoinSymbol, CoinKoreaNameSymbol
-from api_util import (
+from .api_util import (
     UPBIT_API_URL, 
     BITHUM_API_URL, 
     KOBIT_API_URL,
     PRESENT_DIR
 )
-from api_util import (
-    header_to_json, 
+from .api_util import (
+    CoinSymbol,
+    CoinKoreaNameSymbol,
     coin_classification, 
+    header_to_json, 
     csv_read_json, 
     asdict
 )
@@ -35,7 +35,6 @@ class ApiBasicArchitecture(ABC):
 
     def __namesplit__(self) -> str:
         return self.name.upper()
-
 
 
 class UpbitAPI(ApiBasicArchitecture):
@@ -60,6 +59,10 @@ class UpbitAPI(ApiBasicArchitecture):
                 for cv in self.upbit_market 
                 if cv["market"].startswith("KRW-")
             ]
+        
+    def __getitem__(self, index: int) -> Dict:
+        return self.upbit_coin_present_price[index] 
+
 
 
 class BithumAPI(ApiBasicArchitecture):
@@ -82,6 +85,9 @@ class BithumAPI(ApiBasicArchitecture):
 
     def market_keyvalue(self) -> List[Dict[str, Any]]:
         return csv_read_json(self.data)
+    
+    def __getitem__(self, index: str) -> Any:
+        return self.bithum_present_price[index]
 
 
 class KorbitAPI(ApiBasicArchitecture):
@@ -103,10 +109,24 @@ class KorbitAPI(ApiBasicArchitecture):
     def market_keyvalue(self) -> List[Dict[str, Any]]:
         return csv_read_json(self.data)
 
+    def __getitem__(self, index: str) -> Any:
+        """
+        :param index : str
+            ex) btc eth
+        :return
+            값
+        """
+        return header_to_json(f"{KOBIT_API_URL}/ticker/detailed?currency_pair={index.lower()}_krw")
+
 
 # coin symbol coin keyvalue 병합하기
 class TotalCoinMarketlistConcatnate(UpbitAPI, BithumAPI, KorbitAPI):
     def __init__(self) -> None:
         super().__init__()
 
+    def duplicate_symbol_extract(self):
+        pass 
+    
+    def duplicate_coinsymbol_name_extract(self):
+        pass
     

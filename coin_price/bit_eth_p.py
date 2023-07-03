@@ -15,8 +15,9 @@ sys.path.append(str(grandparent_path))
 
 import json
 import asyncio
-from .schema.create_log import log
-from .schema.schema import CoinPresentSchema, concatnate_dictionary
+
+from schema.create_log import log
+from schema.schema import CoinPresentSchema, concatnate_dictionary
 from kafka import KafkaProducer
 from concurrent.futures import ThreadPoolExecutor
 from typing import Literal, Tuple, Dict, List, Any
@@ -47,13 +48,16 @@ async def schema_flume(coin_name: str, topic_name: Literal) -> None:
         try:
             with ThreadPoolExecutor() as executor:
                 # upbit, bithum, kobit 각각의 가격을 병렬처리로 가져옴
-                upbit_api = UpbitAPI(name=coin_name).upbit_coin_present_price
-                bithum_api = BithumAPI(name=coin_name).bithum_present_price
-                korbit_api = KorbitAPI(name=coin_name).korbit_present_price
+                upbit_api = UpbitAPI(name=coin_name)[0]
+                bithum_api = BithumAPI(name=coin_name)["data"]
+                korbit_api = KorbitAPI(name=coin_name)[coin_name]
+                
                 futures = [
-                    asyncio.create_task(present_price_schema(name=f"{ex_name}-{coin_name}", 
-                                                             api=api_func, 
-                                                             data=data))
+                    asyncio.create_task(
+                        present_price_schema(name=f"{ex_name}-{coin_name}", 
+                                             api=api_func, 
+                                             data=data)
+                    )
                     for ex_name, api_func, data in [
                         ("upbit", upbit_api, ("opening_price", "trade_price", "high_price",
                                               "low_price", "prev_closing_price", "acc_trade_volume_24h")),
@@ -63,7 +67,7 @@ async def schema_flume(coin_name: str, topic_name: Literal) -> None:
                         
                         ("korbit", korbit_api, ("open", "last", "bid", 
                                                 "ask", "low", "volume"))
-                    ]
+                    ] 
                 ]
 
                 # futures를 이용하여 각각의 가격을 딕셔너리로 만들고 병합
