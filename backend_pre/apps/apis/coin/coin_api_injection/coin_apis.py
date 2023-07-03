@@ -1,61 +1,67 @@
-import sys
 from pathlib import Path
+from abc import ABC, abstractmethod
+from typing import (
+    Any, 
+    Dict, 
+    List,
+    Optional, 
+)
 
-# 현재 파일의 경로
-file_path = Path(__file__).resolve()
-# 상위 경로 backend
-parent_path: Path = file_path.parent
-
-# 상위 경로 backed_pre -> sys 경로 추가
-grandparent_path = parent_path.parent
-backend__ = f"{str(grandparent_path)}/backend/backend_pre/api_injection/schema"
-sys.path.append(str(parent_path))
-sys.path.append(str(grandparent_path))
-sys.path.append(backend__)
-
-
-from api_util import UPBIT_API_URL, BITHUM_API_URL, KOBIT_API_URL
-from api_util import header_to_json, coin_classification, csv_read_json
-from typing import Any, Optional, Dict, List, Generator
+from api_util import CoinSymbol, CoinKoreaNameSymbol
+from api_util import (
+    UPBIT_API_URL, 
+    BITHUM_API_URL, 
+    KOBIT_API_URL,
+    PRESENT_DIR
+)
+from api_util import (
+    header_to_json, 
+    coin_classification, 
+    csv_read_json, 
+    asdict
+)
 
 
-PRESENT_DIR: Path = Path(__file__).resolve().parent
 
-
-class ApiBasicArchitecture:
+class ApiBasicArchitecture(ABC):
     def __init__(self, name: Optional[str] = None) -> None:
         self.name: str = name
-        self.upbit_market = header_to_json( f"{UPBIT_API_URL}/market/all?isDetails=true")
-        self.bithum_market = header_to_json(f"{BITHUM_API_URL}/ticker/ALL_KRW")
-        self.korbit_market = header_to_json(f"{KOBIT_API_URL}/ticker/detailed/all")
+        
+    @abstractmethod
+    def market_keyvalue(self) -> List[Dict[str, Any]]:
+        pass
+    
+    @abstractmethod
+    def market_list(self) -> List[str]:
+        pass
 
     def __namesplit__(self) -> str:
         return self.name.upper()
 
 
+
 class UpbitAPI(ApiBasicArchitecture):
     def __init__(self, name: Optional[str] = None) -> None:
         super().__init__(name=name)
-        # 현재가
-        self.upbit_present_url_parameter: str = f"ticker?markets=KRW-{self.name}"
-        self.upbit_coin_present_price = header_to_json(f"{UPBIT_API_URL}/{self.upbit_present_url_parameter}")
-
-    def upbit_market_list(self) -> List[str]:
+        # 마켓 코인 정보 
+        self.upbit_market = header_to_json( f"{UPBIT_API_URL}/market/all?isDetails=true")
+        # 코인 현재가 
+        self.upbit_coin_present_price = header_to_json(f"{UPBIT_API_URL}/ticker?markets=KRW-{self.name}")
+    
+    def market_list(self) -> List[str]:
         return [
-            i["market"].split("-")[1]
-            for i in self.upbit_market
-            if i["market"].startswith("KRW-")
-        ]
-
-    def upbit_market_keyvalue(self) -> List[Dict[str, str]]:
+                CoinSymbol(coin_symbol=coin["market"].split("-")[1]).coin_symbol
+                for coin in self.upbit_market 
+                if coin["market"].startswith("KRW-")
+            ]
+        
+    def market_keyvalue(self) -> List[Dict[str, Any]]:
         return [
-            {"korean_name": i["korean_name"],
-                "coin_symbol": i["market"].split("-")[1]}
-            for i in self.upbit_market if i["market"].startswith("KRW-")
-        ]
-
-    def __getitem__(self, index: int) -> Dict:
-        return self.upbit_coin_present_price[index]
+                asdict(CoinKoreaNameSymbol(korean_name=cv["market"].split("-")[1],
+                                           coin_symbol=cv["korean_name"]))
+                for cv in self.upbit_market 
+                if cv["market"].startswith("KRW-")
+            ]
 
 
 class BithumAPI(ApiBasicArchitecture):
@@ -63,20 +69,21 @@ class BithumAPI(ApiBasicArchitecture):
 
     def __init__(self, name: Optional[str] = None) -> None:
         super().__init__(name=name)
-        self.bithum_present_price = header_to_json(
-            f"{BITHUM_API_URL}/ticker/{self.name}_KRW"
-        )
+        # 코인 정보
+        self.bithum_market = header_to_json(f"{BITHUM_API_URL}/ticker/ALL_KRW")
+        # 코인 현재가 
+        self.bithum_present_price = header_to_json(f"{BITHUM_API_URL}/ticker/{self.name}_KRW")
 
-    def bithum_market_list(self) -> List:
-        a = [coin for coin in self.bithum_market["data"]]
+    def market_list(self) -> List[str]:
+        a = [
+            CoinSymbol(coin_symbol=coin).coin_symbol 
+            for coin in self.bithum_market["data"]
+        ]
         del a[-1]
         return a
 
-    def bithum_market_keyvalue(self) -> List[Dict[str, Any]]:
+    def market_keyvalue(self) -> List[Dict[str, Any]]:
         return csv_read_json(self.data)
-
-    def __getitem__(self, index: str) -> Any:
-        return self.bithum_present_price[index]
 
 
 class KorbitAPI(ApiBasicArchitecture):
@@ -84,56 +91,23 @@ class KorbitAPI(ApiBasicArchitecture):
 
     def __init__(self, name: Optional[str] = None) -> None:
         super().__init__(name=name)
-        self.korbit_present_price: str = (
-            f"{KOBIT_API_URL}/ticker/detailed?currency_pair"
-        )
+        # 코인 정보 
+        self.korbit_market = header_to_json(f"{KOBIT_API_URL}/ticker/detailed/all")
+        # 코인 현재가 
+        self.korbit_present_price = header_to_json(f"{KOBIT_API_URL}/ticker/detailed?currency_pair={self.name.lower()}_krw")
 
-    def korbit_market_list(self) -> List:
-        return [i.split("_")[0].upper() for i in self.korbit_market]
+    def market_list(self) -> List[str]:
+        return [
+            CoinSymbol(coin_symbol=coin.split("_")[0].upper()).coin_symbol 
+            for coin in self.korbit_market
+        ]
 
-    def korbit_market_keyvalue(self) -> List[Dict[str, Any]]:
+    def market_keyvalue(self) -> List[Dict[str, Any]]:
         return csv_read_json(self.data)
-
-    def __getitem__(self, index: str) -> Any:
-        """
-        :param index : str
-            ex) btc eth
-        :return
-            값
-        """
-        return header_to_json(f"{self.korbit_present_price}={index.lower()}_krw")
 
 
 class TotalCoinMarketlistConcatnate(UpbitAPI, BithumAPI, KorbitAPI):
     def __init__(self) -> None:
         super().__init__()
 
-    def coin_key_value_concat(self) -> Generator[Dict[str, str], Any, Any]:
-        up = self.upbit_market_keyvalue()
-        bit = self.bithum_market_keyvalue()
-        kor = self.korbit_market_keyvalue()
-        total: List = up + bit + kor
-        a = {v["coin_symbol"]: v for v in total}.values()
-        return a
-
-    def coin_total_dict(self) -> List[Dict[str, str]]:
-        up = self.upbit_market_list()
-        bit = self.bithum_market_list()
-        kor = self.korbit_market_list()
-        coin_info: Generator[Dict[str, str], Any,
-                             Any] = self.coin_key_value_concat()
-
-        coin_info_generator: Generator[List[Dict[str, str]], None, None] = (
-            coin_classification(
-                up=up,
-                bit=bit,
-                kor=kor,
-                target=name["coin_symbol"],
-                korean_name=name["korean_name"],
-            )
-            for name in coin_info
-        )
-        result: List[Dict[str, str]] = [
-            data for i in coin_info_generator for data in i]
-
-        return result
+    

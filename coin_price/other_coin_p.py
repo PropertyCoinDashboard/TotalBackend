@@ -17,13 +17,13 @@ sys.path.append(str(grandparent_path))
 import json
 import asyncio
 
-from backend_pre.apps.apis.api_injection.coin_apis import (
-    BithumAPI, UpbitAPI, KorbitAPI, header_to_json
+from backend_pre.apps.apis.coin.coin_api_injection.coin_apis import (
+    UpbitAPI, KorbitAPI, BithumAPI, header_to_json
 )
 from .schema.create_log import log
 from .schema.schema import CoinPresentSchema, concatnate_dictionary
 from kafka import KafkaProducer
-from typing import Literal, Tuple, Dict, List, Any
+from typing import Literal, Tuple, Dict, List
 
 
 logging = log()

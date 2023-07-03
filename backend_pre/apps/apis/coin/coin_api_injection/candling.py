@@ -3,7 +3,6 @@ import time
 import requests
 import pandas as pd
 from typing import *
-import plotly.graph_objects as go
 from .api_util import header_to_json, making_time
 from .api_util import UPBIT_API_URL, BITHUM_API_URL
 
