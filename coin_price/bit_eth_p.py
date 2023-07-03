@@ -47,9 +47,9 @@ async def schema_flume(coin_name: str, topic_name: Literal) -> None:
         try:
             with ThreadPoolExecutor() as executor:
                 # upbit, bithum, kobit 각각의 가격을 병렬처리로 가져옴
-                upbit_api = UpbitAPI(name=coin_name)[0]
-                bithum_api = BithumAPI(name=coin_name)["data"]
-                korbit_api = KorbitAPI(name=coin_name)[coin_name]
+                upbit_api = UpbitAPI(name=coin_name).upbit_coin_present_price
+                bithum_api = BithumAPI(name=coin_name).bithum_present_price
+                korbit_api = KorbitAPI(name=coin_name).korbit_present_price
                 futures = [
                     asyncio.create_task(present_price_schema(name=f"{ex_name}-{coin_name}", 
                                                              api=api_func, 
