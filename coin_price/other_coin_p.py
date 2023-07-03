@@ -1,7 +1,6 @@
 import sys
 from pathlib import Path
 
-
 # 현재 파일의 경로
 file_path = Path(__file__).resolve()
 
@@ -16,15 +15,14 @@ sys.path.append(str(grandparent_path))
 
 import json
 import asyncio
-
-from backend_pre.apps.apis.coin.coin_api_injection.coin_apis import (
-    UpbitAPI, KorbitAPI, BithumAPI, header_to_json
-)
 from .schema.create_log import log
 from .schema.schema import CoinPresentSchema, concatnate_dictionary
 from kafka import KafkaProducer
 from typing import Literal, Tuple, Dict, List
 
+from backend_pre.apps.apis.coin.coin_api_injection.coin_apis import (
+    UpbitAPI, KorbitAPI, BithumAPI, header_to_json
+)
 
 logging = log()
 
@@ -53,19 +51,22 @@ async def present(topic_name: str) -> None:
         korbit = KorbitAPI(name=coin_name)
         try:
             present_upbit: Dict[str, int] = await coin_present_price_schema(
-                name=f"upbit-{upbit.__namesplit__()}", api=upbit[0],
+                name=f"upbit-{upbit.__namesplit__()}", 
+                api=upbit[0],
                 data=("opening_price", "trade_price", "high_price",
                       "low_price", "prev_closing_price", "acc_trade_volume_24h")
             )
 
             present_bithum: Dict[str, int] = await coin_present_price_schema(
-                name=f"bithum-{bithum.__namesplit__()}", api=bithum["data"],
+                name=f"bithum-{bithum.__namesplit__()}", 
+                api=bithum["data"],
                 data=("opening_price", "closing_price", "max_price", 
                       "min_price", "prev_closing_price", "units_traded_24H")
             )
 
             present_korbit: Dict[str, int] = await coin_present_price_schema(
-                name=f"korbit-{korbit.__namesplit__()}", api=korbit[coin_name],
+                name=f"korbit-{korbit.__namesplit__()}", 
+                api=korbit[coin_name],
                 data=("open", "last", "bid", 
                       "ask", "low", "volume")
             )

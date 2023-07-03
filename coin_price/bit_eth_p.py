@@ -13,18 +13,18 @@ sys.path.append(str(parent_path))
 sys.path.append(str(grandparent_path))
 
 
-import asyncio
 import json
+import asyncio
 from .schema.create_log import log
 from .schema.schema import CoinPresentSchema, concatnate_dictionary
-from backend_pre.apps.apis.api_injection.coin_apis import (
-    UpbitAPI, BithumAPI, KorbitAPI
-
-)
-
 from kafka import KafkaProducer
 from concurrent.futures import ThreadPoolExecutor
-from typing import *
+from typing import Literal, Tuple, Dict, List, Any
+
+from backend_pre.apps.apis.coin.coin_api_injection.coin_apis import (
+    UpbitAPI, KorbitAPI, BithumAPI
+)
+
 
 BOOTSTRAP_SERVER: List[str] = ["kafka1:19091", "kafka2:29092", "kafka3:39093"]
 producer = KafkaProducer(bootstrap_servers=BOOTSTRAP_SERVER, security_protocol="PLAINTEXT")

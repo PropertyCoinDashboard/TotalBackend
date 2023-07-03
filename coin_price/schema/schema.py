@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from typing import *
+from typing import Any, Dict, Mapping, Tuple
 
 import datetime
 
@@ -17,52 +17,39 @@ def concatnate_dictionary(**kwargs: Dict) -> Dict[str, Dict]:
 
 
 @dataclass
-class NescessarySchema:
-    """
-    data type
-    로그 데이터 포맷   
-    :param = name: str
-    :param = api: dict
-    :param = args : tuple
-    """
+class NecessarySchema:
     name: str
     api: Mapping[Any, Any]
-    args: tuple
+    args: Tuple
 
-    def __init__(self, name: str) -> None:
+    def __post_init__(self) -> None:
         self.kwargs = {
-            "name": name,              # 이름
-            "timestamp": get_utc_time(),        # 시간
+            "name": self.name,
+            "timestamp": get_utc_time(),
         }
 
 
-class BaiscSchema(NescessarySchema):
-    """
-    로그 건들지 말것
-    """
-
-    def __init__(self, name: str, api: Dict, data: Tuple) -> None:
-        super().__init__(name)
+@dataclass
+class BasicSchema(NecessarySchema):
+    def __post_init__(self) -> None:
+        super().__post_init__()
 
         self.kwargs.update({
             "data": {
-                "opening_price": float(api[data[0]]),  # 시가
-                "closing_price": float(api[data[1]]),  # 종가
-                "max_price": float(api[data[2]]),  # 저가
-                "min_price": float(api[data[3]]),  # 고가
+                "opening_price": float(self.api[self.args[0]]),
+                "closing_price": float(self.api[self.args[1]]),
+                "max_price": float(self.api[self.args[2]]),
+                "min_price": float(self.api[self.args[3]]),
             }
         })
 
 
-class CoinPresentSchema(BaiscSchema):
-    """
-    로그 건들지 말것
-    """
+@dataclass
+class CoinPresentSchema(BasicSchema):
+    def __post_init__(self) -> None:
+        super().__post_init__()
 
-    def __init__(self, name: str, api: Dict, data: Tuple) -> None:
-        super().__init__(name, api, data)
         self.kwargs["data"].update({
-            "prev_closing_price": float(api[data[4]]),        # 전일 종가
-            "acc_trade_volume_24h": float(api[data[5]]),      # 24시간 거래량
-            # "acc_trade_price_24h"  : float(api[data[6]]),      # 24시간 금액량
+            "prev_closing_price": float(self.api[self.args[4]]),
+            "acc_trade_volume_24h": float(self.api[self.args[5]]),
         })

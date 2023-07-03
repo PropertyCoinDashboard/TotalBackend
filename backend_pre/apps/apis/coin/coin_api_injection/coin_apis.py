@@ -1,4 +1,3 @@
-from pathlib import Path
 from abc import ABC, abstractmethod
 from typing import (
     Any, 
@@ -20,7 +19,6 @@ from api_util import (
     csv_read_json, 
     asdict
 )
-
 
 
 class ApiBasicArchitecture(ABC):
@@ -106,6 +104,7 @@ class KorbitAPI(ApiBasicArchitecture):
         return csv_read_json(self.data)
 
 
+# coin symbol coin keyvalue 병합하기
 class TotalCoinMarketlistConcatnate(UpbitAPI, BithumAPI, KorbitAPI):
     def __init__(self) -> None:
         super().__init__()

@@ -2,9 +2,9 @@ import datetime
 import time
 import requests
 import pandas as pd
-from typing import *
-from .api_util import header_to_json, making_time
-from .api_util import UPBIT_API_URL, BITHUM_API_URL
+from typing import Optional, List, Any
+from api_util import header_to_json, making_time
+from api_util import UPBIT_API_URL, BITHUM_API_URL
 
 
 class ApiBasicArchitecture:
