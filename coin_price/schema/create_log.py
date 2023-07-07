@@ -18,7 +18,7 @@ def log():
     logger.addHandler(stream_handler)
 
     # log 를 파일에 출력
-    file_handler = logging.FileHandler('log_extraction/data_generator.log')
+    file_handler = logging.FileHandler(filename="test.log")
     file_handler.setFormatter(formatter)
     logger.addHandler(file_handler)
 

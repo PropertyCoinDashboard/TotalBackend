@@ -17,7 +17,7 @@ import json
 import asyncio
 
 from schema.create_log import log
-from schema.schema import CoinPresentSchema, concatnate_dictionary
+from schema.schema import CoinPresentSchema
 from kafka import KafkaProducer
 from concurrent.futures import ThreadPoolExecutor
 from typing import Literal, Tuple, Dict, List, Any
@@ -25,6 +25,7 @@ from typing import Literal, Tuple, Dict, List, Any
 from backend_pre.apps.apis.coin.coin_api_injection.coin_apis import (
     UpbitAPI, KorbitAPI, BithumAPI
 )
+from dataclasses import dataclass
 
 
 BOOTSTRAP_SERVER: List[str] = ["kafka1:19091", "kafka2:29092", "kafka3:39093"]
@@ -41,41 +42,60 @@ async def present_price_schema(name: str, api: Dict, data: Tuple) -> Dict[str, A
     return present
 
 
-# # 스키마 생성
-async def schema_flume(coin_name: str, topic_name: Literal) -> None:
-    while True:
-        await asyncio.sleep(1)
-        try:
-            with ThreadPoolExecutor() as executor:
-                # upbit, bithum, kobit 각각의 가격을 병렬처리로 가져옴
-                upbit_api = UpbitAPI(name=coin_name)[0]
-                bithum_api = BithumAPI(name=coin_name)["data"]
-                korbit_api = KorbitAPI(name=coin_name)[coin_name]
-                
-                futures = [
-                    asyncio.create_task(
-                        present_price_schema(name=f"{ex_name}-{coin_name}", 
-                                             api=api_func, 
-                                             data=data)
-                    )
-                    for ex_name, api_func, data in [
-                        ("upbit", upbit_api, ("opening_price", "trade_price", "high_price",
-                                              "low_price", "prev_closing_price", "acc_trade_volume_24h")),
-                        
-                        ("bithum", bithum_api, ("opening_price", "closing_price", "max_price", 
-                                                "min_price", "prev_closing_price", "units_traded_24H")),
-                        
-                        ("korbit", korbit_api, ("open", "last", "bid", 
-                                                "ask", "low", "volume"))
-                    ] 
-                ]
+@dataclass
+class PriceSchema:
+    upbit: Dict[str, Any]
+    bithum: Dict[str, Any]
+    korbit: Dict[str, Any]
 
-                # futures를 이용하여 각각의 가격을 딕셔너리로 만들고 병합
-                schema: Dict[str, Any] = concatnate_dictionary(
-                    **{ex_name: await future for ex_name, future in zip(("upbit", "bithum", "korbit"), futures)}
-                )
-                json_to_schema: bytes = json.dumps(schema).encode("utf-8")
-                logging.info(f"데이터 전송 --> \n{json_to_schema}\n")
-                producer.send(topic=topic_name, value=json_to_schema)
-        except Exception as e:
-            logging.error(f"전송 실패 --> {e}")
+    @classmethod
+    async def get_upbit_data(cls, coin_name: str) -> Dict[str, Any]:
+        # upbit 데이터를 얻는 비동기 작업
+        upbit_api = UpbitAPI(name=coin_name)[0]
+        return await present_price_schema(name=f"upbit-{coin_name}", 
+                                          api=upbit_api, 
+                                          data=("opening_price", "trade_price", "high_price",
+                                                "low_price", "prev_closing_price", "acc_trade_volume_24h"))
+
+    @classmethod
+    async def get_bithum_data(cls, coin_name: str) -> Dict[str, Any]:
+        # bithum 데이터를 얻는 비동기 작업
+        bithum_api = BithumAPI(name=coin_name)["data"]
+        return await present_price_schema(name=f"bithum-{coin_name}", 
+                                          api=bithum_api, 
+                                          data=("opening_price", "closing_price", "max_price", 
+                                                "min_price", "prev_closing_price", "units_traded_24H"))
+
+    @classmethod
+    async def get_korbit_data(cls, coin_name: str) -> Dict[str, Any]:
+        # korbit 데이터를 얻는 비동기 작업
+        korbit_api = KorbitAPI(name=coin_name)[coin_name]
+        return await present_price_schema(name=f"korbit-{coin_name}", 
+                                          api=korbit_api, 
+                                          data=("open", "last", "bid", 
+                                                "ask", "low", "volume"))
+
+    @classmethod
+    async def schema_flume(cls, coin_name: str, topic_name: Literal) -> None:
+        while True:
+            await asyncio.sleep(1)
+            try:
+                with ThreadPoolExecutor() as executor:
+                    futures = [
+                        asyncio.create_task(cls.get_upbit_data(coin_name)),
+                        asyncio.create_task(cls.get_bithum_data(coin_name)),
+                        asyncio.create_task(cls.get_korbit_data(coin_name))
+                    ]
+
+                    schema = cls(
+                        upbit = await futures[0],
+                        bithum= await futures[1],
+                        korbit= await futures[2]
+                    )
+
+                    json_to_schema: bytes = json.dumps(schema.__dict__).encode("utf-8")
+                    logging.info(f"데이터 전송 --> \n{json_to_schema}\n")
+                    producer.send(topic=topic_name, value=json_to_schema)
+            except Exception as e:
+                logging.error(f"전송 실패 --> {e}")
+
