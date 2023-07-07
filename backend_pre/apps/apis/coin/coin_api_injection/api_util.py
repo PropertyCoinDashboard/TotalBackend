@@ -1,6 +1,7 @@
 import requests
 import datetime
-import pandas as pd
+import csv
+
 from dataclasses import dataclass, asdict
 from pathlib import Path
 from typing import Any, Literal, Dict, List, Optional
@@ -33,12 +34,13 @@ def header_to_json(url: str) -> Any:
     return response
 
 
-# CSV -> JSON 변환
-def csv_read_json(read_data: str) -> str:
-    df = pd.read_csv(read_data)
-    json_data = df.to_json(orient="records", force_ascii=False)
+# CSV -> JSON 변환 
+def csv_read_json(read_data: str) -> list[dict[str, Any]]:
+    with open(read_data, "r") as cj:
+        csv_data = csv.DictReader(cj)
+        data = list(csv_data)
 
-    return json_data
+    return data
 
 
 """
