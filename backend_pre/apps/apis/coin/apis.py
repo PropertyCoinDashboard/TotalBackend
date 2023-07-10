@@ -1,7 +1,8 @@
 from typing import *
 from ...dashboaring.models import CoinSymbolCoinList
 
-from coin_api_injection.coin_apis import TotalCoinMarketlistConcatnate as TKC
+
+from .coin_api_injection.coin_apis import TotalCoinMarketlistConcatnate as TKC
 from django_filters.rest_framework import DjangoFilterBackend
 
 
@@ -17,14 +18,15 @@ from .serializer import *
 # 모든 코인 저장
 class MarketListTotalInitialization(APIView):
     queryset = CoinSymbolCoinList.objects.all()
-    coin_model_initialization: List[Dict[str, str]] = TKC().coin_total_dict()
+    coin_model_initialization: List[Dict[str, str]] = TKC().coin_classifire()
 
     def perform_create(self, serializer: Dict[str, str]) -> None:
+        print(serializer)
         self.queryset.create(
             korea_name=serializer["korean_name"],
             coin_symbol=serializer["coin_symbol"],
-            bithum_existence=serializer["market_depend"]["bithum"],
             upbit_existence=serializer["market_depend"]["upbit"],
+            bithum_existence=serializer["market_depend"]["bithum"],
             korbit_existence=serializer["market_depend"]["korbit"],
         )
 

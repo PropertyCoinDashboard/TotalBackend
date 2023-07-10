@@ -50,7 +50,10 @@ class UserManager(BaseUserManager):
             raise ValueError("슈퍼유저 권한은 관리자에게 문의하세요")
 
         return self._create_superuser(
-            email=email, name=name, password=password, **extra_fields
+            email=email, 
+            name=name, 
+            password=password, 
+            **extra_fields
         )
 
 

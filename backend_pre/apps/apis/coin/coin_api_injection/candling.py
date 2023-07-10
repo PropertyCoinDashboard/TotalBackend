@@ -2,6 +2,7 @@ import datetime
 import time
 import requests
 import pandas as pd
+import plotly.graph_objects as go
 from typing import Optional, List, Any
 from api_util import header_to_json, making_time
 from api_util import UPBIT_API_URL, BITHUM_API_URL
@@ -117,8 +118,7 @@ def upbit_trade_all_list(time_data: List[datetime.datetime]) -> List[pd.DataFram
 
 # 데이터 병합
 def upbit_trade_data_concat(data: List) -> pd.DataFrame:
-    result_upbit_data_concat = pd.concat(
-        [df for [df] in data], ignore_index=True)
+    result_upbit_data_concat = pd.concat([df for [df] in data], ignore_index=True)
     return result_upbit_data_concat
 
 

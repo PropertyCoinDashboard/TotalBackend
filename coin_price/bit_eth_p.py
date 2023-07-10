@@ -47,7 +47,7 @@ class PriceSchema:
     upbit: Dict[str, Any]
     bithum: Dict[str, Any]
     korbit: Dict[str, Any]
-
+    
     @classmethod
     async def get_upbit_data(cls, coin_name: str) -> Dict[str, Any]:
         # upbit 데이터를 얻는 비동기 작업

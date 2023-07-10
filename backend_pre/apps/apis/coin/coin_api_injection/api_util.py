@@ -51,8 +51,8 @@ def csv_read_json(read_data: str) -> list[dict[str, Any]]:
 @dataclass(frozen=True)
 class MarketDepend:
     upbit: bool
-    bit: bool
-    kor: bool
+    bithum: bool
+    korbit: bool
 
 
 # market coin symbol 
@@ -80,9 +80,9 @@ def coin_classification(up:  List[str] = None,
     
     listup: List[DataFormat] = []
     market_depend = MarketDepend(
-        up=(target in up),
-        bit=(target in bit),
-        kor=(target in kor)
+        upbit=(target in up),
+        bithum=(target in bit),
+        korbit=(target in kor)
     )
     
     listup.append(asdict(DataFormat(coin_symbol=target, korean_name=korean_name, market_depend=market_depend)))
