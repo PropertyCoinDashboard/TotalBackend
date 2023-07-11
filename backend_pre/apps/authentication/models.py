@@ -16,11 +16,7 @@ class UserManager(BaseUserManager):
     use_in_migrations: bool = True
 
     def _create_superuser(
-        self, 
-        email: str, 
-        name: str, 
-        password: PasswordHasher, 
-        **extra_field
+        self, email: str, name: str, password: PasswordHasher, **extra_field
     ) -> Any:
         user = self.model(
             email=self.normalize_email(email),
@@ -34,11 +30,7 @@ class UserManager(BaseUserManager):
         return user
 
     def create_superuser(
-        self, 
-        email: str, 
-        name: str, 
-        password: PasswordHasher, 
-        **extra_fields
+        self, email: str, name: str, password: PasswordHasher, **extra_fields
     ) -> Any:
         extra_fields.setdefault("is_staff", True)
         extra_fields.setdefault("is_admin", True)
@@ -50,10 +42,7 @@ class UserManager(BaseUserManager):
             raise ValueError("슈퍼유저 권한은 관리자에게 문의하세요")
 
         return self._create_superuser(
-            email=email, 
-            name=name, 
-            password=password, 
-            **extra_fields
+            email=email, name=name, password=password, **extra_fields
         )
 
 

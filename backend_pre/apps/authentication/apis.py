@@ -6,16 +6,18 @@ from rest_framework.views import APIView
 from rest_framework.permissions import AllowAny
 from rest_framework.permissions import IsAuthenticated, IsAdminUser
 from .serializer import (
-    AdminRegisterSerializer, UserRegisterSerializer, 
-    AdminLoginSerializer, UserLoginSerializer
+    AdminRegisterSerializer,
+    UserRegisterSerializer,
+    AdminLoginSerializer,
+    UserLoginSerializer,
 )
 from drf_yasg.utils import swagger_auto_schema
 from .models import AdminUser, NormalUser
 
 
 class LoginAPI(APIView):
-    permission_classes = (AllowAny, )
-    
+    permission_classes = (AllowAny,)
+
     def post(self, request, *args, **kwargs):
         login_serializer = self.serializer_class(data=request.data)
         if login_serializer.is_valid(raise_exception=False):
@@ -25,11 +27,11 @@ class LoginAPI(APIView):
         else:
             data = {"msg": "비정상적인 접근입니다"}
             return Response(data=data, status=status.HTTP_400_BAD_REQUEST)
-    
 
-# 정보 수정 
+
+# 정보 수정
 class CrudAPI(ModelViewSet):
-    permission_classes = (IsAuthenticated, )
+    permission_classes = (IsAuthenticated,)
 
     def destroy(self, request, *args, **kwargs):
         user_id = int(self.kwargs.get("pk"))
@@ -39,51 +41,52 @@ class CrudAPI(ModelViewSet):
             return Response({"remove": True}, status=status.HTTP_204_NO_CONTENT)
         else:
             response = {"detail": "정보를 확인하여주세요"}
-            return Response(response, status=status.HTTP_403_FORBIDDEN)   
-    
-    
+            return Response(response, status=status.HTTP_403_FORBIDDEN)
+
+
 # 회원 가입
 class AdminRegisterAPI(CreateAPIView):
     queryset = AdminUser.objects.all()
-    permission_classes = (AllowAny, )
+    permission_classes = (AllowAny,)
     serializer_class = AdminRegisterSerializer
-    
+
     @swagger_auto_schema(request_body=serializer_class)
     def post(self, request, *args, **kwargs):
         return super().post(request, *args, **kwargs)
-    
-    
+
+
 class UserRegisterAPI(CreateAPIView):
     queryset = NormalUser.objects.all()
-    permission_classes = (AllowAny, )
+    permission_classes = (AllowAny,)
     serializer_class = UserRegisterSerializer
-    
+
     @swagger_auto_schema(request_body=serializer_class)
     def post(self, request, *args, **kwargs):
         return super().post(request, *args, **kwargs)
-    
-    
+
+
 # 로그인
 class AdminLoginAPI(LoginAPI):
     serializer_class = AdminLoginSerializer
-    
+
     @swagger_auto_schema(request_body=serializer_class)
     def post(self, request, *args, **kwargs):
         return super().post(request, *args, **kwargs)
+
 
 class UserLoginAPI(LoginAPI):
     serializer_class = UserLoginSerializer
-    
+
     @swagger_auto_schema(request_body=serializer_class)
     def post(self, request, *args, **kwargs):
         return super().post(request, *args, **kwargs)
 
-    
-# # 회원 정보 보이는 기준을 선정해서 쿼리셋 바꿀것 
+
+# # 회원 정보 보이는 기준을 선정해서 쿼리셋 바꿀것
 # class AdminInformAPI(CrudAPI):
 #     queryset = AdminUser.objects.all()
 #     serializer_class = AdminSerializer
-    
+
 
 # class UserInformAPI(CrudAPI):
 #     queryset = NormalUser.objects.all()

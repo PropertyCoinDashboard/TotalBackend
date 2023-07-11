@@ -34,7 +34,7 @@ def header_to_json(url: str) -> Any:
     return response
 
 
-# CSV -> JSON 변환 
+# CSV -> JSON 변환
 def csv_read_json(read_data: str) -> list[dict[str, Any]]:
     with open(read_data, "r") as cj:
         csv_data = csv.DictReader(cj)
@@ -47,6 +47,7 @@ def csv_read_json(read_data: str) -> list[dict[str, Any]]:
 <<<<<< Market Coin Listing DataFormatting >>>>>>
 """
 
+
 # coin classification data formatting
 @dataclass(frozen=True)
 class MarketDepend:
@@ -55,7 +56,7 @@ class MarketDepend:
     korbit: bool
 
 
-# market coin symbol 
+# market coin symbol
 @dataclass
 class CoinSymbol:
     coin_symbol: str
@@ -64,27 +65,32 @@ class CoinSymbol:
 @dataclass
 class CoinKoreaNameSymbol(CoinSymbol):
     korean_name: str
-        
-        
+
+
 # coin market listing
 @dataclass
 class DataFormat(CoinKoreaNameSymbol):
     market_depend: Dict[str, bool] = MarketDepend
-    
-        
-def coin_classification(up:  List[str] = None, 
-                        bit: List[str] = None, 
-                        kor: List[str] = None,
-                        target: Optional[str] = None, 
-                        korean_name: Optional[str] = None) -> List[DataFormat]:
-    
+
+
+def coin_classification(
+    up: List[str] = None,
+    bit: List[str] = None,
+    kor: List[str] = None,
+    target: Optional[str] = None,
+    korean_name: Optional[str] = None,
+) -> List[Dict[str, str]]:
     listup: List[DataFormat] = []
     market_depend = MarketDepend(
-        upbit=(target in up),
-        bithum=(target in bit),
-        korbit=(target in kor)
+        upbit=(target in up), bithum=(target in bit), korbit=(target in kor)
     )
-    
-    listup.append(asdict(DataFormat(coin_symbol=target, korean_name=korean_name, market_depend=market_depend)))
+
+    listup.append(
+        asdict(
+            DataFormat(
+                coin_symbol=target, korean_name=korean_name, market_depend=market_depend
+            )
+        )
+    )
 
     return listup

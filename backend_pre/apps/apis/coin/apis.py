@@ -21,7 +21,6 @@ class MarketListTotalInitialization(APIView):
     coin_model_initialization: List[Dict[str, str]] = TKC().coin_classifire()
 
     def perform_create(self, serializer: Dict[str, str]) -> None:
-        print(serializer)
         self.queryset.create(
             korea_name=serializer["korean_name"],
             coin_symbol=serializer["coin_symbol"],
@@ -44,7 +43,7 @@ class MarketCoinListCreateInitalization(MarketListTotalInitialization):
 
             return Response(
                 {"coin_list": self.coin_model_initialization},
-                status=status.HTTP_201_CREATED
+                status=status.HTTP_201_CREATED,
             )
         else:
             return Response(
@@ -59,4 +58,3 @@ class MarketListView(ListAPIView):
     serializer_class = CoinViewListSerializer
     filter_backends = [DjangoFilterBackend]
     filterset_fields = ["coin_symbol"]
-

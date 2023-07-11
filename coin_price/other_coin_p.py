@@ -21,7 +21,10 @@ from kafka import KafkaProducer
 from typing import Literal, Tuple, Dict, List
 
 from backend_pre.apps.apis.coin.coin_api_injection.coin_apis import (
-    UpbitAPI, KorbitAPI, BithumAPI, header_to_json
+    UpbitAPI,
+    KorbitAPI,
+    BithumAPI,
+    header_to_json,
 )
 
 logging = log()
@@ -30,12 +33,16 @@ logging = log()
 COIN_API_INJECTION_SYMBOL: Literal = "http://0.0.0.0:8081/coinprice/api-v1/test"
 BOOTSTRAP_SERVER: List[str] = ["kafka1:19091", "kafka2:29092", "kafka3:39093"]
 producer = KafkaProducer(
-    bootstrap_servers=BOOTSTRAP_SERVER, security_protocol="PLAINTEXT")
+    bootstrap_servers=BOOTSTRAP_SERVER, security_protocol="PLAINTEXT"
+)
 
 
-async def coin_present_price_schema(name: str, api: Dict, data: Tuple[str]) -> Dict[str, int]:
+async def coin_present_price_schema(
+    name: str, api: Dict, data: Tuple[str]
+) -> Dict[str, int]:
     present_coin: Dict[str, int] = CoinPresentSchema(
-        name=name, api=api, data=data).kwargs
+        name=name, api=api, data=data
+    ).kwargs
 
     return present_coin
 
@@ -44,34 +51,51 @@ async def present(topic_name: str) -> None:
     while True:
         await asyncio.sleep(1)
         # 현재가 객체 생성
-        coin_name: json = header_to_json(COIN_API_INJECTION_SYMBOL)["results"][0]["coin_symbol"]
+        coin_name: json = header_to_json(COIN_API_INJECTION_SYMBOL)["results"][0][
+            "coin_symbol"
+        ]
 
         upbit = UpbitAPI(name=coin_name)
         bithum = BithumAPI(name=coin_name)
         korbit = KorbitAPI(name=coin_name)
         try:
             present_upbit: Dict[str, int] = await coin_present_price_schema(
-                name=f"upbit-{upbit.__namesplit__()}", 
+                name=f"upbit-{upbit.__namesplit__()}",
                 api=upbit[0],
-                data=("opening_price", "trade_price", "high_price",
-                      "low_price", "prev_closing_price", "acc_trade_volume_24h")
+                data=(
+                    "opening_price",
+                    "trade_price",
+                    "high_price",
+                    "low_price",
+                    "prev_closing_price",
+                    "acc_trade_volume_24h",
+                ),
             )
 
             present_bithum: Dict[str, int] = await coin_present_price_schema(
-                name=f"bithum-{bithum.__namesplit__()}", 
+                name=f"bithum-{bithum.__namesplit__()}",
                 api=bithum["data"],
-                data=("opening_price", "closing_price", "max_price", 
-                      "min_price", "prev_closing_price", "units_traded_24H")
+                data=(
+                    "opening_price",
+                    "closing_price",
+                    "max_price",
+                    "min_price",
+                    "prev_closing_price",
+                    "units_traded_24H",
+                ),
             )
 
             present_korbit: Dict[str, int] = await coin_present_price_schema(
-                name=f"korbit-{korbit.__namesplit__()}", 
+                name=f"korbit-{korbit.__namesplit__()}",
                 api=korbit[coin_name],
-                data=("open", "last", "bid", 
-                      "ask", "low", "volume")
+                data=("open", "last", "bid", "ask", "low", "volume"),
             )
 
-            results: List[Dict[str, int]] = [present_upbit, present_bithum, present_korbit]
+            results: List[Dict[str, int]] = [
+                present_upbit,
+                present_bithum,
+                present_korbit,
+            ]
 
             # # 스키마 생성
             schema: Dict[str, Dict] = concatnate_dictionary(
