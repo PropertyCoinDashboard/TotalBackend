@@ -1,4 +1,4 @@
-from typing import *
+from typing import List, Dict
 from ...dashboaring.models import CoinSymbolCoinList
 
 
@@ -9,14 +9,12 @@ from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.views import APIView
-from rest_framework.permissions import AllowAny, IsAdminUser
-from rest_framework.generics import ListAPIView, ListCreateAPIView
-from .serializer import *
+from rest_framework.generics import ListAPIView
+from .serializers import CoinViewListSerializer
 
 
-# -----------------------------------------------------------------------------------------#
-# 모든 코인 저장
-class MarketListTotalInitialization(APIView):
+# # coin symbol 동기화
+class MarketCoinListCreateInitalization(APIView):
     queryset = CoinSymbolCoinList.objects.all()
     coin_model_initialization: List[Dict[str, str]] = TKC().coin_classifire()
 
@@ -29,9 +27,6 @@ class MarketListTotalInitialization(APIView):
             korbit_existence=serializer["market_depend"]["korbit"],
         )
 
-
-# # coin symbol 동기화
-class MarketCoinListCreateInitalization(MarketListTotalInitialization):
     def post(self, request, format=None) -> Response:
         if request.data.get("is_sync"):
             # 일괄 삭제

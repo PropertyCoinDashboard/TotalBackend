@@ -34,15 +34,15 @@ services:
   backend:
     container_name: stock-django
     build: 
-      context: ./backend_pre
+      context: ./backend
       dockerfile: Dockerfile
     command:
       - /bin/sh
       - -c
       - /usr/src/local/entrypoint.sh
     volumes:
-      - ./backend_pre/:/backend_pre
-      - static-volume:/backend_pre/config/static
+      - ./backend/:/backend
+      - static-volume:/backend/config/static
     env_file:
       - ./.env
     expose:
@@ -62,7 +62,7 @@ services:
       - "8081:8081"
     volumes:
       - ./nginx/nginx-setup.conf:/etc/nginx/con.f/nginx-setup.conf
-      - static-volume:/backend_pre/config/static
+      - static-volume:/backend/config/static
     environment:
       - buffer-size=65535
     depends_on:

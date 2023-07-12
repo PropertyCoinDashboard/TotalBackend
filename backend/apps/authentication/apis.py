@@ -5,7 +5,7 @@ from rest_framework.generics import CreateAPIView
 from rest_framework.views import APIView
 from rest_framework.permissions import AllowAny
 from rest_framework.permissions import IsAuthenticated, IsAdminUser
-from .serializer import (
+from .serializers import (
     AdminRegisterSerializer,
     UserRegisterSerializer,
     AdminLoginSerializer,
@@ -33,15 +33,22 @@ class LoginAPI(APIView):
 class CrudAPI(ModelViewSet):
     permission_classes = (IsAuthenticated,)
 
-    def destroy(self, request, *args, **kwargs):
-        user_id = int(self.kwargs.get("pk"))
-        if self.request.user.id == user_id:
-            instance = self.get_object()
-            self.perform_destroy(instance)
-            return Response({"remove": True}, status=status.HTTP_204_NO_CONTENT)
-        else:
-            response = {"detail": "정보를 확인하여주세요"}
-            return Response(response, status=status.HTTP_403_FORBIDDEN)
+    # def destroy(self, request, *args, **kwargs):
+    #     user_id = int(self.kwargs.get("pk"))
+    #     if self.request.user.id != user_id:
+    #         response = {"error": "해당 사용자의 데이터를 삭제할 권한이 없습니다"}
+    #         return Response(response, status=status.HTTP_403_FORBIDDEN)
+
+    #     try:
+    #         self.perform_destroy(self.get_object())
+    #     except self.model.DoesNotExist:
+    #         response = {"error": "지정된 사용자가 존재하지 않습니다"}
+    #         return Response(response, status=status.HTTP_404_NOT_FOUND)
+    #     except Exception as e:
+    #         response = {"error": str(e)}
+    #         return Response(response, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+    #     return Response({"success": True}, status=status.HTTP_204_NO_CONTENT)
 
 
 # 회원 가입
