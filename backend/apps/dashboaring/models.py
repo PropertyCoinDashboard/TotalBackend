@@ -1,4 +1,3 @@
-from typing import Iterable, Optional
 from django.db import models
 from django.core.validators import MaxLengthValidator
 from django.utils.translation import gettext_lazy as _
