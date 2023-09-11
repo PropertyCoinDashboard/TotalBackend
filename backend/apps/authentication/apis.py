@@ -4,7 +4,7 @@ from rest_framework.viewsets import ModelViewSet
 from rest_framework.generics import CreateAPIView
 from rest_framework.views import APIView
 from rest_framework.permissions import AllowAny
-from rest_framework.permissions import IsAuthenticated, IsAdminUser
+from rest_framework.permissions import IsAuthenticated
 from .serializers import (
     AdminRegisterSerializer,
     UserRegisterSerializer,
@@ -27,28 +27,6 @@ class LoginAPI(APIView):
         else:
             data = {"msg": "비정상적인 접근입니다"}
             return Response(data=data, status=status.HTTP_400_BAD_REQUEST)
-
-
-# 정보 수정
-class CrudAPI(ModelViewSet):
-    permission_classes = (IsAuthenticated,)
-
-    # def destroy(self, request, *args, **kwargs):
-    #     user_id = int(self.kwargs.get("pk"))
-    #     if self.request.user.id != user_id:
-    #         response = {"error": "해당 사용자의 데이터를 삭제할 권한이 없습니다"}
-    #         return Response(response, status=status.HTTP_403_FORBIDDEN)
-
-    #     try:
-    #         self.perform_destroy(self.get_object())
-    #     except self.model.DoesNotExist:
-    #         response = {"error": "지정된 사용자가 존재하지 않습니다"}
-    #         return Response(response, status=status.HTTP_404_NOT_FOUND)
-    #     except Exception as e:
-    #         response = {"error": str(e)}
-    #         return Response(response, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-
-    #     return Response({"success": True}, status=status.HTTP_204_NO_CONTENT)
 
 
 # 회원 가입
@@ -87,14 +65,3 @@ class UserLoginAPI(LoginAPI):
     @swagger_auto_schema(request_body=serializer_class)
     def post(self, request, *args, **kwargs):
         return super().post(request, *args, **kwargs)
-
-
-# # 회원 정보 보이는 기준을 선정해서 쿼리셋 바꿀것
-# class AdminInformAPI(CrudAPI):
-#     queryset = AdminUser.objects.all()
-#     serializer_class = AdminSerializer
-
-
-# class UserInformAPI(CrudAPI):
-#     queryset = NormalUser.objects.all()
-#     serializer_class = UserSerializer
