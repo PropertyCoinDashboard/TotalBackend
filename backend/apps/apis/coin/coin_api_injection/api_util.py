@@ -13,21 +13,6 @@ BITHUM_API_URL: Literal = "https://api.bithumb.com/public"
 PRESENT_DIR: Path = Path(__file__).resolve().parent
 
 
-def making_time() -> List:
-    # 현재 시간 구하기
-    now = datetime.datetime.now()
-
-    # 목표 날짜 구하기
-    # 현재 시간으로부터 200일씩 뒤로 가면서 datetime 객체 생성하기
-    target_date = datetime.datetime(2013, 12, 27, 0, 0, 0)
-    result = []
-    while now >= target_date:
-        result.append(now)
-        now -= datetime.timedelta(days=200)
-
-    return result
-
-
 def header_to_json(url: str) -> Any:
     headers: Dict[str, str] = {"accept": "application/json"}
     response = requests.get(url, headers=headers).json()
