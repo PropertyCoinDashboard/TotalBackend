@@ -19,7 +19,6 @@ class MarketCoinListCreateInitialization(APIView):
 
     def create_coin_entries(self, serializer: dict[str, str]) -> None:
         self.queryset.create(
-            korea_name=serializer["korean_name"],
             coin_symbol=serializer["coin_symbol"],
             upbit_existence=serializer["market_depend"]["upbit"],
             bithum_existence=serializer["market_depend"]["bithum"],

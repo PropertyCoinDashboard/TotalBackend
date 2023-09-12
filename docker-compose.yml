@@ -1,7 +1,7 @@
 version: '3.9'
 
 services:   
-  redis:
+  stock_redis:
     container_name: stock-redis
     image: redis:latest
     ports:
@@ -9,9 +9,9 @@ services:
     networks:
       - drf-network
 
-  sql:
+  stock_sql:
     container_name: stock-sql
-    image: mysql
+    image: mysql:8
     ports:
       - "3307:3306"
     env_file:
@@ -19,19 +19,27 @@ services:
     environment:
       - MYSQL_DATABASE=${DB_DATABASE}
       - MYSQL_ROOT_PASSWORD=${DB_PASSWORD}
-      - MYSQL_USERNAME=${DB_USERNAME}
+      - MYSQL_USER=${DB_USERNAME}
+      - MYSQL_PASSWORD=${DB_PASSWORD}
+      - MYSQL_AUTH_PLUGIN=caching_sha2_password
       - TZ=Asia/Seoul
     command:
-      - --default-authentication-plugin=mysql_native_password
+      - --default-authentication-plugin=caching_sha2_password
       - --collation-server=utf8mb4_unicode_ci
       - --character-set-server=utf8mb4
       - --lower_case_table_names=1
     volumes:
-      - .sqlVolume:/var/lib/mysql
+      - mysql_data:/var/lib/mysql
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
+    healthcheck:
+        test: ['CMD-SHELL', 'mysqladmin ping -h 127.0.0.1 -u root --password=$$MYSQL_ROOT_PASSWORD']
+        interval: 10s
+        timeout: 2s
+        retries: 100
     networks:
       - drf-network 
 
-  backend:
+  stock_backend:
     container_name: stock-django
     build: 
       context: ./backend
@@ -45,19 +53,20 @@ services:
       - static-volume:/backend/config/static
     env_file:
       - ./.env
-    expose:
-      - "8000"
+    ports:
+      - "8000:8000"
+    restart: always
     depends_on:
-      - sql
-      - redis
+      stock_sql:
+        condition: service_healthy    
     networks:
       - drf-network
 
-  ngnix:
+  stock_ngnix:
+    container_name: stock-nginx
     build: 
       context: ./nginx
       dockerfile: Dockerfile
-    container_name: stock-nginx
     ports:
       - "8081:8081"
     volumes:
@@ -66,9 +75,8 @@ services:
     environment:
       - buffer-size=65535
     depends_on:
-      - sql
-      - redis
-      - backend
+      - stock_redis
+      - stock_backend
     networks:
       - drf-network
 
@@ -79,9 +87,8 @@ networks:
       name: kafka-network
 
 volumes:
-  sql:
-  redis:
-  nginx:
-  backend:
+  stock_redis:
+  stock_nginx:
+  stock_backend:
   static-volume:
   mysql_data: {}

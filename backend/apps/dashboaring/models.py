@@ -24,13 +24,6 @@ class CoinSymbolCoinList(Timestamp):
         primary_key=True,
         validators=[MaxLengthValidator(limit_value=6)],
     )
-    korea_name = models.CharField(
-        max_length=15,
-        unique=True,
-        blank=False,
-        null=False,
-        validators=[MaxLengthValidator(limit_value=10)],
-    )
     bithum_existence = models.BooleanField()
     upbit_existence = models.BooleanField()
     korbit_existence = models.BooleanField()
@@ -38,21 +31,29 @@ class CoinSymbolCoinList(Timestamp):
     class Meta:
         db_table: str = "coin_symbol"
         db_table_comment: str = "코인 심볼 테이블"
-        indexes = [
-            models.Index(fields=["coin_symbol"], name="symbol_index"),
-            models.Index(fields=["korea_name"], name="korea_index"),
-        ]
+        indexes = [models.Index(fields=["coin_symbol"], name="symbol_index")]
 
 
 class CoinUpbithumTradingData(Timestamp):
+    timestamp = models.TimeField()
     coin_symbol = models.OneToOneField(CoinSymbolCoinList, on_delete=models.CASCADE)
     end_price = models.FloatField()
 
     class Meta:
-        db_table: str = "coin_end_price"
-        db_table_comment: str = "코인 마지막 거래가"
-        indexes = [models.Index(fields=["end_price"], name="end_price_index")]
+        abstract: bool = True
+        indexes = [models.Index(fields=["timestamp"], name="coin_endprice_time")]
 
+
+class BitcoinEndPriceData(CoinUpbithumTradingData):
+    class Meta:
+        db_table: str = "ETH_coin_end_price_and_upbithumb"
+        db_table_comment: str = "비트코인 마지막 거래가"
+
+
+class EthereumEndPriceData(CoinUpbithumTradingData):
+    class Meta:
+        db_table: str = "BTC_coin_end_price_and_upbithumb"
+        db_table_comment: str = "이더리움 마지막 거래가"   
 
 """
 ## ---------------------------------------------------- ##

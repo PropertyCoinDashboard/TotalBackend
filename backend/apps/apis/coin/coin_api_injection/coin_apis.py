@@ -122,7 +122,7 @@ class TotalCoinMarketlistConcatnate:
                 up=up,
                 bit=bit,
                 kor=kor,
-                target=name["coin_symbol"]
+                target=name
             )
             for name in coin_info
         )

@@ -22,3 +22,4 @@ sqlparse
 mysqlclient
 argon2-cffi
 pydantic
+pandas

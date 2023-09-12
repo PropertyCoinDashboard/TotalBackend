@@ -132,3 +132,4 @@ migrations/
 migrations
 poetry.lock
 pyproject.toml
+init.sql
