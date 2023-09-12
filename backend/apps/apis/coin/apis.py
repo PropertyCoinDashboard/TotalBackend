@@ -1,10 +1,9 @@
-from typing import List, Dict
 from ...dashboaring.models import CoinSymbolCoinList
 
 
 from .coin_api_injection.coin_apis import TotalCoinMarketlistConcatnate as TKC
 from django_filters.rest_framework import DjangoFilterBackend
-
+from django.db import transaction
 
 from rest_framework import status
 from rest_framework.response import Response
@@ -14,11 +13,11 @@ from .serializers import CoinViewListSerializer
 
 
 # # coin symbol 동기화
-class MarketCoinListCreateInitalization(APIView):
+class MarketCoinListCreateInitialization(APIView):
     queryset = CoinSymbolCoinList.objects.all()
-    coin_model_initialization: List[Dict[str, str]] = TKC().coin_classifire()
+    coin_model_initialization: list[dict[str, str]] = TKC().coin_classifire()
 
-    def perform_create(self, serializer: Dict[str, str]) -> None:
+    def create_coin_entries(self, serializer: dict[str, str]) -> None:
         self.queryset.create(
             korea_name=serializer["korean_name"],
             coin_symbol=serializer["coin_symbol"],
@@ -27,14 +26,15 @@ class MarketCoinListCreateInitalization(APIView):
             korbit_existence=serializer["market_depend"]["korbit"],
         )
 
-    def post(self, request, format=None) -> Response:
+    def post(self, request, *args, **kwargs) -> Response:
         if request.data.get("is_sync"):
             # 일괄 삭제
-            self.queryset.delete()
-
-            # 일괄 생성
-            for data in self.coin_model_initialization:
-                self.perform_create(data)
+            with transaction.atomic():
+                self.queryset.delete()
+                
+                # 일괄 생성
+                for data in self.coin_model_initialization:
+                    self.create_coin_entries(data)
 
             return Response(
                 {"coin_list": self.coin_model_initialization},

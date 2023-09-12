@@ -7,7 +7,6 @@ django-extensions
 djangorestframework-simplejwt
 django-filter
 channels
-kafka-python
 redis
 channels-redis
 websockets
@@ -22,3 +21,4 @@ python-dotenv
 sqlparse
 mysqlclient
 argon2-cffi
+pydantic
