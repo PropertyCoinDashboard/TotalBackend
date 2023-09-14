@@ -4,7 +4,7 @@ set -e
 
 echo "${0}: running migrations. :"
 python manage.py makemigrations authentication
-python manage.py makemigrations dashboaring
+python manage.py makemigrations coin
 python manage.py migrate --noinput
 
 echo "${0} : collect staticfile "

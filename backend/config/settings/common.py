@@ -19,9 +19,8 @@ import os
 BASE_DIR = Path(__file__).resolve().parent.parent
 AUTH_USER_MODEL = "authentication.AdminUser"
 load_dotenv(
-    dotenv_path=f"{BASE_DIR}/.env",
+    dotenv_path=f"{BASE_DIR.parent.parent}/.env",
 )
-
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/4.1/howto/deployment/checklist/
 
@@ -46,8 +45,8 @@ INSTALLED_APPS = [
     "drf_yasg",
     "django_filters",
     # app
+    "apps.coin",
     "apps.authentication",
-    "apps.dashboaring",
 ]
 
 

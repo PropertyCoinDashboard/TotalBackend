@@ -3,8 +3,8 @@ import datetime
 import requests
 import pandas as pd
 from typing import Any
-from api_util import header_to_json, making_time
-from api_util import UPBIT_API_URL, BITHUM_API_URL
+from .api_util import header_to_json, making_time
+from .api_util import UPBIT_API_URL, BITHUM_API_URL
 
 
 def making_time() -> list:
@@ -195,7 +195,6 @@ def coin_trading_data_concatnate(coin_name: str) -> list[dict]:
         .mean()
         .reset_index()
     )
-
     return merge_data.to_dict(orient="records")
 
 

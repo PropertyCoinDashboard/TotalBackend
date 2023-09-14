@@ -35,41 +35,27 @@ class CoinSymbolCoinList(Timestamp):
 
 
 class CoinUpbithumTradingData(Timestamp):
-    timestamp = models.TimeField()
-    coin_symbol = models.OneToOneField(CoinSymbolCoinList, on_delete=models.CASCADE)
-    end_price = models.FloatField()
+    timestamp = models.DateField()
+    trade_price = models.FloatField()
 
     class Meta:
         abstract: bool = True
-        indexes = [models.Index(fields=["timestamp"], name="coin_endprice_time")]
+        indexes = [
+            models.Index(fields=["timestamp"], name="coin_endprice_time"),
+        ]
 
 
 class BitcoinEndPriceData(CoinUpbithumTradingData):
     class Meta:
-        db_table: str = "ETH_coin_end_price_and_upbithumb"
+        db_table: str = "BTC_coin_end_price_and_upbithumb"
         db_table_comment: str = "비트코인 마지막 거래가"
 
 
 class EthereumEndPriceData(CoinUpbithumTradingData):
     class Meta:
-        db_table: str = "BTC_coin_end_price_and_upbithumb"
+        db_table: str = "ETH_coin_end_price_and_upbithumb"
         db_table_comment: str = "이더리움 마지막 거래가"   
 
 """
 ## ---------------------------------------------------- ##
 """
-
-# class StockInformationally(Timestamp):
-#     k_name = models.CharField(max_length=50, default="")
-
-#     class Meta:
-#         db_table: str = "stock"
-
-
-# class RealstateInformationlly(Timestamp):
-#     name = models.CharField(max_length=50, blank=False, null=False)
-#     location = models.CharField(verbose_name=_("지역"), max_length=50, blank=False, null=False)
-#     price = models.BigIntegerField(verbose_name=_("가격"), null=False, blank=False)
-
-#     class Meta:
-#         db_table: str = "real"

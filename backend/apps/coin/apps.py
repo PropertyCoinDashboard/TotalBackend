@@ -1,6 +1,6 @@
 from django.apps import AppConfig
 
 
-class DashboaringConfig(AppConfig):
+class CoinConfig(AppConfig):
     default_auto_field = 'django.db.models.BigAutoField'
-    name = 'apps.dashboaring'
+    name = 'apps.coin'
