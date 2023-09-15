@@ -13,8 +13,9 @@ class RegisterSerializer(serializers.ModelSerializer):
     password2 = serializers.CharField(style={"input_type": "password"}, write_only=True)
 
     class Meta:
+        model = None
         fields: List[str] = ["id", "name", "email", "password", "password2"]
-        extra_kwargs: Dict[str, Dict[str, Any]] = {
+        extra_kwargs: dict[str, dict[str, Any]] = {
             "password": {"write_only": True, "style": {"input_type": "password"}}
         }
 
@@ -23,7 +24,7 @@ class RegisterSerializer(serializers.ModelSerializer):
             return data
         raise ValidationError(detail="비밀번호가 같지 않습니다", code="password_mismatch")
 
-    def create(self, validated_data: Dict) -> None:
+    def create(self, validated_data: dict) -> Any:
         del validated_data["password2"]
 
         password: str = validated_data["password"]
@@ -43,25 +44,33 @@ class LoginSerializer(serializers.ModelSerializer):
     password = serializers.CharField(style={"input_type": "password"}, write_only=True)
 
     class Meta:
-        fields: List[str] = ["email", "password"]
+        model = None
+        fields = ["email", "password"]
 
     def validate(self, data):
         email: str = data.get("email")
-        password: PasswordHasher = data.get("password")
+        password: str = data.get("password")
+             
+        if not email or not password:
+            raise ValidationError(self.error_messages["login"])
 
         try:
             user = self.Meta.model.objects.get(email=email)
             user_password: PasswordHasher = user.password
-            pc: bool = PasswordHasher().verify(
-                str(user_password).strip("argon2"), password
+            password_hasher: bool = PasswordHasher().verify(
+                str(user_password), password
             )
-            if pc:
+            if password_hasher:
                 token = RefreshToken.for_user(user)
                 refresh = str(token)
                 access = str(token.access_token)
-                data: Dict[str, Any] = {
+                data: dict[str, Any] = {
                     "msg": "로그인 성공",
-                    "info": {"email": user.email, "refresh": refresh, "access": access},
+                    "info": {
+                        "email": user.email, 
+                        "refresh": refresh, 
+                        "access": access
+                    }
                 }
                 return data
         except (self.Meta.model.DoesNotExist, VerifyMismatchError):
@@ -84,6 +93,6 @@ class AdminLoginSerializer(LoginSerializer):
         model = AdminUser
 
 
-class UserLoginSerializer(LoginSerializer):
+class NormalUserLoginSerializer(LoginSerializer):
     class Meta(LoginSerializer.Meta):
         model = NormalUser

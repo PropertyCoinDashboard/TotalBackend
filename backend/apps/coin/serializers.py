@@ -2,7 +2,8 @@ from rest_framework import serializers
 from .models import (
     CoinSymbolCoinList,
     BitcoinEndPriceData,
-    EthereumEndPriceData
+    EthereumEndPriceData,
+    RippleEndPriceData
 )
 
 
@@ -40,4 +41,9 @@ class BtcEndPriceSerializer(CoinEndPriceCollectSerializer):
 class EthEndPriceSerializer(CoinEndPriceCollectSerializer):
     class Meta(CoinEndPriceCollectSerializer.Meta):
         model = EthereumEndPriceData
+
+
+class XrpEndPriceSerializer(CoinEndPriceCollectSerializer):
+    class Meta(CoinEndPriceCollectSerializer.Meta):
+        model = RippleEndPriceData
 

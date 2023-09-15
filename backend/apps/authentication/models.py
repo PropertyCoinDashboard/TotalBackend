@@ -82,6 +82,10 @@ class AdminUser(AbstractBaseUser, PermissionsMixin, BasicInform):
     USERNAME_FIELD: str = "email"
     REQUIRED_FIELDS: List[str] = ["name", "password"]
     objects: BaseUserManager[Any] = UserManager()
+    
+    def set_password(self, password: str) -> None:
+        self.password = PasswordHasher().hash(password)
+        self._password = self.password.strip("argon2")
 
     def __str__(self) -> str:
         return self.name

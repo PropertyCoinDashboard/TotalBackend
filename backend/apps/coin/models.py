@@ -56,6 +56,12 @@ class EthereumEndPriceData(CoinUpbithumTradingData):
         db_table: str = "ETH_coin_end_price_and_upbithumb"
         db_table_comment: str = "이더리움 마지막 거래가"   
 
+
+class RippleEndPriceData(CoinUpbithumTradingData):
+    class Meta:
+        db_table: str = "XRP_coin_end_price_and_upbithumb"
+        db_table_comment: str = "리플 마지막 거래가"   
+
 """
 ## ---------------------------------------------------- ##
 """

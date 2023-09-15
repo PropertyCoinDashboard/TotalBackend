@@ -1,12 +1,14 @@
 from .models import (
     CoinSymbolCoinList,
     BitcoinEndPriceData,
-    EthereumEndPriceData
+    EthereumEndPriceData,
+    RippleEndPriceData
 )
 from .serializers import (
     CoinViewListSerializer,
     BtcEndPriceSerializer,
-    EthEndPriceSerializer
+    EthEndPriceSerializer,
+    XrpEndPriceSerializer
 )
 
 from .market_apis.coin_apis import TotalCoinMarketlistConcatnate as TKC
@@ -53,6 +55,16 @@ class MarketCoinListCreateInitialization(APIView):
                 status=status.HTTP_400_BAD_REQUEST,
             )
 
+
+# 전체 코인 리스트
+class CoinMarketListView(ListAPIView):
+    queryset = CoinSymbolCoinList.objects.all()
+    serializer_class = CoinViewListSerializer
+    filter_backends = [DjangoFilterBackend]
+    filterset_fields = ["coin_symbol"]
+
+
+
 # 코인 가격
 class BaseCoinDataListCreateView(ListCreateAPIView):
     queryset = None
@@ -74,22 +86,23 @@ class BaseCoinDataListCreateView(ListCreateAPIView):
         return Response({"message": "Data has been created successfully"}, status=status.HTTP_201_CREATED)
 
 
+# 비트코인
 class BtcCoinDataListCreateView(BaseCoinDataListCreateView):
     queryset = BitcoinEndPriceData.objects.all()
     serializer_class = BtcEndPriceSerializer
     coin_name = "BTC"
+          
             
-
+# 이더리움
 class EthCoinDataListCreateView(BaseCoinDataListCreateView):
     queryset = EthereumEndPriceData.objects.all()
     serializer_class = EthEndPriceSerializer
     coin_name = "ETH"
 
 
+# 리플
+class XrpCoinDataListCreateView(BaseCoinDataListCreateView):
+    queryset = RippleEndPriceData.objects.all()
+    serializer_class = XrpEndPriceSerializer
+    coin_name = "XRP"
 
-# 전체 코인 리스트
-class CoinMarketListView(ListAPIView):
-    queryset = CoinSymbolCoinList.objects.all()
-    serializer_class = CoinViewListSerializer
-    filter_backends = [DjangoFilterBackend]
-    filterset_fields = ["coin_symbol"]
