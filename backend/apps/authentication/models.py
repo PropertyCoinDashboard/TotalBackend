@@ -7,7 +7,7 @@ from django.contrib.auth.models import (
 )
 from django.core.validators import MinLengthValidator
 
-from typing import List, Any
+from typing import Any
 from argon2 import PasswordHasher
 
 
@@ -80,7 +80,7 @@ class AdminUser(AbstractBaseUser, PermissionsMixin, BasicInform):
 
     EMAIL_FIELD: str = "email"
     USERNAME_FIELD: str = "email"
-    REQUIRED_FIELDS: List[str] = ["name", "password"]
+    REQUIRED_FIELDS: list[str] = ["name", "password"]
     objects: BaseUserManager[Any] = UserManager()
     
     def set_password(self, password: str) -> None:
@@ -98,6 +98,7 @@ class AdminUser(AbstractBaseUser, PermissionsMixin, BasicInform):
 
     class Meta:
         db_table: str = "admin_user"
+        app_label: str = "authentication"
         verbose_name = _("admin_user")
         verbose_name_plural = _("admin_users")
 
@@ -112,5 +113,6 @@ class NormalUser(BasicInform):
 
     class Meta:
         db_table: str = "normal_user"
+        app_label: str = "authentication"
         verbose_name = _("normal_user")
         verbose_name_plural = _("normal_users")

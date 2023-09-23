@@ -70,6 +70,10 @@ PASSWORD_HASHERS = [
 ]
 
 
+DATABASE_ROUTERS = [
+    "config.settings.dbrouter.MultiDBRouter"
+]
+
 ROOT_URLCONF = "config.urls"
 
 

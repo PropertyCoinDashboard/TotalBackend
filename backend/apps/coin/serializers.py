@@ -3,11 +3,15 @@ from .models import (
     CoinSymbolCoinList,
     BitcoinEndPriceData,
     EthereumEndPriceData,
-    RippleEndPriceData
+    RippleEndPriceData,
 )
 
 
 class CoinViewExistSerializer(serializers.ModelSerializer):
+    """
+    코인 상장 여부
+    """
+
     class Meta:
         model = CoinSymbolCoinList
         fields = ("upbit_existence", "bithum_existence", "korbit_existence")
@@ -27,16 +31,16 @@ class CoinViewListSerializer(serializers.ModelSerializer):
 class CoinEndPriceCollectSerializer(serializers.ModelSerializer):
     timestamp = serializers.DateField(format="%Y-%m-%d")
     trade_price = serializers.FloatField()
-    
+
     class Meta:
         fields = ("timestamp", "trade_price")
-        
+
 
 # End Price BTC, ETH
 class BtcEndPriceSerializer(CoinEndPriceCollectSerializer):
     class Meta(CoinEndPriceCollectSerializer.Meta):
         model = BitcoinEndPriceData
-    
+
 
 class EthEndPriceSerializer(CoinEndPriceCollectSerializer):
     class Meta(CoinEndPriceCollectSerializer.Meta):
@@ -46,4 +50,3 @@ class EthEndPriceSerializer(CoinEndPriceCollectSerializer):
 class XrpEndPriceSerializer(CoinEndPriceCollectSerializer):
     class Meta(CoinEndPriceCollectSerializer.Meta):
         model = RippleEndPriceData
-

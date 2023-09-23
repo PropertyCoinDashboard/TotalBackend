@@ -7,15 +7,18 @@ from .serializers import (
 from .models import AdminUser, NormalUser
 from drf_yasg.utils import swagger_auto_schema
 from rest_framework import status
+from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.generics import CreateAPIView
-from rest_framework.views import APIView
 from rest_framework.permissions import AllowAny
 
 
 # 로그인 
 class UserLoginAPI(APIView):
-    permission_classes = (AllowAny, )
+    """
+    로그인 추상화 
+    """
+    permission_classes = (AllowAny, ) 
     
     def post(self, request, *args, **kwargs):
         login_serializer = self.serializer_class(data=request.data)

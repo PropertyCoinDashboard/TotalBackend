@@ -19,8 +19,6 @@ services:
     environment:
       - MYSQL_DATABASE=${DB_DATABASE}
       - MYSQL_ROOT_PASSWORD=${DB_PASSWORD}
-      - MYSQL_USER=${DB_USERNAME}
-      - MYSQL_PASSWORD=${DB_PASSWORD}
       - MYSQL_AUTH_PLUGIN=caching_sha2_password
       - TZ=Asia/Seoul
     command:
@@ -29,7 +27,7 @@ services:
       - --character-set-server=utf8mb4
       - --lower_case_table_names=1
     volumes:
-      - mysql_data:/var/lib/mysql
+      - mysql_data_stock:/var/lib/mysql
       - ./init.sql:/docker-entrypoint-initdb.d/init.sql
     healthcheck:
         test: ['CMD-SHELL', 'mysqladmin ping -h 127.0.0.1 -u root --password=$$MYSQL_ROOT_PASSWORD']
@@ -39,6 +37,34 @@ services:
     networks:
       - drf-network 
 
+  stock_sql_auth:
+    container_name: stock-sql-auth
+    image: mysql:8
+    ports:
+      - "3308:3306"
+    env_file:
+      - ./.env
+    environment:
+      - MYSQL_DATABASE=${auth_DB_DATABASE}
+      - MYSQL_ROOT_PASSWORD=${auth_DB_PASSWORD}
+      - MYSQL_AUTH_PLUGIN=caching_sha2_password
+      - TZ=Asia/Seoul
+    command:
+      - --default-authentication-plugin=caching_sha2_password
+      - --collation-server=utf8mb4_unicode_ci
+      - --character-set-server=utf8mb4
+      - --lower_case_table_names=1
+    volumes:
+      - mysql_data_auth:/var/lib/mysql
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
+    healthcheck:
+        test: ['CMD-SHELL', 'mysqladmin ping -h 127.0.0.1 -u root --password=$$MYSQL_ROOT_PASSWORD']
+        interval: 10s
+        timeout: 2s
+        retries: 100
+    networks:
+      - drf-network 
+  
   stock_backend:
     container_name: stock-django
     build: 
@@ -91,4 +117,5 @@ volumes:
   stock_nginx:
   stock_backend:
   static-volume:
-  mysql_data: {}
+  mysql_data_stock: {}
+  mysql_data_auth: {}
