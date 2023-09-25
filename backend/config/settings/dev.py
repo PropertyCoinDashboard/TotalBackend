@@ -21,7 +21,7 @@ REST_FRAMEWORK = {
 }
 
 DATABASES = {
-    "default": {
+    "coin": {
         "ENGINE": "django.db.backends.mysql",
         "NAME": os.getenv("DB_DATABASE"),
         "USER": os.getenv("DB_USERNAME"),
@@ -29,7 +29,7 @@ DATABASES = {
         "HOST": os.getenv("DB_HOST"),
         "PORT": "3306",
     },
-    "authentication": {
+    "default": {
         "ENGINE": "django.db.backends.mysql",
         "NAME": os.getenv("auth_DB_DATABASE"),
         "USER": os.getenv("auth_DB_USERNAME"),

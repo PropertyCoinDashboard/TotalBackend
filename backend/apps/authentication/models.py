@@ -98,7 +98,6 @@ class AdminUser(AbstractBaseUser, PermissionsMixin, BasicInform):
 
     class Meta:
         db_table: str = "admin_user"
-        app_label: str = "authentication"
         verbose_name = _("admin_user")
         verbose_name_plural = _("admin_users")
 
@@ -113,6 +112,5 @@ class NormalUser(BasicInform):
 
     class Meta:
         db_table: str = "normal_user"
-        app_label: str = "authentication"
         verbose_name = _("normal_user")
         verbose_name_plural = _("normal_users")

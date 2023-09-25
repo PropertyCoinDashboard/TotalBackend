@@ -31,7 +31,7 @@ class CoinSymbolCoinList(Timestamp):
     class Meta:
         db_table: str = "coin_symbol"
         db_table_comment: str = "코인 심볼 테이블"
-        app_label: str = "default"
+        app_label: str = "coin"
         indexes = [models.Index(fields=["coin_symbol"], name="symbol_index")]
 
 
@@ -41,7 +41,7 @@ class CoinUpbithumTradingData(Timestamp):
 
     class Meta:
         abstract: bool = True
-        app_label: str = "default"
+        app_label: str = "coin"
         indexes = [models.Index(fields=["timestamp"], name="coin_endprice_time")]
 
 

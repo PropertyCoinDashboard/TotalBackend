@@ -6,8 +6,8 @@ echo "${0}: running migrations. :"
 python manage.py makemigrations authentication 
 python manage.py makemigrations coin 
 
-python manage.py migrate --noinput --database default
-python manage.py migrate --noinput --database authentication
+python manage.py migrate coin --noinput --database=coin
+python manage.py migrate authentication --noinput --database=default
 
 echo "${0} : collect staticfile "
 python manage.py collectstatic --noinput
