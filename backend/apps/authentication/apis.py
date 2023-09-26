@@ -20,7 +20,7 @@ class UserLoginAPI(APIView):
     """
     로그인 추상화 
     """
-    permission_classes: P = (P.AllowAny, ) 
+    permission_classes: P = (P.AllowAny, )
     serializer_class: Serializer = None
     
     def get(self, request, *args, **kwargs) -> Response:

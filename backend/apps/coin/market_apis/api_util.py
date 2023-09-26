@@ -1,15 +1,14 @@
 import datetime
 import requests
+from typing import Any
 from pydantic import BaseModel
 
-from pathlib import Path
-from typing import Any
 
 
 UPBIT_API_URL = "https://api.upbit.com/v1"
 KOBIT_API_URL = "https://api.korbit.co.kr/v1"
 BITHUM_API_URL = "https://api.bithumb.com/public"
-PRESENT_DIR: Path = Path(__file__).resolve().parent
+COINONE_API_URL = "https://api.coinone.co.kr/public/v2"
 
 
 def making_time() -> list:
@@ -23,7 +22,6 @@ def making_time() -> list:
     while now >= target_date:
         result.append(now)
         now -= datetime.timedelta(days=200)
-
     return result
 
 def header_to_json(url: str) -> Any:
@@ -53,19 +51,9 @@ class DataFormat(CoinSymbol):
 
 
 def coin_classification(up: list[str], bit: list[str], kor: list[str], target: str) -> list[dict[str, str]]:
-    listup = []
-
     market_depend = MarketDepend(
         upbit=(target in up),
         bithum=(target in bit),
         korbit=(target in kor)
     )
-
-    listup.append(
-        DataFormat(
-            coin_symbol=target,
-            market_depend=market_depend
-        ).model_dump()
-    )
-
-    return listup
+    return [DataFormat(coin_symbol=target, market_depend=market_depend).model_dump()]

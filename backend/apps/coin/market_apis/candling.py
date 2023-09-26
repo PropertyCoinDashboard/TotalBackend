@@ -3,23 +3,8 @@ import datetime
 import requests
 import pandas as pd
 from typing import Any
-from .api_util import header_to_json, making_time
-from .api_util import UPBIT_API_URL, BITHUM_API_URL
-
-
-def making_time() -> list:
-    # 현재 시간 구하기
-    now = datetime.datetime.now()
-
-    # 목표 날짜 구하기
-    # 현재 시간으로부터 200일씩 뒤로 가면서 datetime 객체 생성하기
-    target_date = datetime.datetime(2013, 12, 27, 0, 0, 0)
-    result = []
-    while now >= target_date:
-        result.append(now)
-        now -= datetime.timedelta(days=200)
-
-    return result
+from api_util import header_to_json, making_time
+from api_util import UPBIT_API_URL, BITHUM_API_URL, COINONE_API_URL
 
 
 class ApiBasicArchitecture:
@@ -58,6 +43,17 @@ class BithumCandlingAPI(ApiBasicArchitecture):
         return header_to_json(
             f"{BITHUM_API_URL}/candlestick/{self.name}_KRW/{mint}"
         )
+
+
+class CoinoneCandlingAPI(ApiBasicArchitecture):
+    """
+    :param minit
+        - 차트 간격, 기본값 : 24h {1m, 3m, 5m, 10m, 30m, 1h, 6h, 12h, 24h 사용 가능}
+    """
+    
+    # 시간별 통합으로 되어 있음
+    def coinone_candle_price(self, mint: str) -> list:
+        return header_to_json(f"{COINONE_API_URL}/chart/KRW/BTC?interval={mint}")
 
 
 class UpBitCandlingAPI(ApiBasicArchitecture):
@@ -101,7 +97,7 @@ class UpBitCandlingAPI(ApiBasicArchitecture):
         return header_to_json(
             f"{UPBIT_API_URL}/candles/days?{self.name_candle_count_date}"
         )
-
+        
 
 def api_injectional(
     api: Any, 
@@ -169,10 +165,42 @@ def upbit_trade_all_list(
     return result_upbit_data
 
 
-def bithum_trade_all_list(coin_name: None | str = None):
+def transform_coinone_schema(data: pd.DataFrame, coin_name: str) -> pd.DataFrame:
+    transformed_data = data.rename(columns={
+        "open": "opening_price",
+        "high": "high_price",
+        "low": "low_price",
+        "close": "trade_price",
+        "target_volume": "candle_acc_trade_volume"
+    })
+
+    transformed_data["coin_symbol"] = coin_name
+    transformed_data["opening_price"] = transformed_data["opening_price"].apply(lambda x: float(x))
+    transformed_data["trade_price"] = transformed_data["trade_price"].apply(lambda x: float(x))
+    transformed_data["high_price"] = transformed_data["high_price"].apply(lambda x: float(x))
+    transformed_data["low_price"] = transformed_data["low_price"].apply(lambda x: float(x))
+    transformed_data["candle_acc_trade_volume"] = transformed_data["candle_acc_trade_volume"].apply(lambda x: float(x))
+    transformed_data["timestamp"] = transformed_data["timestamp"].apply(
+        lambda x: time.strftime(r"%Y-%m-%d %H:%M", time.localtime(x / 1000))
+    )
+    transformed_data: pd.DataFrame = transformed_data.sort_values(by="timestamp", ascending=False).reset_index(drop=True)
+
+    return transformed_data[[
+        "timestamp", "opening_price", "trade_price", "high_price", 
+        "low_price", "candle_acc_trade_volume", "coin_symbol"
+    ]]
+
+
+def bithum_trade_all_list(coin_name: None | str = None) -> pd.DataFrame:
     bithum_init = BithumCandlingAPI(name=coin_name).bithum_candle_price(mint="24h")
     bithum_init = api_injectional(bithum_init, bithum_init.get("data"), coin_name)
     return bithum_init
+
+
+def coinone_trade_all_list(coin_name: None | str = None) -> pd.DataFrame:
+    coinone_init = CoinoneCandlingAPI(name=coin_name).coinone_candle_price(mint="1d")
+    coinone_transformed = transform_coinone_schema(pd.DataFrame(coinone_init["chart"]), coin_name)
+    return coinone_transformed
 
 
 # 데이터 병합
@@ -188,16 +216,12 @@ def coin_trading_data_concatnate(coin_name: str) -> list[dict]:
     bithum_init = bithum_trade_all_list(coin_name=coin_name)
     upbit_init = upbit_trade_all_list(coin_name=coin_name, time_data=making_time())
     upbit_init = upbit_trade_data_concat(upbit_init)
+    coinone_init = coinone_trade_all_list(coin_name=coin_name)
 
     merge_data: pd.DataFrame = (
-        pd.concat([upbit_init, bithum_init], ignore_index=True)
+        pd.concat([upbit_init, bithum_init, coinone_init], ignore_index=True)
         .groupby(["timestamp", "coin_symbol"])
         .mean()
         .reset_index()
     )
     return merge_data.to_dict(orient="records")
-
-
-
-
-

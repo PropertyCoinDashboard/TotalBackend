@@ -1,3 +1,4 @@
+from typing import Any
 from .models import (
     CoinSymbolCoinList,
     BitcoinEndPriceData,
@@ -12,9 +13,10 @@ from .serializers import (
 )
 
 from .market_apis.coin_apis import TotalCoinMarketlistConcatnate as TKC
+from .market_apis.coin_apis import present_price_coin
 from .market_apis.candling import coin_trading_data_concatnate
-from django_filters.rest_framework import DjangoFilterBackend
 from django.db import transaction
+from django_filters.rest_framework import DjangoFilterBackend
 
 from rest_framework import status
 from rest_framework.response import Response
@@ -22,40 +24,74 @@ from rest_framework.views import APIView
 from rest_framework.generics import ListCreateAPIView, ListAPIView
 
 
-# # coin symbol 동기화
+# coin symbol 동기화
 class MarketCoinListCreateInitialization(APIView):
     queryset = CoinSymbolCoinList.objects.all()
-    coin_model_initialization: list[dict[str, str]] = TKC().coin_classifire()
+    
+    def __init__(self, **kwargs: Any) -> None:
+        super().__init__(**kwargs)
+        self.coin_model_initialization: list[dict[str, str]] = TKC().coin_classifire()
 
-    def create_coin_entries(self, serializer: dict[str, str]) -> None:
-        self.queryset.create(
-            coin_symbol=serializer["coin_symbol"],
-            upbit_existence=serializer["market_depend"]["upbit"],
-            bithum_existence=serializer["market_depend"]["bithum"],
-            korbit_existence=serializer["market_depend"]["korbit"],
-        )
+    def create_coin_entries(self) -> None:
+        coins: list[CoinSymbolCoinList] = [
+            CoinSymbolCoinList(
+                coin_symbol=coin["coin_symbol"],
+                upbit_existence=coin["market_depend"]["upbit"],
+                bithum_existence=coin["market_depend"]["bithum"],
+                korbit_existence=coin["market_depend"]["korbit"]
+            ) for coin in self.coin_model_initialization
+        ]
+        self.queryset.bulk_create(coins)
+        
+    def get(self, request, *args, **kwargs) -> Response:
+        return Response(data=self.coin_model_initialization)
 
     def post(self, request, *args, **kwargs) -> Response:
         if request.data.get("is_sync"):
-            # 일괄 삭제
+            # 삭제후 다시 생성
             with transaction.atomic():
                 self.queryset.delete()
-                
-                # 일괄 생성
-                for data in self.coin_model_initialization:
-                    self.create_coin_entries(data)
-
+                self.create_coin_entries()
             return Response(
                 {"coin_list": self.coin_model_initialization},
-                status=status.HTTP_201_CREATED,
+                status=status.HTTP_201_CREATED
             )
-        else:
-            return Response(
-                {"error": "Not coin list synchronization"},
-                status=status.HTTP_400_BAD_REQUEST,
-            )
+        return Response(
+            {"error": "Not coin list synchronization"},
+            status=status.HTTP_400_BAD_REQUEST,
+        )
+        
+        
+# 코인 가격
+class BaseCoinDataListCreateView(ListCreateAPIView):
+    queryset = None
+    coin_name = None
+    serializer_class = None
+    filter_backends = [DjangoFilterBackend]
+    filterset_fields = ["timestamp"]
+    
+    def create(self, request, *args, **kwargs) -> Response:
+        data: list[dict] = coin_trading_data_concatnate(coin_name=self.coin_name)  # 데이터를 가져옵니다.
+        print("data -->", data[0]["coin_symbol"])
+        with transaction.atomic():
+            for item in data:
+                self.queryset.create(
+                    timestamp=item['timestamp'],
+                    trade_price=item['trade_price'],
+                )
+        return Response({"message": "Data has been created successfully"}, status=status.HTTP_201_CREATED)
 
 
+# 코인 현재가격 가져오기 (비트코인, 이더리움, 리플... etc)
+class CoinPriceView(APIView):
+    def get(self, request, coin_symbol: str):
+        try:
+            price: float = present_price_coin(coin_symbol)
+            return Response({'coin': coin_symbol, 'average_price': price}, status=status.HTTP_200_OK)
+        except Exception as error:
+            return Response({'error': str(error)}, status=status.HTTP_400_BAD_REQUEST)
+        
+        
 # 전체 코인 리스트
 class CoinMarketListView(ListAPIView):
     queryset = CoinSymbolCoinList.objects.all()
@@ -64,34 +100,12 @@ class CoinMarketListView(ListAPIView):
     filterset_fields = ["coin_symbol"]
 
 
-
-# 코인 가격
-class BaseCoinDataListCreateView(ListCreateAPIView):
-    queryset = None
-    serializer_class = None
-    coin_name = None
-    filter_backends = [DjangoFilterBackend]
-    filterset_fields = ["timestamp"]
-    
-    def create(self, request, *args, **kwargs):
-        data = coin_trading_data_concatnate(coin_name=self.coin_name)  # 데이터를 가져옵니다.
-        print("data -->", data[0]["coin_symbol"])
-        with transaction.atomic():
-            for item in data:
-                self.queryset.create(
-                    timestamp=item['timestamp'],
-                    trade_price=item['trade_price'],
-                )
-
-        return Response({"message": "Data has been created successfully"}, status=status.HTTP_201_CREATED)
-
-
 # 비트코인
 class BtcCoinDataListCreateView(BaseCoinDataListCreateView):
     queryset = BitcoinEndPriceData.objects.all()
     serializer_class = BtcEndPriceSerializer
     coin_name = "BTC"
-          
+
             
 # 이더리움
 class EthCoinDataListCreateView(BaseCoinDataListCreateView):
@@ -105,4 +119,6 @@ class XrpCoinDataListCreateView(BaseCoinDataListCreateView):
     queryset = RippleEndPriceData.objects.all()
     serializer_class = XrpEndPriceSerializer
     coin_name = "XRP"
+
+
 
