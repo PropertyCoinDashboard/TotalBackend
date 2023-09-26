@@ -37,7 +37,7 @@ class RegisterSerializer(serializers.ModelSerializer):
 
 class LoginSerializer(serializers.ModelSerializer):
     error_messages = {
-        "login": "아이디와 비밀번호를 입력해주세요",
+        "login": "아이디와 비밀번호를 확인해주세요",
     }
 
     email = serializers.EmailField()
