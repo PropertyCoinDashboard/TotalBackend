@@ -112,14 +112,15 @@ class CoinoneAPI:
     def __init__(self, name: None | str = None) -> None:
         self.name: str = name
         self.coinone_coin_list = header_to_json(url=f"{COINONE_API_URL}/currencies")
-        self.coinone_present_price = header_to_json(
-            f"{COINONE_API_URL}/ticker_new/KRW/{self.name.upper()}?additional_data=false"
-        )["tickers"]
+        if name != None:
+            self.coinone_present_price = header_to_json(
+                f"{COINONE_API_URL}/ticker_new/KRW/{self.name.upper()}?additional_data=false"
+            )["tickers"]
     
     def market_list(self) -> list[str]:
         return [
             CoinSymbol(coin_symbol=symbol["symbol"]).coin_symbol
-            for symbol in self.coinone_coin_list["currencies"][0]
+            for symbol in self.coinone_coin_list["currencies"]
         ]
     
     def __getitem__(self, index: int) -> dict:
@@ -144,9 +145,8 @@ class TotalCoinMarketlistConcatnate:
         concat: list[str] = self.upbit_list + self.bithum_list + self.korbit_list + self.coinone_list
         duplicate_data: list[Tuple[str, int]] = Counter(concat).most_common()
         result_data: list[str] = [
-            index for index, value in duplicate_data if value == 3
+            index for index, value in duplicate_data if value == 4
         ]
-
         return result_data
 
     def coin_classifire(self) -> list[dict[str, str]]:
@@ -161,7 +161,8 @@ class TotalCoinMarketlistConcatnate:
                             "market_depend": {
                                 "upbit": true,
                                 "bithum": true,
-                                "korbit": true
+                                "korbit": true,
+                                "coinone": true,
                                 }
                         } 
                     ]
@@ -184,7 +185,6 @@ class TotalCoinMarketlistConcatnate:
         )
 
         result: list[dict[str, str]] = [data for i in coin_info_generator for data in i]
-
         return result
 
 

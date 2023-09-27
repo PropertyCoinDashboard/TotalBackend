@@ -3,8 +3,8 @@ import datetime
 import requests
 import pandas as pd
 from typing import Any, Optional
-from api_util import header_to_json, making_time, utc_to_unix_ms
-from api_util import UPBIT_API_URL, BITHUM_API_URL, COINONE_API_URL
+from .api_util import header_to_json, making_time, utc_to_unix_ms
+from .api_util import UPBIT_API_URL, BITHUM_API_URL, COINONE_API_URL
 
 
 class ApiBasicArchitecture:

@@ -44,6 +44,7 @@ class MarketDepend(BaseModel):
     upbit: bool
     bithum: bool
     korbit: bool
+    coinone: bool
 
 
 class CoinSymbol(BaseModel):
@@ -65,6 +66,6 @@ def coin_classification(
         upbit=(target in up),
         bithum=(target in bit),
         korbit=(target in kor),
-        one=(target in one)
+        coinone=(target in one)
     )
     return [DataFormat(coin_symbol=target, market_depend=market_depend).model_dump()]
