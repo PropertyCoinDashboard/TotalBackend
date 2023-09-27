@@ -11,6 +11,11 @@ BITHUM_API_URL = "https://api.bithumb.com/public"
 COINONE_API_URL = "https://api.coinone.co.kr/public/v2"
 
 
+# UTC 시간을 Unix 시간 (ms)으로 변환하는 함수
+def utc_to_unix_ms(utc_datetime: str) -> int:
+    return int(utc_datetime.timestamp() * 1000)
+
+
 def making_time() -> list:
     # 현재 시간 구하기
     now = datetime.datetime.now()
@@ -28,7 +33,6 @@ def header_to_json(url: str) -> Any:
     headers: dict[str, str] = {"accept": "application/json"}
     response = requests.get(url, headers=headers).json()
     return response
-
 
 """
 <<<<<< Market Coin Listing DataFormatting >>>>>>
