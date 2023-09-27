@@ -54,10 +54,17 @@ class DataFormat(CoinSymbol):
     market_depend: MarketDepend
 
 
-def coin_classification(up: list[str], bit: list[str], kor: list[str], target: str) -> list[dict[str, str]]:
+def coin_classification(
+    up: list[str], 
+    bit: list[str], 
+    kor: list[str], 
+    one: list[str], 
+    target: str
+) -> list[dict[str, str]]:
     market_depend = MarketDepend(
         upbit=(target in up),
         bithum=(target in bit),
-        korbit=(target in kor)
+        korbit=(target in kor),
+        one=(target in one)
     )
     return [DataFormat(coin_symbol=target, market_depend=market_depend).model_dump()]

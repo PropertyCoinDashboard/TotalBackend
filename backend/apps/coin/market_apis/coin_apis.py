@@ -133,6 +133,7 @@ class TotalCoinMarketlistConcatnate:
         self.upbit_list: list[str] = UpbitAPI().market_list()
         self.bithum_list: list[str] = BithumAPI().market_list()
         self.korbit_list: list[str] = KorbitAPI().market_list()
+        self.coinone_list: list[str] = CoinoneAPI().market_list()
 
     def duplicate_coinsymbol_extract(self) -> list[str]:
         """3개 거래소 동시 상장 심볼 통합
@@ -140,7 +141,7 @@ class TotalCoinMarketlistConcatnate:
         Returns:
             list[str]: ["BTC", "ETH" ....]
         """
-        concat: list[str] = self.upbit_list + self.bithum_list + self.korbit_list
+        concat: list[str] = self.upbit_list + self.bithum_list + self.korbit_list + self.coinone_list
         duplicate_data: list[Tuple[str, int]] = Counter(concat).most_common()
         result_data: list[str] = [
             index for index, value in duplicate_data if value == 3
@@ -168,6 +169,7 @@ class TotalCoinMarketlistConcatnate:
         up = self.upbit_list
         bit = self.bithum_list
         kor = self.korbit_list
+        one = self.coinone_list
         coin_info = self.duplicate_coinsymbol_extract()
 
         coin_info_generator: Generator[list[dict[str, str]], None, None] = (
@@ -175,6 +177,7 @@ class TotalCoinMarketlistConcatnate:
                 up=up,
                 bit=bit,
                 kor=kor,
+                one=one,
                 target=name
             )
             for name in coin_info
