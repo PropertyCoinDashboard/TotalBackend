@@ -80,7 +80,7 @@ class CoinoneCandlingAPI(ApiBasicArchitecture):
     
     # 시간별 통합으로 되어 있음
     def coinone_candle_price(self, mint: str) -> dict[str, Any]:
-        return header_to_json(f"{COINONE_API_URL}/chart/KRW/BTC?interval={mint}&timestamp={self.date}")
+        return header_to_json(f"{COINONE_API_URL}/chart/KRW/{self.name}?interval={mint}&timestamp={self.date}")
 
 
 def api_injectional(
@@ -189,7 +189,7 @@ def transform_coinone_schema(data: pd.DataFrame, coin_name: str) -> pd.DataFrame
     transformed_data["low_price"] = transformed_data["low_price"].apply(lambda x: float(x))
     transformed_data["candle_acc_trade_volume"] = transformed_data["candle_acc_trade_volume"].apply(lambda x: float(x))
     transformed_data["timestamp"] = transformed_data["timestamp"].apply(
-        lambda x: time.strftime(r"%Y-%m-%d %H:%M", time.localtime(x / 1000))
+        lambda x: time.strftime(r"%Y-%m-%d", time.localtime(x / 1000))
     )
     return transformed_data[[
         "timestamp", "opening_price", "trade_price", "high_price", 
@@ -221,7 +221,7 @@ def trade_data_concat(data: list) -> pd.DataFrame:
 def coin_trading_data_concatnate(coin_name: str) -> list[dict[str, Any]]:
     bithum_init = bithum_trade_all_list(coin_name=coin_name)
     upbit_init = trade_data_concat(upbit_trade_all_list(coin_name=coin_name, time_data=making_time()))
-    coinone_init = transform_coinone_schema(trade_data_concat(coinone_trade_all_list(making_time(), "BTC")), "BTC")
+    coinone_init = transform_coinone_schema(trade_data_concat(coinone_trade_all_list(making_time(), coin_name)), coin_name)
     
     merge_data: pd.DataFrame = (
         pd.concat([upbit_init, bithum_init, coinone_init], ignore_index=True)
@@ -230,6 +230,5 @@ def coin_trading_data_concatnate(coin_name: str) -> list[dict[str, Any]]:
         .reset_index()
     )
     return merge_data.to_dict(orient="records")
-
 
 

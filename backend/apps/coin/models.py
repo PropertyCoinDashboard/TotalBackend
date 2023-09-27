@@ -27,6 +27,7 @@ class CoinSymbolCoinList(Timestamp):
     bithum_existence = models.BooleanField()
     upbit_existence = models.BooleanField()
     korbit_existence = models.BooleanField()
+    coinone_existence = models.BooleanField()
 
     class Meta:
         db_table: str = "coin_symbol"

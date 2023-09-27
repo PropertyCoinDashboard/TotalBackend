@@ -38,13 +38,14 @@ class MarketCoinListCreateInitialization(APIView):
                 coin_symbol=coin["coin_symbol"],
                 upbit_existence=coin["market_depend"]["upbit"],
                 bithum_existence=coin["market_depend"]["bithum"],
-                korbit_existence=coin["market_depend"]["korbit"]
+                korbit_existence=coin["market_depend"]["korbit"],
+                coinone_existence=coin["market_depend"]["coinone"]
             ) for coin in self.coin_model_initialization
         ]
         self.queryset.bulk_create(coins)
         
     def get(self, request, *args, **kwargs) -> Response:
-        return Response(data=self.coin_model_initialization)
+        return Response(data={"notion": "동기화를 눌러주세요"}, status=status.HTTP_200_OK)
 
     def post(self, request, *args, **kwargs) -> Response:
         if request.data.get("is_sync"):
@@ -72,7 +73,6 @@ class BaseCoinDataListCreateView(ListCreateAPIView):
     
     def create(self, request, *args, **kwargs) -> Response:
         data: list[dict] = coin_trading_data_concatnate(coin_name=self.coin_name)  # 데이터를 가져옵니다.
-        print("data -->", data[0]["coin_symbol"])
         with transaction.atomic():
             for item in data:
                 self.queryset.create(

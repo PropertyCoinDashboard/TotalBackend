@@ -14,7 +14,7 @@ class CoinViewExistSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = CoinSymbolCoinList
-        fields = ("upbit_existence", "bithum_existence", "korbit_existence")
+        fields = ("upbit_existence", "bithum_existence", "korbit_existence", "coinone_existence")
 
 
 class CoinViewListSerializer(serializers.ModelSerializer):
