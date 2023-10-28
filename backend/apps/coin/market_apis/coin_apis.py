@@ -1,6 +1,6 @@
 from json import JSONDecodeError
 from collections import Counter
-from typing import Any, Tuple, Generator
+from typing import Optional, Tuple, Generator
 
 from .api_util import (
     UPBIT_API_URL,
@@ -21,7 +21,7 @@ class UpbitAPI:
     업비트 API
     """
 
-    def __init__(self, name: None | str = None) -> None:
+    def __init__(self, name: Optional[str] = None) -> None:
         self.name = name
         self.upbit_market = header_to_json(f"{UPBIT_API_URL}/market/all?isDetails=true")
         self.upbit_coin_present_price = header_to_json(
@@ -44,7 +44,7 @@ class BithumAPI:
     빗썸 API
     """
 
-    def __init__(self, name: None | str = None) -> None:
+    def __init__(self, name: Optional[str] = None) -> None:
         self.name = name
         self.bithum_market = header_to_json(f"{BITHUM_API_URL}/ticker/ALL_KRW")
         self.bithum_present_price = header_to_json(
@@ -76,7 +76,7 @@ class KorbitAPI:
     코빗 API
     """
 
-    def __init__(self, name: None | str = None) -> None:
+    def __init__(self, name: Optional[str] = None) -> None:
         self.name: str = name
         self.korbit_market = header_to_json(f"{KOBIT_API_URL}/ticker/detailed/all")
         if name != None:
@@ -109,7 +109,7 @@ class CoinoneAPI:
     """
     코인원 API
     """
-    def __init__(self, name: None | str = None) -> None:
+    def __init__(self, name: Optional[str] = None) -> None:
         self.name: str = name
         self.coinone_coin_list = header_to_json(url=f"{COINONE_API_URL}/currencies")
         if name != None:
