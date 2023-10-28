@@ -1,4 +1,5 @@
 from rest_framework import serializers
+from collections import OrderedDict
 from .models import (
     CoinSymbolCoinList,
     BitcoinEndPriceData,
@@ -22,7 +23,7 @@ class CoinViewListSerializer(serializers.ModelSerializer):
         model = CoinSymbolCoinList
         fields = ("coin_symbol",)
 
-    def to_representation(self, instance):
+    def to_representation(self, instance) -> OrderedDict:
         response = super().to_representation(instance)
         response["market_depend"] = CoinViewExistSerializer(instance).data
         return response
