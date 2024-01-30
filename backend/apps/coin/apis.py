@@ -12,9 +12,9 @@ from .serializers import (
     XrpEndPriceSerializer
 )
 
-from .market_apis.coin_apis import TotalCoinMarketlistConcatnate as TKC
-from .market_apis.coin_apis import present_price_coin
-from .market_apis.candling import coin_trading_data_concatnate
+from coin_apis import TotalCoinMarketlistConcatnate as TKC
+from coin_apis import present_price_coin
+from candling import coin_trading_data_concatnate
 from django.db import transaction
 from django_filters.rest_framework import DjangoFilterBackend
 
