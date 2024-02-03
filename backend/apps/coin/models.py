@@ -1,4 +1,3 @@
-from collections.abc import Iterable
 from django.db import models
 from django.core.validators import MaxLengthValidator
 from django.utils.translation import gettext_lazy as _
@@ -57,12 +56,6 @@ class EthereumEndPriceData(CoinTradingData):
         db_table_comment: str = "이더리움 마지막 거래가"   
 
 
-class RippleEndPriceData(CoinTradingData):
-    class Meta:
-        db_table: str = "XRP_coin_end_price_and_upbithumb"
-        db_table_comment: str = "리플 마지막 거래가"   
-
-
 
 class AverageCoinPresentPrice(Timestamp):
     name = models.CharField(_("코인_이름"), max_length=10, null=False, blank=False)
@@ -78,3 +71,5 @@ class AverageCoinPresentPrice(Timestamp):
         db_table_comment: str = "코인 현재 평균 거래가"
         app_label: str = "coin"
         indexes = [models.Index(fields=["name"], name="name_index")]
+        
+
